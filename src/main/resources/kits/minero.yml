@@ -1,0 +1,23 @@
+name: Minero
+
+items:
+  - IRON_PICKAXE:1:DIG_SPEED:2
+  - IRON_HELMET:1
+  - TORCH:20
+  - FURNACE:1
+  - COAL:5
+  - RAW_BEEF:2
+
+effects:
+  - NIGHT_VISION:-1:0
+  - FAST_DIGGING:-1:0
+
+lore:
+  - 1x Pico de hierro [Eficiencia II].
+  - 1x Casco de hierro.
+  - 20x Antorchas.
+  - 1x Horno.
+  - 5x Carbon.
+  - 2x Filete crudo.
+  - VISION NOCTURNA. Duracion infinita.
+  - PRISA MINERA. Duracion infinita.

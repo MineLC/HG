@@ -1,0 +1,15 @@
+name: Sonic
+
+items:
+  - STONE_SWORD:1
+  - LEATHER_HELMET:1
+  - LEATHER_CHESTPLATE:1
+
+effects:
+  - SPEED:-1:0
+
+lore:
+  - 1x Espada de piedra.
+  - 1x Casco de cuero.
+  - 1x Peto de cuero.
+  - VELOCIDAD. Duracion infinita.

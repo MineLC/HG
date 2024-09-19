@@ -1,0 +1,16 @@
+name: Piromano
+
+items:
+  - STONE_SWORD:1:FIRE_ASPECT:1
+  - CHAINMAIL_CHESTPLATE:1
+  - FLINT_AND_STEEL:1
+
+effects:
+  - FIRE_RESISTANCE:-1:0
+
+lore:
+  - 1x Espada de piedra [Aspecto igneo I].
+  - 1x Peto de cota de mallas.
+  - 1x Mechero.
+  - RESISTENCIA AL FUEGO. Duracion infinita.
+  - Ganas fuerza con el fuego y este no te quema.

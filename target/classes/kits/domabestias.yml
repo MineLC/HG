@@ -1,0 +1,17 @@
+name: Domabestias
+
+items:
+  - MONSTER_EGG:3:54
+  - MONSTER_EGG:1:50
+  - MONSTER_EGG:3:51
+  - MONSTER_EGG:3:52
+  - WOOD_SWORD:1:DAMAGE_UNDEAD:2
+  - RAW_BEEF:1
+
+lore:
+  - 3x Huevo de zombie.
+  - 1x Huevo de creeper.
+  - 3x Huevo de esqueleto.
+  - 3x Huevo de araña.
+  - 1x Espada de madera [Golpeo II].
+  - Mobs no atacan si no los atacas.

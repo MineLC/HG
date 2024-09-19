@@ -1,0 +1,25 @@
+name: Prominero
+
+items:
+  - STONE_SWORD:1
+  - DIAMOND_PICKAXE:1:DAMAGE_ALL:3
+  - DIAMOND_HELMET:1
+  - TORCH:64
+  - FURNACE:1
+  - COAL:20
+  - LOG:16
+  - COOKED_CHICKEN:2
+
+effects:
+  - NIGHT_VISION:-1:0
+  - FAST_DIGGING:-1:0
+
+lore:
+  - 1x Espada de piedra.
+  - 1x Pico de diamante [Filo III].
+  - 1x Casco de diamante.
+  - 64x Antorcha.
+  - 1x Horno.
+  - 20x Carbon.
+  - 16x Tronco de roble.
+  - 2x Pollo cocinado.

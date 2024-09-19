@@ -1,0 +1,23 @@
+name: Ironman
+
+items:
+  - IRON_HELMET:1:PROTECTION_EXPLOSIONS:2
+  - IRON_CHESTPLATE:1:PROTECTION_EXPLOSIONS:2
+  - IRON_LEGGINGS:1:PROTECTION_PROJECTILE:2
+  - IRON_BOOTS:1:PROTECTION_PROJECTILE:2
+  - STONE_SWORD:1
+  - COOKED_BEEF:2
+  - GOLDEN_APPLE:1
+
+effects:
+  - FIRE_RESISTANCE:-1:0
+
+lore:
+  - 1x Casco de hierro [Proteccion contra explosiones II].
+  - 1x Peto de hierro [Proteccion contra explosiones II].
+  - 1x Grebas de hierro [Proteccion contra explosiones II].
+  - 1x Botas de hierro [Proteccion contra explosiones II].
+  - 1x Espada de piedra.
+  - 2x Filete.
+  - 1x Manzana de oro.
+  - RESISTENCIA AL FUEGO. Duracion infinita.

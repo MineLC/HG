@@ -1,0 +1,19 @@
+name: Pyro
+
+items:
+  - FIREBALL:32
+  - IRON_SWORD:1:FIRE_ASPECT:1
+  - IRON_HELMET:1:PROTECTION_EXPLOSIONS:4
+  - IRON_CHESTPLATE:1:PROTECTION_EXPLOSIONS:4
+  - FLINT_AND_STEEL:1
+  - GRILLED_PORK:2
+
+lore:
+  - 32x Carga ignea.
+  - 1x Espada de hierro [Aspecto igneo I].
+  - 1x Casco de hierro [Proteccion contra explosiones IV].
+  - 1x Peto de hierro [Proteccion contra explosiones IV].
+  - 1x Mechero.
+  - 2x Carne de cerdo cocinada.
+  - Lanza carga de fuego con click derecho.
+  - Ganas fuerza 2 con el fuego y este no te quema.

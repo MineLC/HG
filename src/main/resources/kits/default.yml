@@ -1,0 +1,9 @@
+name: Default
+
+items:
+  - STONE_SWORD:1
+  - CHAINMAIL_CHESTPLATE:1
+
+lore:
+  - 1x Espada de piedra.
+  - 1x Peto de cota de mallas.

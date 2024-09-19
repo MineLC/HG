@@ -1,0 +1,28 @@
+name: Troll
+
+items:
+  - WOOD_SWORD:1:DAMAGE_ALL:2
+  - GRILLED_PORK:3
+  - LAVA_BUCKET:1
+  - WEB:10
+  - MONSTER_EGG:1:50
+  - GOLD_CHESTPLATE:1:THORNS:3
+  - LEATHER_HELMET:1:PROTECTION_ENVIRONMENTAL:2
+  - GOLDEN_APPLE:1:KNOCKBACK:2
+
+effects:
+  - INCREASE_DAMAGE:-1:0
+  - FAST_DIGGING:-1:0
+
+lore:
+  - 1x Espada de madera [Filo II].
+  - 3x Carne de cerdo cocinada.
+  - 1x Cubo de lava.
+  - 10x Telaraña.
+  - 1x Huevo de creeper.
+  - 1x Peto de oro [Espinas III].
+  - 1x Casco de cuero [Proteccion II].
+  - 1x Manzana de oro [Empuje II].
+  - FUERZA. Duracion infinita.
+  - PRISA MINERA. Duracion infinita.
+  - Posibilidad de cegar a otros jugadores.

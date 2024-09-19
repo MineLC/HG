@@ -1,0 +1,26 @@
+name: Headshooter
+
+items:
+  - BOW:1:ARROW_DAMAGE:2
+  - BOW:1:ARROW_FIRE:1
+  - ARROW:40
+  - WOOD_SWORD:1
+  - LEATHER_HELMET:1:PROTECTION_EXPLOSIONS:2
+  - CHAINMAIL_LEGGINGS:1:PROTECTION_EXPLOSIONS:2
+  - LEATHER_BOOTS:1:PROTECTION_EXPLOSIONS:2
+  - COOKED_CHICKEN:2
+
+effects:
+  - JUMP:-1:0
+
+lore:
+  - 1x Arco [Poder II].
+  - 1x Arco [Fuego].
+  - 40x Flecha.
+  - 1x Espada de madera.
+  - 1x Casco de cuero [Proteccion contra explosiones II].
+  - 1x Grebas de cuero [Proteccion contra explosiones II].
+  - 1x Botas de cuero [Proteccion contra explosiones II].
+  - 2x Pollo cocinado.
+  - SALTO. Duracion infinita.
+  - Muerte instantanea al disparar desde 30 bloques o más.

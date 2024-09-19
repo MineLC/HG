@@ -1,0 +1,21 @@
+name: Meduza
+
+items:
+  - IRON_BOOTS:1
+  - LEATHER_CHESTPLATE:1
+  - CHAINMAIL_LEGGINGS:1
+  - IRON_HELMET:1
+  - STONE_AXE:1
+  - WATCH:5
+
+effects:
+  - SPEED:-1:0
+
+lore:
+  - 1x Botas de hierro.
+  - 1x Peto de cuero.
+  - 1x Grebas de cota de mallas.
+  - 1x Casco de hierro.
+  - 1x Hacha de madera.
+  - 5x Reloj.
+  - Congela jugadores con reloj a 25 bloques, durante 8 segundos.

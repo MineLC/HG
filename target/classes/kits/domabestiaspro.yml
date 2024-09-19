@@ -1,0 +1,24 @@
+name: Domabestiaspro
+
+items:
+  - MONSTER_EGG:6:54
+  - MONSTER_EGG:6:50
+  - MONSTER_EGG:6:51
+  - MONSTER_EGG:6:52
+  - STONE_SWORD:1:DAMAGE_ALL:3
+  - IRON_CHESTPLATE:1:PROTECTION_EXPLOSIONS:4
+  - COOKED_BEEF:1
+
+effects:
+  - SPEED:-1:0
+
+lore:
+  - 6x Huevo de zombie.
+  - 6x Huevo de creeper.
+  - 6x Huevo de esqueleto.
+  - 6x Huevo de araña.
+  - 1x Espada de piedra [Filo III].
+  - 1x Peto de hierro [Proteccion contra explosiones IV].
+  - 1x Filete.
+  - VELOCIDAD. Duracion infinita.
+  - Mobs no atacan si no los atacas.

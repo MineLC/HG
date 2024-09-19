@@ -1,0 +1,14 @@
+name: Hulk
+
+items:
+  - BOW:1
+  - ARROW:12
+  - CHAINMAIL_LEGGINGS:1:PROTECTION_EXPLOSIONS:4
+  - RAW_BEEF:2
+
+lore:
+  - 1x Arco.
+  - 12x Flecha.
+  - 1x Grebas de cota de mallas [Proteccion contra explosiones IV].
+  - 2x Filete crudo.
+  - Con tus manos pegas igual que con espada de piedra.

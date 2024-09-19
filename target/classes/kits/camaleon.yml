@@ -1,0 +1,10 @@
+name: Camaleon
+
+items:
+  - STONE_SWORD:1
+  - APPLE:5
+
+lore:
+  - 1x Espada de piedra.
+  - 5x Manzana.
+  - Al comer manzana te vuelves invisible.

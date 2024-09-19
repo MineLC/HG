@@ -1,0 +1,22 @@
+name: Coloso
+
+items:
+  - IRON_HELMET:1
+  - IRON_CHESTPLATE:1
+  - IRON_LEGGINGS:1
+  - IRON_BOOTS:1
+
+effects:
+  - DAMAGE_RESISTANCE:-1:0
+  - FIRE_RESISTANCE:-1:0
+  - INCREASE_DAMAGE:-1:0
+
+lore:
+  - 1x Casco de hierro.
+  - 1x Peto de hierro.
+  - 1x Grebas de hierro.
+  - 1x Botas de hierro.
+  - RESISTENCIA. Duracion infinita.
+  - RESISTENCIA AL FUEGO. Duracion infinita.
+  - FUERZA. Duracion infinita.
+  - Recuperas 3 corazones al comer sopas.

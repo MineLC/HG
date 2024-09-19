@@ -1,0 +1,14 @@
+name: Barbaro
+
+items:
+  - STONE_SWORD:1:DAMAGE_ALL:1
+  - STONE_AXE:1:DIG_SPEED:1
+  - LEATHER_LEGGINGS:1
+  - LEATHER_BOOTS:1
+
+lore:
+  - 1x Espada de piedra [Filo I].
+  - 1x Hacha de piedra [Eficiencia I].
+  - 1x Grebas de cuero.
+  - 1x Botas de cuera.
+  - Rompe arboles rapido.

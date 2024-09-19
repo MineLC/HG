@@ -1,0 +1,16 @@
+name: Canibal
+
+items:
+  - DIAMOND_SWORD:1
+  - MUSHROOM_SOUP:1
+  - GOLDEN_APPLE:1
+
+effects:
+  - SPEED:-1:0
+
+lore:
+  - 1x Espada de diamante.
+  - 1x Estofado de setas.
+  - 1x Manzana de oro.
+  - VELOCIDAD. Duracion infinita.
+  - Recuperas 3 corazones al comer sopas.

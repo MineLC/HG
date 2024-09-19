@@ -1,0 +1,22 @@
+name: Tanque
+
+items:
+  - STONE_SWORD:1:FIRE_ASPECT:1
+  - CHAINMAIL_CHESTPLATE:1
+  - CHAINMAIL_LEGGINGS:1
+  - CHAINMAIL_BOOTS:1:PROTECTION_FALL:4
+  - FLINT_AND_STEEL:1
+  - COOKED_CHICKEN:2
+
+effects:
+  - REGENERATION:-1:0
+
+lore:
+  - 1x Espada de piedra [Aspecto igneo I].
+  - 1x Peto de cota de mallas.
+  - 1x Grebas de cota de mallas.
+  - 1x Botas de cota de mallas [Caida de pluma IV].
+  - 1x Mechero.
+  - 2x Pollo cocinado.
+  - REGENERACION. Duracion infinita.
+  - Ganas fuerza con el fuego y este no te quema.

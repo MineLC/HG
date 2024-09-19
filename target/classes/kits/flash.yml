@@ -1,0 +1,24 @@
+name: Flash
+
+items:
+  - WEB:10
+  - GRILLED_PORK:3
+  - CHAINMAIL_BOOTS:1:PROTECTION_PROJECTILE:4
+  - CHAINMAIL_LEGGINGS:1:PROTECTION_ENVIRONMENTAL:2
+  - GOLDEN_APPLE:1
+  - STONE_SWORD:1:KNOCKBACK:2
+  - REDSTONE_TORCH_ON:1
+
+effects:
+  - SPEED:-1:2
+
+lore:
+  - 10x Telaraña.
+  - 3x Chuleta de cerdo cocinada.
+  - 1x Botas de cota de mallas [Proteccion contra proyectiles IV].
+  - 1x Grebas de cota de mallas [Proteccion II].
+  - 1x Manzana de oro.
+  - 1x Espada de piedra [Empuje II].
+  - 1x Antorcha de redstone.
+  - VELOCIDAD 3. Duracion infinita.
+  - Al hacer click en la antorcha seras teletransportado.
