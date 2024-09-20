@@ -234,8 +234,7 @@ public final class HGKits extends JavaPlugin {
         for (Player p : Bukkit.getOnlinePlayers()) {
             removeInventory(p);
         }
-
-        
+        topFiles.save();
     }
 
     private void loadRandomArena(SlimePlugin plugin) {
@@ -464,18 +463,20 @@ public final class HGKits extends JavaPlugin {
         GAMESTATE = GameState.PREGAME;
         Bukkit.setWhitelist(true);
         checkWinnerCountdownRunning = false;
-        players.clear();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.kickPlayer(ChatColor.RED + "El servidor se está reiniciando. ¡Gracias por jugar!");
-        }
 
         Bukkit.getScheduler().runTaskLater(
             this,
-            () -> DatabaseManager.getDatabase().saveAll(
+            () -> {
+                DatabaseManager.getDatabase().saveAll(
                 players,
-                () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop")),
-            100L);
+                () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop"));
+
+                for (Player player : players) {
+                    player.kickPlayer(ChatColor.RED + "El servidor se está reiniciando. ¡Gracias por jugar!");
+                }
+
+                players.clear();
+            }, 100L);
     }
 
     public void updatePlayerScore(Player player) {
