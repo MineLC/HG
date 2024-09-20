@@ -1,5 +1,5 @@
 name: HGKits
-version: '${project.version}'
+version: 1.0
 main: me.isra.hgkits.HGKits
 depend: [SlimeWorldManager]
 commands:

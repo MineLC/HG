@@ -151,17 +151,17 @@ final class MongoDBImpl implements Database {
     }
 
     @Override
-    public void saveAll(Collection<Player> players, SupplyOperation supply) {
+    public void saveAll(Collection<? extends Player> players, SupplyOperation supply) {
         service.submit(() -> {
             final List<Document> toSave = new ArrayList<>();
             for (final Player player : players) {
                 final User data = cache.remove(player.getUniqueId());
                 if (data == null) {
-                    return;
+                    continue;
                 }
                 if (data.isNew()) {
                     toSave.add(getNew(data));
-                    return;
+                    continue;
                 }
         
                 final Bson query = createUpdateQuery(data);

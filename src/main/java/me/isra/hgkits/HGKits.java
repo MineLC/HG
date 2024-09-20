@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -463,15 +464,19 @@ public final class HGKits extends JavaPlugin {
         GAMESTATE = GameState.PREGAME;
         Bukkit.setWhitelist(true);
         checkWinnerCountdownRunning = false;
+        players.clear();
 
         Bukkit.getScheduler().runTaskLater(
             this,
             () -> {
+                final Collection<? extends Player> online = Bukkit.getOnlinePlayers();
                 DatabaseManager.getDatabase().saveAll(
-                players,
-                () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop"));
+                online,
+                () -> Bukkit.getScheduler().runTask(
+                    this,
+                    () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop")));
 
-                for (Player player : players) {
+                for (Player player : online) {
                     player.kickPlayer(ChatColor.RED + "El servidor se está reiniciando. ¡Gracias por jugar!");
                 }
 
