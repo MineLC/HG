@@ -4,6 +4,9 @@ import me.isra.hgkits.HGKits;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.managers.KitManager;
+import me.isra.hgkits.tops.TopStorage;
+import me.isra.hgkits.tops.inventory.TopInventoryBuilder;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,12 +19,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.Map;
+import java.util.UUID;
+import java.util.HashMap;
 
 public class PlayerInteractListener implements Listener {
 
@@ -60,9 +64,23 @@ public class PlayerInteractListener implements Listener {
             event.setCancelled(true);
         }
 
-        if ((action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) && isKitSelector(item)) {
+        if ((action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR)) {
+            final Material type = item.getType();
             event.setCancelled(true);
-            player.performCommand("kit");
+
+            switch (type) {
+                case BOW:
+                    player.performCommand("kit");    
+                    return;
+                case BONE:
+                    new TopInventoryBuilder().build(player, TopStorage.deaths(), "Top de muertes");
+                    return;
+                case LEATHER:
+                    new TopInventoryBuilder().build(player, TopStorage.kills(), "Top de kills");
+                    return;
+                default:
+                    break;
+            }
         }
     }
 
@@ -94,14 +112,6 @@ public class PlayerInteractListener implements Listener {
             default:
                 return false;
         }
-    }
-
-    private boolean isKitSelector(ItemStack item) {
-        if (item != null && item.getType() == Material.BOW && item.hasItemMeta()) {
-            ItemMeta meta = item.getItemMeta();
-            return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals(ChatColor.GREEN + "Selector de KIT");
-        }
-        return false;
     }
 
     private void handleGameInteractions(PlayerInteractEvent event, Player player, Action action, ItemStack item, Kit kit, Block clickedBlock) {

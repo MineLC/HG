@@ -1,6 +1,7 @@
 package me.isra.hgkits.database.mongodb;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -147,6 +148,32 @@ final class MongoDBImpl implements Database {
 
         service.shutdown();
         client.close();
+    }
+
+    @Override
+    public void saveAll(Collection<Player> players, SupplyOperation supply) {
+        service.submit(() -> {
+            final List<Document> toSave = new ArrayList<>();
+            for (final Player player : players) {
+                final User data = cache.remove(player.getUniqueId());
+                if (data == null) {
+                    return;
+                }
+                if (data.isNew()) {
+                    toSave.add(getNew(data));
+                    return;
+                }
+        
+                final Bson query = createUpdateQuery(data);
+                if (query != null) {
+                    collection.updateOne(Filters.eq("_id", player.getName()), query);
+                }
+            }
+            if (!toSave.isEmpty()) {
+                collection.insertMany(toSave);
+            }
+            supply.execute();
+        });
     }
 
     @Override

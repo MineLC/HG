@@ -15,6 +15,7 @@ import io.github.ichocomilk.lightsidebar.nms.v1_8R3.Sidebar1_8R3;
 import me.isra.hgkits.commands.KitCommand;
 import me.isra.hgkits.commands.RankCommand;
 import me.isra.hgkits.commands.StartCommand;
+import me.isra.hgkits.commands.TopCommand;
 import me.isra.hgkits.config.Config;
 import me.isra.hgkits.config.ConfigManager;
 import me.isra.hgkits.enums.GameState;
@@ -24,6 +25,7 @@ import me.isra.hgkits.database.User;
 import me.isra.hgkits.listeners.*;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
+import me.isra.hgkits.tops.TopFiles;
 import me.isra.hgkits.utils.Constants;
 
 import org.bukkit.Bukkit;
@@ -34,6 +36,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -45,6 +48,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,6 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public final class HGKits extends JavaPlugin {
     public static GameState GAMESTATE;
@@ -72,8 +78,10 @@ public final class HGKits extends JavaPlugin {
 
     private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
     private Set<Player> frozenPlayers = new HashSet<>();
+    private TopFiles topFiles;
 
     public World currentWorld;
+    private String date;
 
     @Override
     public void onEnable() {
@@ -84,9 +92,21 @@ public final class HGKits extends JavaPlugin {
 
         loadRandomArena(slimePlugin);
         saveDefaultConfig();
+    
+        Instant instant = Instant.now();
+        LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        date = "§8"+ldt.getDayOfMonth() + '-' + ldt.getMonthValue() + '-' + ldt.getYear();
 
         Bukkit.setWhitelist(false);
+
         DatabaseManager.getDatabase();
+
+        File topFolder = new File(getDataFolder(), "tops");
+        if (!topFolder.exists()) {
+            topFolder.mkdir(); 
+        }
+        this.topFiles = new TopFiles(topFolder, getConfig().getInt("max-tops"));
+        this.topFiles.start();
 
         kitManager = new KitManager(this);
         PlayerAttackManager playerAttackManager = new PlayerAttackManager();
@@ -163,6 +183,10 @@ public final class HGKits extends JavaPlugin {
         getServer().getPluginCommand("kit").setExecutor(new KitCommand(kitManager));
         getServer().getPluginCommand("start").setExecutor(new StartCommand(this));
         getServer().getPluginCommand("rank").setExecutor(new RankCommand());
+        final PluginCommand pluginTopCommand = getCommand("top");
+        final TopCommand topCommand = new TopCommand();
+        pluginTopCommand.setExecutor(topCommand);
+        pluginTopCommand.setTabCompleter(topCommand);
 
         List<Listener> listeners = Arrays.asList(
                 new PlayerItemConsumeListener(this, kitManager),
@@ -210,6 +234,8 @@ public final class HGKits extends JavaPlugin {
         for (Player p : Bukkit.getOnlinePlayers()) {
             removeInventory(p);
         }
+
+        
     }
 
     private void loadRandomArena(SlimePlugin plugin) {
@@ -336,6 +362,7 @@ public final class HGKits extends JavaPlugin {
         return new Location(currentWorld, newX, highestY, newZ);
     }
 
+
     private void invincibilityCountdown() {
         if(!isInvincibilityCountdownRunning) {
             isInvincibilityCountdownRunning = true;
@@ -443,7 +470,12 @@ public final class HGKits extends JavaPlugin {
             player.kickPlayer(ChatColor.RED + "El servidor se está reiniciando. ¡Gracias por jugar!");
         }
 
-        Bukkit.getScheduler().runTaskLater(this, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop"), 100L);
+        Bukkit.getScheduler().runTaskLater(
+            this,
+            () -> DatabaseManager.getDatabase().saveAll(
+                players,
+                () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop")),
+            100L);
     }
 
     public void updatePlayerScore(Player player) {
@@ -452,11 +484,16 @@ public final class HGKits extends JavaPlugin {
 
         sidebar.setTitle("§6§lCHG");
         sidebar.setLines(sidebar.createLines(new String[] {
+            date,
+            "",
+            "§fAsesinatos: §6" + user.kills,
+            "§fMuertes: §c" + user.deaths,
             " ",
-            " §7Asesinatos: §6 " + user.kills,
-            " §7Muertes: §c " + user.deaths,
-            " §7Victorias: §a " + user.wins,
-            " §7KDR: §c " + String.format("%.2f", (user.deaths == 0) ? (double)user.kills : (double)(user.kills / user.deaths))
+            "§fVictorias: §a" + user.wins,
+            "  ",
+            "§fKDR: §d" + String.format("%.2f", (user.deaths == 0) ? (double)user.kills : (double)(user.kills / user.deaths)),
+            "   ",
+            "§eplay.mine.lc"
         }));
         sidebar.sendLines(player);
         sidebar.sendTitle(player);
@@ -486,10 +523,6 @@ public final class HGKits extends JavaPlugin {
         for (PotionEffect effect : p.getActivePotionEffects()) {
             p.removePotionEffect(effect.getType());
         }
-    }
-
-    public void readyToStart() {
-        startGame();
     }
 
     public List<Player> getPlayers() {

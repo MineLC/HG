@@ -18,9 +18,17 @@ public class StartCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (command.getName().equalsIgnoreCase("start")) {
+            if (!(sender.hasPermission("start"))) {
+                sender.sendMessage(ChatColor.RED + "Necesitas ser " + ChatColor.GREEN + "VIP" + ChatColor.RED + " como mínimo para iniciar la partida");
+                return true;
+            }
             if(HGKits.GAMESTATE == GameState.PREGAME) {
+                if (plugin.getPlayers().size() <= 1) {
+                    sender.sendMessage(ChatColor.RED + "Necesita haber como mínimo 2 jugadores");
+                    return true;
+                }
                 if (sender instanceof Player) {
-                    plugin.readyToStart();
+                    plugin.startGame();
                     return true;
                 } else {
                     sender.sendMessage(ChatColor.RED + "Este comando solo puede ser ejecutado por un jugador.");

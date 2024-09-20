@@ -14,3 +14,6 @@ commands:
   rank:
     description: Muestra la fama al jugador
     usage: /<command>
+  top:
+    description: Mira los tops disponibles
+    usage: /top (kills/deaths)

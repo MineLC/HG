@@ -9,3 +9,5 @@ mongodb:
   collection: "collection"
 
   executor-threads: 2
+
+max-tops: 50

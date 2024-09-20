@@ -6,7 +6,13 @@ import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.managers.KitManager;
-import org.bukkit.*;
+import me.isra.hgkits.tops.TopManager;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -62,6 +68,8 @@ public class PlayerDeathListener implements Listener {
 
                 plugin.updatePlayerScore(killer);
                 killer.sendMessage(ChatColor.GREEN + "Tu fama ahora es de " + killerData.fame + ChatColor.GRAY + " | kdr * kills + (wins/2)");
+            
+                TopManager.calculateKills(killerData);
             }
 
             if (plugin.getPlayers().remove(player) && plugin.getPlayers().size() > 1) {
@@ -72,8 +80,10 @@ public class PlayerDeathListener implements Listener {
             }
 
             player.setGameMode(GameMode.SPECTATOR);
-            DatabaseManager.getDatabase().getCached(player.getUniqueId()).deaths++;
+            final User victim = DatabaseManager.getDatabase().getCached(player.getUniqueId());
+            victim.deaths++;
             plugin.updatePlayerScore(player);
+            TopManager.calculateDeaths(victim);
         }
     }
 }

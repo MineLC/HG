@@ -1,6 +1,7 @@
 package me.isra.hgkits.database;
 
 import java.util.Map;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -12,6 +13,9 @@ public class NoneDatabase implements Database {
 
     @Override
     public void save(Player player) {}
+    @Override
+    public void saveAll(Collection<Player> players, SupplyOperation supply) {
+    }
 
     @Override
     public void load(Player player, SupplyOperation operation) {

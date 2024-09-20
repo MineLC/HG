@@ -3,6 +3,7 @@ package me.isra.hgkits.commands;
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
+import me.isra.hgkits.data.KitInventory;
 import me.isra.hgkits.managers.KitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -46,8 +47,10 @@ public class KitCommand implements CommandExecutor {
         return false;
     }
 
+    private static final KitInventory HOLDER = new KitInventory();
+
     private void openKitMenu(Player player) {
-        Inventory menu = Bukkit.createInventory(null, 54, "Selecciona tu KIT");
+        Inventory menu = Bukkit.createInventory(HOLDER, 54, "Selecciona tu KIT");
 
         Map<String, Kit> kits = kitManager.getAllKits();
 

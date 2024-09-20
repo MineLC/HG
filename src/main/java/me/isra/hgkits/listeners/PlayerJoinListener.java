@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class PlayerJoinListener implements Listener {
@@ -34,7 +35,7 @@ public class PlayerJoinListener implements Listener {
             player.setGameMode(GameMode.SURVIVAL);
             player.teleport(plugin.getRandomSpawnLocation());
             player.setAllowFlight(true);
-            giveKitSelectorBow(event.getPlayer());
+            giveItems(event.getPlayer().getInventory());
             if (!plugin.isCountdownRunning()) {
                 if(Bukkit.getOnlinePlayers().size() == 1) {
                     player.sendMessage(ChatColor.RED + "Se necesitan mínimo 2 jugadores para comenzar la partida");
@@ -48,15 +49,23 @@ public class PlayerJoinListener implements Listener {
         }
     }
 
-    public void giveKitSelectorBow(Player player) {
-        ItemStack bow = new ItemStack(Material.BOW);
-        ItemMeta meta = bow.getItemMeta();
+    public void giveItems(final PlayerInventory inventory) {
+        ItemStack item = new ItemStack(Material.BOW);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + "Selector de KIT");
+        item.setItemMeta(meta);
+        inventory.setItem(0, item);
 
-        if (meta != null) {
-            meta.setDisplayName(ChatColor.GREEN + "Selector de KIT");
-            bow.setItemMeta(meta);
-        }
+        item = new ItemStack(Material.LEATHER);
+        meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.GOLD + "Top de kills");
+        item.setItemMeta(meta);
+        inventory.setItem(7, item);
 
-        player.getInventory().addItem(bow);
+        item = new ItemStack(Material.BONE);
+        meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.RED + "Top de muertes");
+        item.setItemMeta(meta);
+        inventory.setItem(8, item);
     }
 }
