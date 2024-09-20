@@ -1,6 +1,7 @@
 package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.enums.GameState;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -25,8 +26,7 @@ public class PlayerJoinListener implements Listener {
         }
 
         Player player = event.getPlayer();
-        plugin.createPlayerInDatabase(player);
-        plugin.setupScoreboard(player);
+        DatabaseManager.getDatabase().load(player, () -> plugin.updatePlayerScore(player));
 
         if(HGKits.GAMESTATE == GameState.PREGAME) {
             player.setHealth(20);

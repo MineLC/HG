@@ -1,6 +1,7 @@
 name: HGKits
 version: '${project.version}'
 main: me.isra.hgkits.HGKits
+depend: [SlimeWorldManager]
 commands:
   kit:
     description: Abre el menú de kits

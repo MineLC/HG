@@ -3,6 +3,8 @@ package me.isra.hgkits.listeners;
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
+import me.isra.hgkits.database.DatabaseManager;
+import me.isra.hgkits.database.User;
 import me.isra.hgkits.managers.KitManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -10,8 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.UUID;
 
 public class PlayerDeathListener implements Listener {
     private final HGKits plugin;
@@ -46,7 +46,7 @@ public class PlayerDeathListener implements Listener {
 
             Player killer = player.getKiller();
             if (killer != null) {
-                UUID killerUUID = killer.getUniqueId();
+                final User killerData = DatabaseManager.getDatabase().getCached(killer.getUniqueId());
                 Kit killerKit = kitManager.getKitByPlayer(killer);
 
                 if (killerKit != null && (killerKit.getName().equals("Guerrero") || killerKit.getName().equals("Matasanos"))) {
@@ -55,31 +55,25 @@ public class PlayerDeathListener implements Listener {
                     }
                 }
 
-                int numeroDeAsesinatos = plugin.getAsesinatos().getOrDefault(killerUUID, 0) + 1;
-                plugin.getAsesinatos().put(killerUUID, numeroDeAsesinatos);
+                killerData.kills++;
+                final double kdr = (killerData.deaths == 0) ? (double)killerData.kills : (double)(killerData.kills / killerData.deaths);
+                final double newFame = kdr * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
+                killerData.fame = (int)newFame;
 
-                // Calcular la fama ganada de forma exponencial (2^(n-1))
-                int famaGanada = (int) Math.pow(2, numeroDeAsesinatos - 1);
-                int famaTotal = plugin.getFama().getOrDefault(killerUUID, 0) + famaGanada;
-                plugin.getFama().put(killerUUID, famaTotal);
-
-                killer.sendMessage(ChatColor.GREEN + "Has recibido " + famaGanada + " de fama.");
-                plugin.updateFameInDatabase(player, famaTotal);
+                plugin.updatePlayerScore(killer);
+                killer.sendMessage(ChatColor.GREEN + "Tu fama ahora es de " + killerData.fame + ChatColor.GRAY + " | kdr * kills + (wins/2)");
             }
-
 
             if (plugin.getPlayers().remove(player) && plugin.getPlayers().size() > 1) {
                 Bukkit.broadcastMessage(ChatColor.RED + "Quedan " + plugin.getPlayers().size() + " jugadores vivos.");
             }
-            plugin.updateStatsInDatabase(player);
-
-
-
             if (world != null) {
                 world.strikeLightningEffect(deathLocation);
             }
 
             player.setGameMode(GameMode.SPECTATOR);
+            DatabaseManager.getDatabase().getCached(player.getUniqueId()).deaths++;
+            plugin.updatePlayerScore(player);
         }
     }
 }

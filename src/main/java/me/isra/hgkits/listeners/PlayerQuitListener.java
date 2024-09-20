@@ -1,6 +1,7 @@
 package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.enums.GameState;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -26,7 +27,6 @@ public class PlayerQuitListener implements Listener {
 
         Player player = event.getPlayer();
         plugin.removeInventory(player);
-        plugin.getScoreboards().remove(player.getUniqueId());
 
         if(plugin.getPlayers().remove(player)) {
             Location quitLocation = player.getLocation();
@@ -42,5 +42,7 @@ public class PlayerQuitListener implements Listener {
                 Bukkit.broadcastMessage(ChatColor.RED + "Quedan " + plugin.getPlayers().size() + " jugadores vivos.");
             }
         }
+
+        DatabaseManager.getDatabase().save(player);
     }
 }

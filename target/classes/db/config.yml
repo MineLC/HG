@@ -1,7 +1,0 @@
-database:
-  host: "172.18.0.1"
-  port: 27017
-  username: "test"
-  password: "devtesting"
-  name: "devtest"
-  collection: "users"

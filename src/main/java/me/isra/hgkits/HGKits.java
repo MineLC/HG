@@ -9,21 +9,31 @@ import com.grinderwolf.swm.api.loaders.SlimeLoader;
 import com.grinderwolf.swm.api.world.SlimeWorld;
 import com.grinderwolf.swm.api.world.properties.SlimeProperties;
 import com.grinderwolf.swm.api.world.properties.SlimePropertyMap;
-import com.mongodb.client.*;
+
+import io.github.ichocomilk.lightsidebar.Sidebar;
+import io.github.ichocomilk.lightsidebar.nms.v1_8R3.Sidebar1_8R3;
 import me.isra.hgkits.commands.KitCommand;
 import me.isra.hgkits.commands.RankCommand;
 import me.isra.hgkits.commands.StartCommand;
 import me.isra.hgkits.config.Config;
 import me.isra.hgkits.config.ConfigManager;
-import me.isra.hgkits.config.DatabaseConfig;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
+import me.isra.hgkits.database.DatabaseManager;
+import me.isra.hgkits.database.User;
 import me.isra.hgkits.listeners.*;
-import me.isra.hgkits.managers.DatabaseManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
-import org.bson.Document;
-import org.bukkit.*;
+import me.isra.hgkits.utils.Constants;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -31,23 +41,23 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.*;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public final class HGKits extends JavaPlugin {
     public static GameState GAMESTATE;
 
     private final List<Player> players = new ArrayList<>();
-
-    private final Map<UUID, Scoreboard> scoreboards = new HashMap<>();
 
     private KitManager kitManager;
 
@@ -60,23 +70,24 @@ public final class HGKits extends JavaPlugin {
     private BukkitRunnable checkWinnerCountdownTask;
     private boolean checkWinnerCountdownRunning = false;
 
-    private DatabaseManager databaseManager;
-
-    private ScoreboardManager manager;
-
     private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
     private Set<Player> frozenPlayers = new HashSet<>();
 
-    private HashMap<UUID, Integer> asesinatos = new HashMap<>();
-    private HashMap<UUID, Integer> fama = new HashMap<>();
-
+    public World currentWorld;
 
     @Override
     public void onEnable() {
+        if (!(Bukkit.getPluginManager().getPlugin("SlimeWorldManager") instanceof SlimePlugin slimePlugin)) {
+            getLogger().warning("Plugin can't start because don't found slimeworldmanager");
+            return;
+        }
+
+        loadRandomArena(slimePlugin);
+        saveDefaultConfig();
+
         Bukkit.setWhitelist(false);
-        DatabaseConfig databaseConfig = new DatabaseConfig(this);
-        databaseManager = new DatabaseManager(this, databaseConfig);
-        databaseManager.connectToDatabase();
+        DatabaseManager.getDatabase();
+
         kitManager = new KitManager(this);
         PlayerAttackManager playerAttackManager = new PlayerAttackManager();
 
@@ -151,7 +162,7 @@ public final class HGKits extends JavaPlugin {
 
         getServer().getPluginCommand("kit").setExecutor(new KitCommand(kitManager));
         getServer().getPluginCommand("start").setExecutor(new StartCommand(this));
-        getServer().getPluginCommand("rank").setExecutor(new RankCommand(this));
+        getServer().getPluginCommand("rank").setExecutor(new RankCommand());
 
         List<Listener> listeners = Arrays.asList(
                 new PlayerItemConsumeListener(this, kitManager),
@@ -167,7 +178,7 @@ public final class HGKits extends JavaPlugin {
                 new EntityDamageByEntityListener(kitManager, playerAttackManager),
                 new EntityDamageListener(kitManager),
 
-                new AsyncPlayerChatListener(this, kitManager),
+                new AsyncPlayerChatListener(kitManager),
                 new FoodLevelChangeListener(),
                 new InventoryClickListener(kitManager),
                 new ProjectileHitListener(kitManager),
@@ -178,13 +189,11 @@ public final class HGKits extends JavaPlugin {
         listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
 
         GAMESTATE = GameState.PREGAME;
-        loadRandomArena();
-        //loadRandomArenaaaa();
     }
 
     @Override
     public void onDisable() {
-        databaseManager.disconnect();
+        DatabaseManager.getDatabase().close();
 
         if (countdownTask != null) {
             countdownTask.cancel();
@@ -203,95 +212,25 @@ public final class HGKits extends JavaPlugin {
         }
     }
 
-    private void loadRandomArenaaaa() {
-        //SlimePlugin plugin = (SlimePlugin) Bukkit.getPluginManager().getPlugin("SlimeWorldManager");
-        //SlimeLoader sqlLoader = plugin.getLoader("file");
+    private void loadRandomArena(SlimePlugin plugin) {
+        final SlimeLoader fileLoader = plugin.getLoader("file");
 
-        //try {
+        try {
+            final List<String> worldsName = fileLoader.listWorlds();
+            final String worldname = worldsName.get(Constants.RANDOM.nextInt(worldsName.size()));
 
-            //SlimePropertyMap properties = new SlimePropertyMap();
-
-            //properties.setString(SlimeProperties.DIFFICULTY, "normal");
-
-            // Note that this method should be called asynchronously
-            //SlimeWorld world = plugin.loadWorld(sqlLoader, "01", properties);
-
-            // This method must be called synchronously
-            //plugin.generateWorld(world);
-        //} catch (UnknownWorldException | IOException | CorruptedWorldException | NewerFormatException ){
-                 //WorldInUseException ex) {
-            //this.getLogger().warning(ex.toString());
-        //}
-    }
-
-    private void loadRandomArena() {
-        File pluginWorldsFolder = new File(getDataFolder(), "worlds");
-        File[] worldDirs = pluginWorldsFolder.listFiles(File::isDirectory);
-
-        if (worldDirs != null && worldDirs.length > 0) {
-            Random random = new Random();
-            File selectedWorldDir = worldDirs[random.nextInt(worldDirs.length)];
-            File serverWorldFolder = new File(Bukkit.getWorldContainer(), "world1");
-
-            if (serverWorldFolder.exists()) {
-                try {
-                    deleteDirectoryRecursively(serverWorldFolder);
-                    this.getLogger().info(ChatColor.GREEN + "Mundo existente 'world1' eliminado.");
-                } catch (IOException e) {
-                    this.getLogger().warning("No se pudo eliminar el mundo existente 'world1'.");
-                    e.printStackTrace();
-                    return;
-                }
-            }
-
-            try {
-                copyWorldFolder(selectedWorldDir, serverWorldFolder);
-                this.getLogger().info(ChatColor.GREEN + "Copia del mundo realizada: " + selectedWorldDir.getName());
-                World newWorld = Bukkit.createWorld(new WorldCreator("world1").generateStructures(false));
-                newWorld.setAutoSave(false);
-                this.getLogger().info(ChatColor.GREEN + "Arena cargada: " + selectedWorldDir.getName());
-
-            } catch (Exception e) {
-                this.getLogger().warning("No se pudo copiar o cargar el mundo: " + selectedWorldDir.getName());
-                e.printStackTrace();
-            }
-        } else {
-            Bukkit.getLogger().warning("No se encontraron mundos en la carpeta HGKits/worlds.");
+            final SlimePropertyMap properties = new SlimePropertyMap();
+            properties.setString(SlimeProperties.DIFFICULTY, "normal");
+            final SlimeWorld slimeWorld = plugin.loadWorld(fileLoader, worldname, false, properties);
+            plugin.generateWorld(slimeWorld);
+            
+            final World world = Bukkit.getWorld(worldname);
+            world.setAutoSave(false);
+            currentWorld = world;
+        } catch (UnknownWorldException | CorruptedWorldException | NewerFormatException | WorldInUseException | IOException e) {
+            e.printStackTrace();
         }
     }
-
-    private void copyWorldFolder(File source, File target) throws IOException {
-        if (!target.exists()) {
-            target.mkdirs();
-        }
-
-        // Copiar cada archivo y subcarpeta
-        for (File file : source.listFiles()) {
-            File targetFile = new File(target, file.getName());
-
-            if (file.isDirectory()) {
-                // Si es una carpeta, realizar la copia recursiva
-                copyWorldFolder(file, targetFile);
-            } else {
-                // Si es un archivo, copiarlo
-                Files.copy(file.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            }
-        }
-    }
-
-    private void deleteDirectoryRecursively(File directory) throws IOException {
-        if (directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    deleteDirectoryRecursively(file);
-                }
-            }
-        }
-        Files.delete(directory.toPath());
-    }
-
-
 
     public void startCountdown() {
         if (!isCountdownRunning) {
@@ -379,24 +318,22 @@ public final class HGKits extends JavaPlugin {
 
     public Location getRandomSpawnLocation() {
         int radius = 10;
-        World world = Bukkit.getWorld("world1");
-        Random random = new Random();
-        Location spawnLocation = world.getSpawnLocation();
+        Location spawnLocation = currentWorld.getSpawnLocation();
 
-        double angle = random.nextDouble() * 2 * Math.PI; // RADIANES
-        double distance = random.nextDouble() * radius;
+        double angle = Constants.RANDOM.nextDouble() * 2 * Math.PI; // RADIANES
+        double distance = Constants.RANDOM.nextDouble() * radius;
 
         double newX = spawnLocation.getX() + distance * Math.cos(angle);
         double newZ = spawnLocation.getZ() + distance * Math.sin(angle);
 
-        int highestY = world.getHighestBlockYAt((int) newX, (int) newZ);
+        int highestY = currentWorld.getHighestBlockYAt((int) newX, (int) newZ);
 
-        while (world.getBlockAt((int) newX, highestY, (int) newZ).getType() == Material.WATER ||
-                world.getBlockAt((int) newX, highestY, (int) newZ).getType() == Material.LAVA) {
+        while (currentWorld.getBlockAt((int) newX, highestY, (int) newZ).getType() == Material.WATER ||
+            currentWorld.getBlockAt((int) newX, highestY, (int) newZ).getType() == Material.LAVA) {
             highestY--;
         }
 
-        return new Location(world, newX, highestY, newZ);
+        return new Location(currentWorld, newX, highestY, newZ);
     }
 
     private void invincibilityCountdown() {
@@ -457,7 +394,7 @@ public final class HGKits extends JavaPlugin {
 
                         if (count == 8) {
                             Bukkit.broadcastMessage(ChatColor.GOLD + "¡" + winner.getName() + " es el ganador!");
-                            updateVictoriesInDatabase(winner);
+                            DatabaseManager.getDatabase().getCached(winner.getUniqueId()).wins++;
                         }
                     }
 
@@ -506,62 +443,23 @@ public final class HGKits extends JavaPlugin {
             player.kickPlayer(ChatColor.RED + "El servidor se está reiniciando. ¡Gracias por jugar!");
         }
 
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop");
-        }, 100L);
+        Bukkit.getScheduler().runTaskLater(this, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop"), 100L);
     }
 
     public void updatePlayerScore(Player player) {
-        MongoCollection<Document> collection = getMongoDatabase().getCollection("users");
-        Document query = new Document("id", player.getUniqueId().toString());
-        Document playerData = collection.find(query).first();
+        final User user = DatabaseManager.getDatabase().getCached(player.getUniqueId());
+        final Sidebar sidebar = new Sidebar1_8R3();
 
-        if (playerData != null) {
-            Scoreboard scoreboard = scoreboards.get(player.getUniqueId());
-
-            if (scoreboard != null) {
-                Objective objective = scoreboard.getObjective(ChatColor.GREEN + "Estadisticas");
-
-                if (objective != null) {
-                    // Elimina las puntuaciones antiguas relacionadas con el jugador
-                    for (String entry : scoreboard.getEntries()) {
-                        scoreboard.resetScores(entry);
-                    }
-
-                    setScore(objective, "Asesinatos", playerData.getInteger("kills"), 3);
-                    setScore(objective, "Muertes", playerData.getInteger("deaths"), 2);
-                    setScore(objective, "Victorias", playerData.getInteger("victories"), 1);
-                    setScore(objective, "KDR", String.format("%.2f", playerData.getDouble("kdr")), 0);
-
-                    player.setScoreboard(scoreboard);
-                }
-            }
-        }
-    }
-
-    private void setScore(Objective objective, String name, Object value, int score) {
-        objective.getScore(ChatColor.AQUA + name + ": " + ChatColor.RED + value).setScore(score);
-    }
-
-    public void setupScoreboard(Player player) {
-        MongoCollection<Document> collection = getMongoDatabase().getCollection("users");
-
-        Document query = new Document("id", player.getUniqueId().toString());
-        Document playerData = collection.find(query).first();
-
-        if (playerData != null) {
-            manager = Bukkit.getScoreboardManager();
-            Scoreboard scoreboard = manager.getNewScoreboard();
-            Objective objective = scoreboard.registerNewObjective(ChatColor.GREEN + "Estadisticas", "dummy");
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            objective.getScore(ChatColor.AQUA + "Asesinatos: " + ChatColor.RED + playerData.getInteger("kills")).setScore(3);
-            objective.getScore(ChatColor.AQUA + "Muertes: " + ChatColor.RED + playerData.getInteger("deaths")).setScore(2);
-            objective.getScore(ChatColor.AQUA + "Victorias: " + ChatColor.RED + playerData.getInteger("victories")).setScore(1);
-            String kdrFormatted = ChatColor.RED + String.format("%.3f", playerData.getDouble("kdr")); // Limitar a 2 decimales
-            objective.getScore(ChatColor.AQUA + "KDR: " + kdrFormatted).setScore(0);
-            player.setScoreboard(scoreboard);
-            scoreboards.put(player.getUniqueId(), scoreboard);
-        }
+        sidebar.setTitle("§6§lCHG");
+        sidebar.setLines(sidebar.createLines(new String[] {
+            " ",
+            " §7Asesinatos: §6 " + user.kills,
+            " §7Muertes: §c " + user.deaths,
+            " §7Victorias: §a " + user.wins,
+            " §7KDR: §c " + String.format("%.2f", (user.deaths == 0) ? (double)user.kills : (double)(user.kills / user.deaths))
+        }));
+        sidebar.sendLines(player);
+        sidebar.sendTitle(player);
     }
 
     private void launchFirework(Location location) {
@@ -594,30 +492,6 @@ public final class HGKits extends JavaPlugin {
         startGame();
     }
 
-    public void createPlayerInDatabase(Player player) {
-        databaseManager.createPlayerInDatabase(player);
-    }
-
-    public void updateStatsInDatabase(Player playerDead) {
-        databaseManager.updateStatsInDatabase(playerDead);
-    }
-
-    private void updateVictoriesInDatabase(Player winner) {
-        databaseManager.updateVictoriesInDatabase(winner);
-    }
-
-    public void updateFameInDatabase(Player player, int famaTotal) {
-        databaseManager.updateFameInDatabase(player,famaTotal);
-    }
-
-    public CompletableFuture<Integer> getFameFromDatabase(Player player) {
-        return databaseManager.getFameFromDatabase(player);
-    }
-
-    private MongoDatabase getMongoDatabase() {
-        return databaseManager.getMongoDatabase();
-    }
-
     public List<Player> getPlayers() {
         return players;
     }
@@ -626,28 +500,12 @@ public final class HGKits extends JavaPlugin {
         return isCountdownRunning;
     }
 
-    public Map<UUID, Scoreboard> getScoreboards() {
-        return scoreboards;
-    }
-
     public Map<UUID, Long> getCooldownsMedusa() {
         return cooldownsMedusa;
     }
 
     public Set<Player> getFrozenPlayers() {
         return frozenPlayers;
-    }
-
-    public HashMap<UUID, Integer> getAsesinatos() {
-        return asesinatos;
-    }
-
-    public HashMap<UUID, Integer> getFama() {
-        return fama;
-    }
-
-    public String getCurrentWorld() {
-        return "world1";
     }
 
     public void removeAllFrozenPlayers() {
