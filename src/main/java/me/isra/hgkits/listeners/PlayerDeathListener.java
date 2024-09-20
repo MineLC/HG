@@ -62,8 +62,7 @@ public class PlayerDeathListener implements Listener {
                 }
 
                 killerData.kills++;
-                final double kdr = (killerData.deaths == 0) ? (double)killerData.kills : (double)(killerData.kills / killerData.deaths);
-                final double newFame = kdr * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
+                final double newFame = killerData.getKdr() * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
                 killerData.fame = (int)newFame;
 
                 plugin.updatePlayerScore(killer);

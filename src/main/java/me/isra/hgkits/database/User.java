@@ -22,6 +22,10 @@ public class User {
         return false;
     }
 
+    public double getKdr() {
+        return (deaths == 0) ? kills : kills / deaths;
+    }
+
     public static final class New extends User {
         public New(UUID uuid, String name) {
             super(uuid, name);

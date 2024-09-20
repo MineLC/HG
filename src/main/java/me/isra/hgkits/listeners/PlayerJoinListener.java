@@ -56,6 +56,12 @@ public class PlayerJoinListener implements Listener {
         item.setItemMeta(meta);
         inventory.setItem(0, item);
 
+        item = new ItemStack(Material.BOOK);
+        meta = item.getItemMeta();
+        meta.setDisplayName(ChatColor.YELLOW + "Estadísticas");
+        item.setItemMeta(meta);
+        inventory.setItem(4, item);
+
         item = new ItemStack(Material.LEATHER);
         meta = item.getItemMeta();
         meta.setDisplayName(ChatColor.GOLD + "Top de kills");

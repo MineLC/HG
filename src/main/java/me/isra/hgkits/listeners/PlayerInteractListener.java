@@ -3,6 +3,9 @@ package me.isra.hgkits.listeners;
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
+import me.isra.hgkits.database.DatabaseManager;
+import me.isra.hgkits.database.User;
+import me.isra.hgkits.managers.FameManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.tops.TopStorage;
 import me.isra.hgkits.tops.inventory.TopInventoryBuilder;
@@ -69,6 +72,9 @@ public class PlayerInteractListener implements Listener {
             event.setCancelled(true);
 
             switch (type) {
+                case BOOK:
+                    sendPlayerStats(player);
+                    return;
                 case BOW:
                     player.performCommand("kit");    
                     return;
@@ -112,6 +118,24 @@ public class PlayerInteractListener implements Listener {
             default:
                 return false;
         }
+    }
+
+    private void sendPlayerStats(final Player player) {
+        final User data = DatabaseManager.getDatabase().getCached(player.getUniqueId());
+        player.sendMessage(
+            "\n "+
+            "\n §6§lEstadísticas" +
+            "\n "+
+            "\n §fKills: §6" + data.kills +
+            "\n §fMuertes: §c" + data.deaths +
+            "\n §fKDR: §d" + String.format("%.2f", data.getKdr()) +
+            "\n "+    
+            "\n §fVictorias: §a" + data.wins +
+            "\n "+    
+            "\n §fFama: §b" + data.fame +
+            "\n §fRango: §e" + FameManager.getRankByFame(data.fame) +
+            "\n "
+        );
     }
 
     private void handleGameInteractions(PlayerInteractEvent event, Player player, Action action, ItemStack item, Kit kit, Block clickedBlock) {

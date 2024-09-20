@@ -491,7 +491,7 @@ public final class HGKits extends JavaPlugin {
             " ",
             "§fVictorias: §a" + user.wins,
             "  ",
-            "§fKDR: §d" + String.format("%.2f", (user.deaths == 0) ? (double)user.kills : (double)(user.kills / user.deaths)),
+            "§fKDR: §d" + String.format("%.2f", user.getKdr()),
             "   ",
             "§eplay.mine.lc"
         }));
