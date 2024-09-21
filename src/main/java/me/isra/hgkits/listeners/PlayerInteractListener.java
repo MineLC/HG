@@ -50,16 +50,16 @@ public class PlayerInteractListener implements Listener {
         Action action = event.getAction();
         Block clickedBlock = event.getClickedBlock();
         ItemStack item = player.getInventory().getItemInHand();
-        Kit kit = kitManager.getKitByPlayer(player);
 
         if (HGKits.GAMESTATE == GameState.PREGAME) {
             handlePregameInteractions(event, player, action, clickedBlock, item);
-        } else {
-            //INCLUYE EL ESTADO DE JUEGO INVINCIBILITY.
-            //LAS ACCIONES SE EJECUTARÁN TAMBIÉN CUANDO EL JUEGO
-            //ESTE EN PERIODO DE INVENCIBILIDAD.
-            handleGameInteractions(event, player, action, item, kit, clickedBlock);
+            return;
         }
+        Kit kit = kitManager.getKitByPlayer(player);
+        //INCLUYE EL ESTADO DE JUEGO INVINCIBILITY.
+        //LAS ACCIONES SE EJECUTARÁN TAMBIÉN CUANDO EL JUEGO
+        //ESTE EN PERIODO DE INVENCIBILIDAD.
+        handleGameInteractions(event, player, action, item, kit, clickedBlock);
     }
 
     private void handlePregameInteractions(PlayerInteractEvent event, Player player, Action action, Block clickedBlock, ItemStack item) {

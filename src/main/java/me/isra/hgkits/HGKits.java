@@ -422,6 +422,8 @@ public final class HGKits extends JavaPlugin {
                         if (count == 8) {
                             Bukkit.broadcastMessage(ChatColor.GOLD + "¡" + winner.getName() + " es el ganador!");
                             DatabaseManager.getDatabase().getCached(winner.getUniqueId()).wins++;
+                            DatabaseManager.getDatabase().saveAll(Bukkit.getOnlinePlayers());
+
                         }
                     }
 
@@ -470,11 +472,7 @@ public final class HGKits extends JavaPlugin {
             this,
             () -> {
                 final Collection<? extends Player> online = Bukkit.getOnlinePlayers();
-                DatabaseManager.getDatabase().saveAll(
-                online,
-                () -> Bukkit.getScheduler().runTask(
-                    this,
-                    () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop")));
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop");
 
                 for (Player player : online) {
                     player.kickPlayer(ChatColor.RED + "El servidor se está reiniciando. ¡Gracias por jugar!");

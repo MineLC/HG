@@ -42,6 +42,7 @@ public final class MongoDBManager {
             .build();
 
         Logger.getLogger("org.mongodb").setLevel(Level.SEVERE);
+        Logger.getLogger("com.mongodb").setLevel(Level.SEVERE);
 
         final MongoClient client = MongoClients.create(settings);
 

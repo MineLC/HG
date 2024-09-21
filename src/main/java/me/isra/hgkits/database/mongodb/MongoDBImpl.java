@@ -60,15 +60,18 @@ final class MongoDBImpl implements Database {
 
         final Bson query = createUpdateQuery(data);
         if (query != null) {
-            service.submit(() -> collection.updateOne(Filters.eq("_id", player.getName()), query));
+            service.submit(() -> collection.updateOne(Filters.eq("_id", player.getUniqueId()), query));
         }
     }
     private Document getNew(final User user) {
         final Document document = new Document();
 
-        document.put("_id", user.name);
-        document.put(KILLS, user.kills);
-
+        document.put("_id", user.uuid);
+        setIf(document, KILLS, user.kills, 0);
+        setIf(document, DEATHS, user.kills, 0);
+        setIf(document, FAME, user.kills, 0);
+        setIf(document, WINS, user.kills, 0);
+        
         return document;
     }
 
@@ -86,8 +89,14 @@ final class MongoDBImpl implements Database {
         return Updates.combine(update);
     }
 
-    private void setIf(final List<Bson> updates, final String name, final Object value, final Object compare) {
-        if (value != compare && !value.equals(compare)) {
+    private void setIf(final Document document, final String key, final int value, final int compare) {
+        if (value != compare) {
+            document.put(key, value);
+        }
+    }
+
+    private void setIf(final List<Bson> updates, final String name, final int value, final int compare) {
+        if (value != compare) {
             updates.add(Updates.set(name, value));
         }
     }
@@ -95,25 +104,23 @@ final class MongoDBImpl implements Database {
     @Override
     public void load(final Player player, final SupplyOperation operation) {
         service.submit(() -> {
-            final Document document = collection.find(Filters.eq("_id", player.getName())).limit(1).first();
+            final UUID uuid = player.getUniqueId();
+            final Document document = collection.find(Filters.eq("_id", uuid)).limit(1).first();
             if (document == null) {
-                final User user = new User(player.getUniqueId(), player.getName());
-                cache.put(player.getUniqueId(), user);
+                final User user = new User.New(uuid, player.getName());
+                cache.put(uuid, user);
                 operation.execute();
                 return;
             }
         
-            final User user = new User(
-                player.getUniqueId(),
-                player.getName()
-            );
-    
+            final User user = new User(uuid, player.getName());
+
             user.kills = getOrDefault(document.getInteger(KILLS), 0);
             user.deaths = getOrDefault(document.getInteger(DEATHS), 0);
             user.fame = getOrDefault(document.getInteger(FAME), 0);
             user.wins = getOrDefault(document.getInteger(WINS), 0);
 
-            cache.put(player.getUniqueId(), user);
+            cache.put(uuid, user);
             operation.execute();
         });
     }
@@ -139,7 +146,7 @@ final class MongoDBImpl implements Database {
             }
             final Bson query = createUpdateQuery(entry.getValue());
             if (query != null) {
-                collection.updateOne(Filters.eq("_id", entry.getValue().name), query);
+                collection.updateOne(Filters.eq("_id", entry.getValue().uuid), query);
             }
         }
         if (!toInsert.isEmpty()) {
@@ -151,7 +158,7 @@ final class MongoDBImpl implements Database {
     }
 
     @Override
-    public void saveAll(Collection<? extends Player> players, SupplyOperation supply) {
+    public void saveAll(Collection<? extends Player> players) {
         service.submit(() -> {
             final List<Document> toSave = new ArrayList<>();
             for (final Player player : players) {
@@ -166,13 +173,12 @@ final class MongoDBImpl implements Database {
         
                 final Bson query = createUpdateQuery(data);
                 if (query != null) {
-                    collection.updateOne(Filters.eq("_id", player.getName()), query);
+                    collection.updateOne(Filters.eq("_id", player.getUniqueId()), query);
                 }
             }
             if (!toSave.isEmpty()) {
                 collection.insertMany(toSave);
             }
-            supply.execute();
         });
     }
 

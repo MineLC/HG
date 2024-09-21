@@ -2,6 +2,8 @@ package me.isra.hgkits.commands;
 
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.enums.GameState;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,7 +25,7 @@ public class StartCommand implements CommandExecutor {
                 return true;
             }
             if(HGKits.GAMESTATE == GameState.PREGAME) {
-                if (plugin.getPlayers().size() <= 1) {
+                if (Bukkit.getOnlinePlayers().size() <= 1) {
                     sender.sendMessage(ChatColor.RED + "Necesita haber como mínimo 2 jugadores");
                     return true;
                 }

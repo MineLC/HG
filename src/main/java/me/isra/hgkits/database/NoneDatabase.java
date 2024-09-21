@@ -14,7 +14,7 @@ public class NoneDatabase implements Database {
     @Override
     public void save(Player player) {}
     @Override
-    public void saveAll(Collection<? extends Player> players, SupplyOperation supply) {
+    public void saveAll(Collection<? extends Player> players) {
     }
 
     @Override
