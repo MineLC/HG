@@ -243,14 +243,18 @@ public final class HGKits extends JavaPlugin {
 
         try {
             final List<String> worldsName = fileLoader.listWorlds();
-            final String worldname = worldsName.get(Constants.RANDOM.nextInt(worldsName.size()));
 
+            String worldName;
+            do {
+                worldName = worldsName.get(Constants.RANDOM.nextInt(worldsName.size()));    
+            } while (worldName.equals("world"));
+            
             final SlimePropertyMap properties = new SlimePropertyMap();
             properties.setString(SlimeProperties.DIFFICULTY, "normal");
-            final SlimeWorld slimeWorld = plugin.loadWorld(fileLoader, worldname, false, properties);
+            final SlimeWorld slimeWorld = plugin.loadWorld(fileLoader, worldName, false, properties);
             plugin.generateWorld(slimeWorld);
             
-            final World world = Bukkit.getWorld(worldname);
+            final World world = Bukkit.getWorld(worldName);
             world.setAutoSave(false);
             currentWorld = world;
         } catch (UnknownWorldException | CorruptedWorldException | NewerFormatException | WorldInUseException | IOException e) {
