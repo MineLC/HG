@@ -23,7 +23,7 @@ public class AsyncPlayerChatListener implements Listener {
         Player player = event.getPlayer();
         Kit kit = kitManager.getKitByPlayer(player);
         String kitName = (kit != null && kit.getName() != null) ? kit.getName() : "Default";
-        String formattedMessage = ChatColor.WHITE + "[" + ChatColor.RESET + ChatColor.GREEN + FameManager.getFameRank(DatabaseManager.getDatabase().getCached(player.getUniqueId()).fame) + ChatColor.RESET + ChatColor.WHITE + "] " + ChatColor.DARK_GRAY + "[" + kitName + "] " + ChatColor.RESET + ChatColor.GRAY + player.getName() + ChatColor.RESET + " > " + event.getMessage();
+        String formattedMessage = ChatColor.WHITE + "[" + ChatColor.RESET + ChatColor.GREEN + FameManager.getFameRank(DatabaseManager.getDatabase().getCached(player.getUniqueId()).fame) + ChatColor.RESET + ChatColor.WHITE + "] " + ChatColor.DARK_GRAY + "<[" + kitName + "] " + ChatColor.RESET + ChatColor.GRAY + player.getName() + ChatColor.RESET + "> " + event.getMessage();
         event.setFormat(formattedMessage);
     }
 }
