@@ -257,6 +257,7 @@ public final class HGKits extends JavaPlugin {
             final World world = Bukkit.getWorld(worldName);
             world.setAutoSave(false);
             currentWorld = world;
+            world.setGameRuleValue("keepInventory", "false");
         } catch (UnknownWorldException | CorruptedWorldException | NewerFormatException | WorldInUseException | IOException e) {
             e.printStackTrace();
         }

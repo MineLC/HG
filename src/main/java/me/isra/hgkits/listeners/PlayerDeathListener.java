@@ -74,9 +74,6 @@ public class PlayerDeathListener implements Listener {
             if (plugin.getPlayers().remove(player) && plugin.getPlayers().size() > 1) {
                 Bukkit.broadcastMessage(ChatColor.RED + "Quedan " + plugin.getPlayers().size() + " jugadores vivos.");
             }
-            if (world != null) {
-                world.strikeLightningEffect(deathLocation);
-            }
 
             player.setGameMode(GameMode.SPECTATOR);
             final User victim = DatabaseManager.getDatabase().getCached(player.getUniqueId());

@@ -68,9 +68,9 @@ final class MongoDBImpl implements Database {
 
         document.put("_id", user.uuid);
         setIf(document, KILLS, user.kills, 0);
-        setIf(document, DEATHS, user.kills, 0);
-        setIf(document, FAME, user.kills, 0);
-        setIf(document, WINS, user.kills, 0);
+        setIf(document, DEATHS, user.deaths, 0);
+        setIf(document, FAME, user.fame, 0);
+        setIf(document, WINS, user.wins, 0);
         
         return document;
     }
@@ -141,7 +141,10 @@ final class MongoDBImpl implements Database {
 
         for (final Entry<UUID, User> entry : entries) {
             if (entry.getValue().isNew()) {
-                toInsert.add(getNew(entry.getValue()));
+                final Document document = getNew(entry.getValue());
+                if (document != null) {
+                    toInsert.add(document);
+                }
                 return;
             }
             final Bson query = createUpdateQuery(entry.getValue());
@@ -167,7 +170,10 @@ final class MongoDBImpl implements Database {
                     continue;
                 }
                 if (data.isNew()) {
-                    toSave.add(getNew(data));
+                    final Document document = getNew(data);
+                    if (document != null) {
+                        toSave.add(document);
+                    }
                     continue;
                 }
         
