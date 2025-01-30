@@ -66,6 +66,10 @@
             <id>swm-repo</id>
             <url>https://repo.glaremasters.me/repository/concuncan/</url>
         </repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/releases/</url>
+        </repository>
 		<repository>
 		    <id>jitpack.io</id>
 		    <url>https://jitpack.io</url>
@@ -102,6 +106,12 @@
             <artifactId>slimeworldmanager-api</artifactId>
             <version>2.2.1</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+         <groupId>me.clip</groupId>
+          <artifactId>placeholderapi</artifactId>
+          <version>2.11.6</version>
+         <scope>provided</scope>
         </dependency>
   </dependencies>
 </project>

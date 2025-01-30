@@ -5,6 +5,9 @@ import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
+import me.isra.hgkits.translate.TranslateManager;
+import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -18,10 +21,12 @@ import org.bukkit.potion.PotionEffectType;
 public class EntityDamageByEntityListener implements Listener {
     private final KitManager kitManager;
     private final PlayerAttackManager attackManager;
+    private final TranslateManager translateManager;
 
-    public EntityDamageByEntityListener(KitManager kitManager, PlayerAttackManager attackManager) {
+    public EntityDamageByEntityListener(KitManager kitManager, PlayerAttackManager attackManager, TranslateManager translateManager) {
         this.kitManager = kitManager;
         this.attackManager = attackManager;
+        this.translateManager = translateManager;
     }
 
     @EventHandler
@@ -105,7 +110,7 @@ public class EntityDamageByEntityListener implements Listener {
                 // Si el disparo fue hecho por el atacante y la distancia es mayor a 30 bloques
                 if (attacker.getLocation().distance(victim.getLocation()) >= 30) {
                     victim.setHealth(0.0);
-                    attacker.sendMessage("¡El enemigo " + victim.getName() + " murió al instante con un disparo de larga distancia!");
+                    attacker.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("long-distance-kill").replace("%victim%", victim.getName())));
                 }
             }
         }

@@ -7,6 +7,7 @@ import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.tops.TopManager;
+import me.isra.hgkits.translate.TranslateManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -22,10 +23,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class PlayerDeathListener implements Listener {
     private final HGKits plugin;
     private final KitManager kitManager;
+    private final TranslateManager translateManager;
 
     public PlayerDeathListener(HGKits plugin, KitManager kitManager) {
         this.plugin = plugin;
         this.kitManager = kitManager;
+        this.translateManager = plugin.getTranslateManager();
     }
 
     @EventHandler
@@ -53,26 +56,28 @@ public class PlayerDeathListener implements Listener {
             Player killer = player.getKiller();
             if (killer != null) {
                 final User killerData = DatabaseManager.getDatabase().getCached(killer.getUniqueId());
-                Kit killerKit = kitManager.getKitByPlayer(killer);
+                if (killerData != null) {
+                    Kit killerKit = kitManager.getKitByPlayer(killer);
 
-                if (killerKit != null && (killerKit.getName().equals("Guerrero") || killerKit.getName().equals("Matasanos"))) {
-                    if (killer.getFoodLevel() < 20) {
-                        killer.setFoodLevel(20);
+                    if (killerKit != null && (killerKit.getName().equals("Guerrero") || killerKit.getName().equals("Matasanos"))) {
+                        if (killer.getFoodLevel() < 20) {
+                            killer.setFoodLevel(20);
+                        }
                     }
+
+                    killerData.kills++;
+                    final double newFame = killerData.getKdr() * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
+                    killerData.fame = (int)newFame;
+
+                    plugin.updatePlayerScore(killer);
+                    killer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("your-fame") + killerData.fame));
+                
+                    TopManager.calculateKills(killerData);
                 }
-
-                killerData.kills++;
-                final double newFame = killerData.getKdr() * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
-                killerData.fame = (int)newFame;
-
-                plugin.updatePlayerScore(killer);
-                killer.sendMessage(ChatColor.GREEN + "Tu fama ahora es de " + killerData.fame + ChatColor.GRAY + " | kdr * kills + (wins/2)");
-            
-                TopManager.calculateKills(killerData);
             }
 
             if (plugin.getPlayers().remove(player) && plugin.getPlayers().size() > 1) {
-                Bukkit.broadcastMessage(ChatColor.RED + "Quedan " + plugin.getPlayers().size() + " jugadores vivos.");
+                Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("players-left").replace("%count%", String.valueOf(plugin.getPlayers().size()))));
             }
 
             player.setGameMode(GameMode.SPECTATOR);

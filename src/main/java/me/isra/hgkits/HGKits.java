@@ -12,6 +12,7 @@ import com.grinderwolf.swm.api.world.properties.SlimePropertyMap;
 
 import io.github.ichocomilk.lightsidebar.Sidebar;
 import io.github.ichocomilk.lightsidebar.nms.v1_8R3.Sidebar1_8R3;
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.isra.hgkits.commands.KitCommand;
 import me.isra.hgkits.commands.RankCommand;
 import me.isra.hgkits.commands.StartCommand;
@@ -27,6 +28,7 @@ import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
 import me.isra.hgkits.tops.TopFiles;
 import me.isra.hgkits.utils.Constants;
+import me.isra.hgkits.translate.TranslateManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -45,6 +47,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.Yaml;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,6 +87,8 @@ public final class HGKits extends JavaPlugin {
     public World currentWorld;
     private String date;
 
+    private TranslateManager translateManager;
+
     @Override
     public void onEnable() {
         if (!(Bukkit.getPluginManager().getPlugin("SlimeWorldManager") instanceof SlimePlugin slimePlugin)) {
@@ -93,6 +98,18 @@ public final class HGKits extends JavaPlugin {
 
         loadRandomArena(slimePlugin);
         saveDefaultConfig();
+        FileConfiguration soundConfig = getConfig();
+        soundConfig.addDefault("sounds.anvil_land.volume", 1.0F);
+        soundConfig.addDefault("sounds.anvil_land.pitch", 1.0F);
+        soundConfig.addDefault("sounds.orb_pickup.volume", 1.0F);
+        soundConfig.addDefault("sounds.orb_pickup.pitch", 1.0F);
+        soundConfig.addDefault("sounds.note_pling.volume", 1.0F);
+        soundConfig.addDefault("sounds.note_pling.pitch", 1.0F);
+        soundConfig.addDefault("sounds.startsound.type", "ENDERDRAGON_GROWL");
+        soundConfig.addDefault("sounds.startsound.volume", 1.0F);
+        soundConfig.addDefault("sounds.startsound.pitch", 2.0F);
+        soundConfig.options().copyDefaults(true);
+        saveConfig();
     
         Instant instant = Instant.now();
         LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
@@ -181,11 +198,30 @@ public final class HGKits extends JavaPlugin {
             }
         }
 
-        getServer().getPluginCommand("kit").setExecutor(new KitCommand(kitManager));
+        getConfig().addDefault("chat.format", "[%fame%] <%kit% %player%> %message%");
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+
+        getConfig().addDefault("chat.format", "[%fame%] <%kit% %player%> %message%");
+        getConfig().addDefault("chat.hover.text", Arrays.asList("&aFame Rank: &7%fame%", "&aKit: &7%kit%", "&aPlayer: &7%player%"));
+        getConfig().addDefault("scoreboard.title", "&6&lCHG");
+        getConfig().addDefault("scoreboard.text", Arrays.asList("%date%", "", "&fAsesinatos: &6%kills%", "&fMuertes: &c%deaths%", " ", "&fVictorias: &a%wins%", "  ", "&fKDR: &d%kdr%", "   ", "&fFama: &b%fame%", "    ", "&eplay.mine.lc"));
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+
+        translateManager = new TranslateManager(this);
+        if (translateManager.getMessage("welcome-message") == null) {
+            getLogger().severe("Failed to load messages from messages.yml. Plugin will not start.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        getLogger().info(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("welcome-message")));
+
+        getServer().getPluginCommand("kit").setExecutor(new KitCommand(kitManager, translateManager));
         getServer().getPluginCommand("start").setExecutor(new StartCommand(this));
-        getServer().getPluginCommand("rank").setExecutor(new RankCommand());
+        getServer().getPluginCommand("rank").setExecutor(new RankCommand(translateManager));
         final PluginCommand pluginTopCommand = getCommand("top");
-        final TopCommand topCommand = new TopCommand();
+        final TopCommand topCommand = new TopCommand(translateManager);
         pluginTopCommand.setExecutor(topCommand);
         pluginTopCommand.setTabCompleter(topCommand);
 
@@ -200,12 +236,12 @@ public final class HGKits extends JavaPlugin {
                 new PlayerMoveListener(this),
 
                 new EntityTargetLivingEntityListener(kitManager, playerAttackManager),
-                new EntityDamageByEntityListener(kitManager, playerAttackManager),
+                new EntityDamageByEntityListener(kitManager, playerAttackManager, translateManager),
                 new EntityDamageListener(kitManager),
 
-                new AsyncPlayerChatListener(kitManager),
+                new AsyncPlayerChatListener(kitManager, this),
                 new FoodLevelChangeListener(),
-                new InventoryClickListener(kitManager),
+                new InventoryClickListener(kitManager, translateManager),
                 new ProjectileHitListener(kitManager),
                 new BreakBlockListener(kitManager),
                 new PlaceBlockListener()
@@ -282,17 +318,20 @@ public final class HGKits extends JavaPlugin {
                         }
 
                         if (seconds == 120 || seconds == 60) {
-                            Bukkit.broadcastMessage(ChatColor.GREEN + "La partida comienza en " + seconds + " segundos.");
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("countdown-start").replace("%seconds%", String.valueOf(seconds))));
                         } else if (seconds == 30 || seconds == 15 || seconds <= 10) {
-                            Bukkit.broadcastMessage(ChatColor.GREEN + "La partida comienza en " + seconds + " segundos.");
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("countdown-start").replace("%seconds%", String.valueOf(seconds))));
                             if (seconds <= 3) {
+                                float orbPickupVolume = (float) getConfig().getDouble("sounds.orb_pickup.volume");
+                                float orbPickupPitch = (float) getConfig().getDouble("sounds.orb_pickup.pitch");
                                 for (Player p : Bukkit.getOnlinePlayers()) {
-                                    p.playSound(p.getLocation(), Sound.ORB_PICKUP, 1.0F, 1.0F);
+                                    p.playSound(p.getLocation(), Sound.ORB_PICKUP, orbPickupVolume, orbPickupPitch);
                                 }
                             }
                         }
                         seconds--;
                     } else {
+                        
                         startGame();
                         for (Player player : Bukkit.getOnlinePlayers()) {
                             player.setLevel(0); // Restablecer la barra de experiencia a 0
@@ -317,7 +356,7 @@ public final class HGKits extends JavaPlugin {
                 player.setLevel(0);
             }
 
-            Bukkit.broadcastMessage(ChatColor.RED + "Esperando a más jugadores.");
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("waiting-for-players")));
         }
     }
 
@@ -327,8 +366,14 @@ public final class HGKits extends JavaPlugin {
             isInvincibilityCountdownRunning = false;
             isCountdownRunning = false;
             GAMESTATE = GameState.INVICIBILITY;
-            Bukkit.broadcastMessage(ChatColor.GREEN + "¡El juego ha comenzado!");
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("game-started")));
 
+            float startSoundVolume = (float) getConfig().getDouble("sounds.startsound.volume");
+            float startSoundPitch = (float) getConfig().getDouble("sounds.startsound.pitch");
+            Sound startSound = Sound.valueOf(getConfig().getString("sounds.startsound.type"));
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.playSound(p.getLocation(), startSound, startSoundVolume, startSoundPitch);
+            }
             for (Player p : Bukkit.getOnlinePlayers()) {
                 Location randomLocation = getRandomSpawnLocation();
                 p.teleport(randomLocation);
@@ -383,20 +428,24 @@ public final class HGKits extends JavaPlugin {
 
                     if(seconds > 0) {
                         if (seconds == 50 || seconds == 40 || seconds == 30 || seconds == 20 || seconds < 11) {
-                            Bukkit.broadcastMessage(ChatColor.RED + "La invencibilidad termina en " + seconds + " segundos.");
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("invincibility-end").replace("%seconds%", String.valueOf(seconds))));
                             if(seconds < 11) {
+                                float notePlingVolume = (float) getConfig().getDouble("sounds.note_pling.volume");
+                                float notePlingPitch = (float) getConfig().getDouble("sounds.note_pling.pitch");
                                 for (Player p : Bukkit.getOnlinePlayers()) {
                                     p.setLevel(seconds);
-                                    p.playSound(p.getLocation(), Sound.NOTE_PLING, 1F, 1F);
+                                    p.playSound(p.getLocation(), Sound.NOTE_PLING, notePlingVolume, notePlingPitch);
                                 }
                             }
                         }
                     } else {
                         GAMESTATE = GameState.GAME;
                         isInvincibilityCountdownRunning = false;
-                        Bukkit.broadcastMessage(ChatColor.RED + "¡La invencibilidad ha terminado!");
+                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("invincibility-ended")));
+                        float anvilLandVolume = (float) getConfig().getDouble("sounds.anvil_land.volume");
+                        float anvilLandPitch = (float) getConfig().getDouble("sounds.anvil_land.pitch");
                         for (Player p : Bukkit.getOnlinePlayers()) {
-                            p.playSound(p.getLocation(), Sound.ANVIL_LAND, 1F, 1F);
+                            p.playSound(p.getLocation(), Sound.ANVIL_LAND, anvilLandVolume, anvilLandPitch);
                         }
                         cancel();
                     }
@@ -425,7 +474,7 @@ public final class HGKits extends JavaPlugin {
                         winnerLocation = winner.getLocation();
 
                         if (count == 8) {
-                            Bukkit.broadcastMessage(ChatColor.GOLD + "¡" + winner.getName() + " es el ganador!");
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("winner-announcement").replace("%winner%", winner.getName())));
                             DatabaseManager.getDatabase().getCached(winner.getUniqueId()).wins++;
                             DatabaseManager.getDatabase().saveAll(Bukkit.getOnlinePlayers());
 
@@ -449,7 +498,7 @@ public final class HGKits extends JavaPlugin {
                     // Caso donde no hay jugadores conectados
                     if (players.isEmpty()) {
                         if (winner == null && !noWinnerMessageSent) {
-                            Bukkit.broadcastMessage(ChatColor.RED + "No hay un ganador.");
+                            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("no-winner")));
                             noWinnerMessageSent = true;
                         }
 
@@ -480,7 +529,7 @@ public final class HGKits extends JavaPlugin {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop");
 
                 for (Player player : online) {
-                    player.kickPlayer(ChatColor.RED + "El servidor se está reiniciando. ¡Gracias por jugar!");
+                    player.kickPlayer(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("server-restarting")));
                 }
 
                 players.clear();
@@ -491,19 +540,27 @@ public final class HGKits extends JavaPlugin {
         final User user = DatabaseManager.getDatabase().getCached(player.getUniqueId());
         final Sidebar sidebar = new Sidebar1_8R3();
 
-        sidebar.setTitle("§6§lCHG");
-        sidebar.setLines(sidebar.createLines(new String[] {
-            date,
-            "",
-            "§fAsesinatos: §6" + user.kills,
-            "§fMuertes: §c" + user.deaths,
-            " ",
-            "§fVictorias: §a" + user.wins,
-            "  ",
-            "§fKDR: §d" + String.format("%.2f", user.getKdr()),
-            "   ",
-            "§eplay.mine.lc"
-        }));
+        String title = ChatColor.translateAlternateColorCodes('&', getConfig().getString("scoreboard.title", "&6&lCHG"));
+        List<String> lines = getConfig().getStringList("scoreboard.text");
+
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i)
+                    .replace("%date%", date)
+                    .replace("%kills%", String.valueOf(user.kills))
+                    .replace("%deaths%", String.valueOf(user.deaths))
+                    .replace("%wins%", String.valueOf(user.wins))
+                    .replace("%kdr%", String.format("%.2f", user.getKdr()))
+                    .replace("%fame%", String.valueOf(user.fame));
+
+            if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                line = PlaceholderAPI.setPlaceholders(player, line);
+            }
+
+            lines.set(i, ChatColor.translateAlternateColorCodes('&', line));
+        }
+
+        sidebar.setTitle(title);
+        sidebar.setLines(sidebar.createLines(lines.toArray(new String[0])));
         sidebar.sendLines(player);
         sidebar.sendTitle(player);
     }
@@ -552,5 +609,9 @@ public final class HGKits extends JavaPlugin {
 
     public void removeAllFrozenPlayers() {
         frozenPlayers.clear();
+    }
+
+    public TranslateManager getTranslateManager() {
+        return translateManager;
     }
 }

@@ -9,6 +9,7 @@ import me.isra.hgkits.managers.FameManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.tops.TopStorage;
 import me.isra.hgkits.tops.inventory.TopInventoryBuilder;
+import me.isra.hgkits.translate.TranslateManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -29,11 +30,13 @@ import org.bukkit.util.Vector;
 import java.util.Map;
 import java.util.UUID;
 import java.util.HashMap;
+import java.util.List;
 
 public class PlayerInteractListener implements Listener {
 
     private final HGKits plugin;
     private final KitManager kitManager;
+    private final TranslateManager translateManager;
     private final Map<UUID, Long> cooldownsFlash = new HashMap<>();
     //private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
     private final Map<UUID, Long> cooldownsSaltamontes = new HashMap<>();
@@ -42,6 +45,7 @@ public class PlayerInteractListener implements Listener {
     public PlayerInteractListener(HGKits plugin, KitManager kitManager) {
         this.plugin = plugin;
         this.kitManager = kitManager;
+        this.translateManager = plugin.getTranslateManager();
     }
 
     @EventHandler
@@ -79,10 +83,10 @@ public class PlayerInteractListener implements Listener {
                     player.performCommand("kit");    
                     return;
                 case BONE:
-                    new TopInventoryBuilder().build(player, TopStorage.deaths(), "Top de muertes");
+                    new TopInventoryBuilder().build(player, TopStorage.deaths(), translateManager.getMessage("top-deaths-title"));
                     return;
                 case LEATHER:
-                    new TopInventoryBuilder().build(player, TopStorage.kills(), "Top de kills");
+                    new TopInventoryBuilder().build(player, TopStorage.kills(), translateManager.getMessage("top-kills-title"));
                     return;
                 default:
                     break;
@@ -122,20 +126,17 @@ public class PlayerInteractListener implements Listener {
 
     private void sendPlayerStats(final Player player) {
         final User data = DatabaseManager.getDatabase().getCached(player.getUniqueId());
-        player.sendMessage(
-            "\n "+
-            "\n §6§lEstadísticas" +
-            "\n "+
-            "\n §fKills: §6" + data.kills +
-            "\n §fMuertes: §c" + data.deaths +
-            "\n §fKDR: §d" + String.format("%.2f", data.getKdr()) +
-            "\n "+    
-            "\n §fVictorias: §a" + data.wins +
-            "\n "+    
-            "\n §fFama: §b" + data.fame +
-            "\n §fRango: §e" + FameManager.getRankByFame(data.fame) +
-            "\n "
-        );
+        List<String> statsMessages = translateManager.getMessageList("statistics-messages");
+        for (String message : statsMessages) {
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message
+                .replace("%kills%", String.valueOf(data.kills))
+                .replace("%deaths%", String.valueOf(data.deaths))
+                .replace("%kdr%", String.format("%.2f", data.getKdr()))
+                .replace("%wins%", String.valueOf(data.wins))
+                .replace("%fame%", String.valueOf(data.fame))
+                .replace("%rank%", FameManager.getRankByFame(data.fame))
+            ));
+        }
     }
 
     private void handleGameInteractions(PlayerInteractEvent event, Player player, Action action, ItemStack item, Kit kit, Block clickedBlock) {
@@ -202,7 +203,7 @@ public class PlayerInteractListener implements Listener {
         if (cooldownsFlash.containsKey(playerId)) {
             long timeSinceLastUse = (System.currentTimeMillis() - cooldownsFlash.get(playerId)) / 1000;
             if (timeSinceLastUse < 60) {
-                player.sendMessage(ChatColor.RED + "¡Debes esperar " + (60 - timeSinceLastUse) + " segundos para teletransportarte de nuevo!" + ChatColor.RESET);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("flash-cooldown").replace("%seconds%", String.valueOf(60 - timeSinceLastUse))));
                 return;
             }
         }
@@ -229,7 +230,7 @@ public class PlayerInteractListener implements Listener {
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.0f);
                 cooldownsFlash.put(playerId, System.currentTimeMillis());
             } else {
-                player.sendMessage(ChatColor.RED + "¡No puedes teletransportarte tan lejos!" + ChatColor.RESET);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("flash-too-far")));
             }
         }
     }
@@ -251,9 +252,9 @@ public class PlayerInteractListener implements Listener {
         }
 
         if (closestPlayer == null) {
-            player.sendMessage(ChatColor.RED + "No hay jugadores cerca.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("no-players-nearby")));
         } else {
-            player.sendMessage(ChatColor.GREEN + "El jugador " + ChatColor.RESET + ChatColor.DARK_GREEN + closestPlayer.getName() + ChatColor.RESET + ChatColor.GREEN + " está a " + (int) closestDistance + " bloques de distancia.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("player-distance").replace("%player%", closestPlayer.getName()).replace("%distance%", String.valueOf((int) closestDistance))));
         }
     }
 
@@ -273,7 +274,7 @@ public class PlayerInteractListener implements Listener {
         if (plugin.getCooldownsMedusa().containsKey(player.getUniqueId())) {
             long timeSinceLastUse = (System.currentTimeMillis() - plugin.getCooldownsMedusa().get(player.getUniqueId()));
             if (timeSinceLastUse < 30000) {
-                player.sendMessage(ChatColor.RED + "¡Debes esperar " + ((30000 - timeSinceLastUse) / 1000) + " segundos para usar esto de nuevo!" + ChatColor.RESET);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-cooldown").replace("%seconds%", String.valueOf((30000 - timeSinceLastUse) / 1000))));
                 return;
             }
         }
@@ -289,7 +290,7 @@ public class PlayerInteractListener implements Listener {
             if (nearbyPlayer.equals(player)) continue; // Ignorar al jugador que usa el item
             if (nearbyPlayer.getLocation().distance(playerLocation) <= 25) {
                 plugin.getFrozenPlayers().add(nearbyPlayer);
-                nearbyPlayer.sendMessage(ChatColor.RED + "¡Estás congelado por la Medusa!" + ChatColor.RESET);
+                nearbyPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-frozen")));
                 nearbyPlayer.playSound(nearbyPlayer.getLocation(), Sound.ORB_PICKUP, 1.0F, 1.0F);
             }
         }
@@ -300,7 +301,7 @@ public class PlayerInteractListener implements Listener {
             public void run() {
                 // Enviar mensaje de descongelación a todos los jugadores que estaban congelados
                 for (Player p : plugin.getFrozenPlayers()) {
-                    p.sendMessage(ChatColor.GREEN + "¡Has sido descongelado!" + ChatColor.RESET);
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-unfrozen")));
                 }
                 plugin.removeAllFrozenPlayers();
             }
@@ -312,7 +313,7 @@ public class PlayerInteractListener implements Listener {
         if (cooldownsSaltamontes.containsKey(player.getUniqueId())) {
             long timeSinceLastUse = (System.currentTimeMillis() - cooldownsSaltamontes.get(player.getUniqueId()));
             if (timeSinceLastUse < 4000) {
-                player.sendMessage(ChatColor.RED + "¡Debes esperar " + ((4000 - timeSinceLastUse) / 1000) + " segundos para usar esto de nuevo!" + ChatColor.RESET);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("saltamontes-cooldown").replace("%seconds%", String.valueOf((4000 - timeSinceLastUse) / 1000))));
                 return;
             }
         }
@@ -329,7 +330,7 @@ public class PlayerInteractListener implements Listener {
         if (cooldownsThor.containsKey(player.getUniqueId())) {
             long timeSinceLastUse = (System.currentTimeMillis() - cooldownsThor.get(player.getUniqueId()));
             if (timeSinceLastUse < 10000) {
-                player.sendMessage(ChatColor.RED + "¡Debes esperar " + ((10000 - timeSinceLastUse) / 1000) + " segundos para usar esto de nuevo!" + ChatColor.RESET);
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("thor-cooldown").replace("%seconds%", String.valueOf((10000 - timeSinceLastUse) / 1000))));
                 return;
             }
         }

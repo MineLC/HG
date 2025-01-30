@@ -5,6 +5,7 @@ import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.data.KitInventory;
 import me.isra.hgkits.managers.KitManager;
+import me.isra.hgkits.translate.TranslateManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,9 +23,11 @@ import java.util.Map;
 public class KitCommand implements CommandExecutor {
 
     private final KitManager kitManager;
+    private final TranslateManager translateManager;
 
-    public KitCommand(KitManager kitManager) {
+    public KitCommand(KitManager kitManager, TranslateManager translateManager) {
         this.kitManager = kitManager;
+        this.translateManager = translateManager;
     }
 
     @Override
@@ -36,11 +39,11 @@ public class KitCommand implements CommandExecutor {
                     openKitMenu(player);
                     return true;
                 } else {
-                    sender.sendMessage(ChatColor.RED + "Este comando solo puede ser ejecutado por un jugador.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("player-only-command")));
                     return false;
                 }
             } else {
-                sender.sendMessage(ChatColor.RED + "No puedes elegir kit una vez la partida ha empezado!.");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("game-already-started")));
                 return false;
             }
         }
@@ -50,7 +53,7 @@ public class KitCommand implements CommandExecutor {
     private static final KitInventory HOLDER = new KitInventory();
 
     private void openKitMenu(Player player) {
-        Inventory menu = Bukkit.createInventory(HOLDER, 54, "Selecciona tu KIT");
+        Inventory menu = Bukkit.createInventory(HOLDER, 54, ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("kit-menu-title")));
 
         Map<String, Kit> kits = kitManager.getAllKits();
 

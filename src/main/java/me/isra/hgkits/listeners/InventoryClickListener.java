@@ -6,6 +6,7 @@ import me.isra.hgkits.data.KitInventory;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.tops.inventory.TopInventoryHolder;
+import me.isra.hgkits.translate.TranslateManager;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -17,12 +18,17 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class InventoryClickListener implements Listener {
 
     private final KitManager kitManager;
+    private final TranslateManager translateManager;
 
-    public InventoryClickListener(KitManager kitManager) {
+    public InventoryClickListener(KitManager kitManager, TranslateManager translateManager) {
         this.kitManager = kitManager;
+        this.translateManager = translateManager;
     }
 
     @EventHandler
@@ -51,7 +57,9 @@ public class InventoryClickListener implements Listener {
 
             if (selectedKit != null) {
                 final Player player = (Player) event.getWhoClicked();
-                player.sendMessage(ChatColor.GREEN + "Seleccionaste " + ChatColor.DARK_GREEN + ChatColor.ITALIC + selectedKit.getName() + ChatColor.RESET + ChatColor.GREEN + " como tu kit.");
+                Map<String, String> variables = new HashMap<>();
+                variables.put("kitName", selectedKit.getName());
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("kit-selected").replace("%kitName%", selectedKit.getName())));
                 player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1F, 1F);
                 kitManager.addSelectedKit(player, selectedKit);
                 player.closeInventory();

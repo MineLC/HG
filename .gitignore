@@ -1,4 +1,6 @@
 /target
+/srv
 .idea
 target
 ./target
+./srv

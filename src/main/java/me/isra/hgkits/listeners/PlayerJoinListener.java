@@ -3,6 +3,7 @@ package me.isra.hgkits.listeners;
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.enums.GameState;
+import me.isra.hgkits.translate.TranslateManager;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,13 +12,16 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerJoinListener implements Listener {
 
     private final HGKits plugin;
+    private final TranslateManager translateManager;
 
     public PlayerJoinListener(HGKits plugin) {
         this.plugin = plugin;
+        this.translateManager = plugin.getTranslateManager();
     }
 
     @EventHandler
@@ -38,7 +42,7 @@ public class PlayerJoinListener implements Listener {
             giveItems(event.getPlayer().getInventory());
             if (!plugin.isCountdownRunning()) {
                 if(Bukkit.getOnlinePlayers().size() == 1) {
-                    player.sendMessage(ChatColor.RED + "Se necesitan mínimo 2 jugadores para comenzar la partida");
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("not-enough-players")));
                 }
                 if(Bukkit.getOnlinePlayers().size() == 2) {
                     plugin.startCountdown();
@@ -47,30 +51,38 @@ public class PlayerJoinListener implements Listener {
         } else {
             player.setGameMode(GameMode.SPECTATOR);
         }
+
+        int scoreboardUpdateDelay = plugin.getConfig().getInt("scoreboard.update-delay", 5);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                plugin.updatePlayerScore(player);
+            }
+        }.runTaskLater(plugin, scoreboardUpdateDelay * 20L);
     }
 
     public void giveItems(final PlayerInventory inventory) {
         ItemStack item = new ItemStack(Material.BOW);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "Selector de KIT");
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("kit-selector")));
         item.setItemMeta(meta);
         inventory.setItem(0, item);
 
         item = new ItemStack(Material.BOOK);
         meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.YELLOW + "Estadísticas");
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("statistics")));
         item.setItemMeta(meta);
         inventory.setItem(4, item);
 
         item = new ItemStack(Material.LEATHER);
         meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.GOLD + "Top de kills");
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kills")));
         item.setItemMeta(meta);
         inventory.setItem(7, item);
 
         item = new ItemStack(Material.BONE);
         meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.RED + "Top de muertes");
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-deaths")));
         item.setItemMeta(meta);
         inventory.setItem(8, item);
     }

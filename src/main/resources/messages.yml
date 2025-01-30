@@ -1,0 +1,71 @@
+# General Messages
+welcome-message: "&aWelcome to the server!"
+goodbye-message: "&cGoodbye! See you next time!"
+
+# Permission Messages
+no-permission: "&cYou need to be &aVIP&c to start the game."
+player-only-command: "&cThis command can only be executed by a player."
+
+# Game State Messages
+not-enough-players: "&cThere need to be at least 2 players."
+game-already-started: "&cThe game has already started!"
+players-left: "&cThere are %count% players left."
+world-not-loaded: "&cThe current world is not loaded, respawning in the default world."
+countdown-start: "&aThe game starts in %seconds% seconds."
+waiting-for-players: "&cWaiting for more players."
+game-started: "&aThe game has started!"
+invincibility-end: "&cInvincibility ends in %seconds% seconds."
+invincibility-ended: "&cInvincibility has ended!"
+winner-announcement: "&6&l%winner% &ais the winner!"
+no-winner: "&cThere is no winner."
+server-restarting: "&cThe server is restarting. Thank you for playing!"
+
+# Fame and Rank Messages
+your-fame: "&aYour fame is: "
+your-rank: "&aRank: "
+
+# Top Command Messages
+top-command-format: "&cFormat: /top (kills/deaths)"
+top-kills-title: "&6Top Kills"
+top-deaths-title: "&cTop Deaths"
+
+# Kit Messages
+kit-selected: "&aYou have selected &2&l%kitName%&a as your kit."
+kit-selector: "&aKit Selector"
+kit-menu-title: "Select your kit"
+
+# Combat Messages
+long-distance-kill: "&aThe enemy %victim% died"
+
+# Cooldown Messages
+flash-cooldown: "&cYou must wait %seconds% seconds to teleport again!"
+flash-too-far: "&cYou cannot teleport that far!"
+medusa-cooldown: "&cYou must wait %seconds% seconds to use this again!"
+saltamontes-cooldown: "&cYou must wait %seconds% seconds to use this again!"
+thor-cooldown: "&cYou must wait %seconds% seconds to use this again!"
+
+# Player Interaction Messages
+no-players-nearby: "&cNo players nearby."
+player-distance: "&aPlayer &2&l%player%&a is %distance% blocks away."
+medusa-frozen: "&cYou are frozen by Medusa!"
+medusa-unfrozen: "&aYou have been unfrozen!"
+
+# Statistics Messages
+statistics-messages:
+  - "\n "
+  - "\n &6&lStatistics"
+  - "\n "
+  - "\n &fKills: &6%kills%"
+  - "\n &fDeaths: &c%deaths%"
+  - "\n &fKDR: &d%kdr%"
+  - "\n "
+  - "\n &fWins: &a%wins%"
+  - "\n "
+  - "\n &fFame: &b%fame%"
+  - "\n &fRank: &e%rank%"
+  - "\n "
+statistics: "&eStatistics"
+
+# Top Inventory Titles
+top-kills: "&6Top Kills"
+top-deaths: "&cTop Deaths"

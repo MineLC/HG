@@ -11,3 +11,47 @@ mongodb:
   executor-threads: 2
 
 max-tops: 50
+
+chat:
+  format: "&7[%fame%] &8<&7%kit% &7%player%&8> &f%message%"
+  hover:
+    text:
+      - "&aFame Rank: &7%fame%"
+      - "&aKit: &7%kit%"
+      - "&aPlayer: &7%player%"
+      - "&aKills: &7%kills%"
+      - "&aDeaths: &7%deaths%"
+      - "&aWins: &7%wins%"
+      - "&aKDR: &7%kdr%"
+
+scoreboard:
+  title: "&6&lCHG"
+  text:
+    - "%date%"
+    - ""
+    - "&fAsesinatos: &6%kills%"
+    - "&fMuertes: &c%deaths%"
+    - " "
+    - "&fVictorias: &a%wins%"
+    - "  "
+    - "&fKDR: &d%kdr%"
+    - "   "
+    - "&fFama: &b%fame%"
+    - "    "
+    - "&eplay.mine.lc"
+  update-delay: 5
+
+sounds:
+  anvil_land:
+    volume: 1.0
+    pitch: 1.0
+  orb_pickup:
+    volume: 1.0
+    pitch: 1.0
+  note_pling:
+    volume: 1.0
+    pitch: 1.0
+  startsound:
+    type: "ENDERDRAGON_GROWL"
+    volume: 1.0
+    pitch: 2.0

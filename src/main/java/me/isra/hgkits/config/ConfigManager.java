@@ -30,6 +30,7 @@ public final class ConfigManager {
             return null;
         }
     }
+
     public Config of(String directory, final String file) {
         directory = (directory == null) ? "" : directory + '/';
         return of(new File(directory + file + ".yml"));
@@ -44,7 +45,11 @@ public final class ConfigManager {
             if (file.exists()) {
                 continue;
             }
-            optimum.saveResource(filePath, false);
+            try {
+                optimum.saveResource(filePath, false);
+            } catch (IllegalArgumentException e) {
+                optimum.getLogger().log(Level.SEVERE, "The embedded resource '" + filePath + "' cannot be found in " + optimum.getName() + ".jar");
+            }
         }
     }
 
