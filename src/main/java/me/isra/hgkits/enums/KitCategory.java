@@ -28,7 +28,7 @@ public enum KitCategory {
                 "hulk", "guerrero", "explorador", "encantador", "domabestias", "curandero",
                 "creeper", "camaleon", "brujo", "barbaro", "asesino", "arquero");
         
-        registerKits(VIP, "ultracreeper", "domabestiaspro", "escudero", "headshotter", 
+        registerKits(VIP, "ultracreeper", "domabestiaspro", "escudero", "headshooter", 
                 "ironman", "prominero", "proladron", "thor");
 
         registerKits(SVIP, "tanque", "saltamontes", "proarquero", "matasanos", "escudero", 

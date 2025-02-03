@@ -2,6 +2,7 @@ package me.isra.hgkits.commands;
 
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.enums.GameState;
+import me.isra.hgkits.enums.KitCategory;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.data.KitInventory;
 import me.isra.hgkits.managers.KitManager;
@@ -58,12 +59,21 @@ public class KitCommand implements CommandExecutor {
         Map<String, Kit> kits = kitManager.getAllKits();
 
         int slot = 0;
+        int slot2 = 53;
 
         for (Map.Entry<String, Kit> entry : kits.entrySet()) {
             String kitName = entry.getKey();
             ItemStack item = getItemIcon(kitName, kitManager);
-            menu.setItem(slot, item);
-            slot++;
+            //player.sendMessage(kitName);
+            KitCategory category = KitCategory.fromKitName(kitName);
+            String requiredPermission = category.getPermission();
+            if(player.hasPermission(requiredPermission)) {
+                menu.setItem(slot, item);
+                slot++;
+            } else {
+                menu.setItem(slot2, item);
+                slot2--;
+            }
         }
 
         player.openInventory(menu);
