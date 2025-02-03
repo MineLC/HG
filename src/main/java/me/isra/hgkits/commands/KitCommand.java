@@ -63,9 +63,11 @@ public class KitCommand implements CommandExecutor {
 
         for (Map.Entry<String, Kit> entry : kits.entrySet()) {
             String kitName = entry.getKey();
-            ItemStack item = getItemIcon(kitName, kitManager);
             //player.sendMessage(kitName);
             KitCategory category = KitCategory.fromKitName(kitName);
+
+            ItemStack item = getItemIcon(kitName, category, kitManager, player);
+
             String requiredPermission = category.getPermission();
             if(player.hasPermission(requiredPermission)) {
                 menu.setItem(slot, item);
@@ -79,7 +81,7 @@ public class KitCommand implements CommandExecutor {
         player.openInventory(menu);
     }
 
-    private static ItemStack getItemIcon(String kitName, KitManager kitManager) {
+    private static ItemStack getItemIcon(String kitName, KitCategory category, KitManager kitManager, Player player) {
         ItemStack item = null;
         ItemMeta meta;
         Kit kit = kitManager.getKit(kitName);
@@ -210,7 +212,7 @@ public class KitCommand implements CommandExecutor {
             meta = item.getItemMeta();
             if (meta != null) {
                 
-                meta.setDisplayName(ChatColor.GREEN + kitName + ChatColor.RESET);
+                meta.setDisplayName((player.hasPermission(category.getPermission()) ? ChatColor.GREEN : ChatColor.RED) + kitName + ChatColor.RESET);
 
                 meta.setLore(kit.getLore());
                 meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);

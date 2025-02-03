@@ -441,7 +441,7 @@ public final class HGKits extends JavaPlugin {
                     }
                     if(ct <= 0){
                         finalBattleManager.createBattle();
-                        finalBattleManager.teleportGamers(30);
+                        finalBattleManager.teleportGamers(25);
                         cancel();
                         return;
                     }
