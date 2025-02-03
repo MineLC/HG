@@ -9,11 +9,7 @@ import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.tops.TopManager;
 import me.isra.hgkits.translate.TranslateManager;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,6 +31,11 @@ public class PlayerDeathListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (HGKits.GAMESTATE == GameState.GAME) {
             Player player = event.getEntity();
+
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.AMBIENCE_THUNDER, 2f, 1f);
+            }
+
             Location deathLocation = player.getLocation();
             World world = deathLocation.getWorld();
             Kit playerKit = kitManager.getKitByPlayer(player);

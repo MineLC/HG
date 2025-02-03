@@ -33,7 +33,9 @@ public class FinalBattleManager {
     }
 
     public void createBattle() {
-        mainBlock = getPlugin().getCurrentWorld().getSpawnLocation().add(0.0D, 30, 0.0D);
+        mainBlock = getPlugin().getCurrentWorld().getSpawnLocation().clone();
+        mainBlock.setY(100D);
+
         if (schematic == null) {
             plugin.getLogger().warning("Error on paste schematic. Not schematic found");
             return;
@@ -41,7 +43,7 @@ public class FinalBattleManager {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> new PasteV1_8R3().paste(mainBlock.getBlockX(), mainBlock.getBlockY(), mainBlock.getBlockZ(), mainBlock.getWorld(), schematic));
     }
 
-    public void teleportGamers(int addHeight) {
+    public void teleportGamers() {
         final int centerX = mainBlock.getBlockX() + (schematic.amountBlocksX / 2);
         final int centerY = mainBlock.getBlockY();
         final int centerZ = mainBlock.getBlockZ() + (schematic.amountBlocksZ / 2);
@@ -51,7 +53,7 @@ public class FinalBattleManager {
             final Location location = new Location(
                     p.getWorld(),
                     centerX + genRandomPosition(newRadius),
-                    centerY + 2,
+                    centerY,
                     centerZ + genRandomPosition(newRadius));
 
             p.teleport(location);

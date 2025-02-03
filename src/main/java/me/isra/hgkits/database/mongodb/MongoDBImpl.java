@@ -165,7 +165,7 @@ final class MongoDBImpl implements Database {
         service.submit(() -> {
             final List<Document> toSave = new ArrayList<>();
             for (final Player player : players) {
-                final User data = cache.remove(player.getUniqueId());
+                final User data = cache.get(player.getUniqueId());
                 if (data == null) {
                     continue;
                 }
