@@ -3,6 +3,10 @@ version: 1.0
 main: me.isra.hgkits.HGKits
 depend: [SlimeWorldManager]
 commands:
+  finalbattle:
+    description: Comando que activa la batalla final
+    aliases:
+      - fb
   kit:
     description: Abre el menú de kits
     usage: /<command>
