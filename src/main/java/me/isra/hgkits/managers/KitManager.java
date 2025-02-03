@@ -2,12 +2,15 @@ package me.isra.hgkits.managers;
 
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.data.Kit;
+
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.potion.Potion;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -82,7 +85,6 @@ public class KitManager {
                 }
             }
 
-
             for (String efecto : k.getEffects()) {
                 String[] fields = efecto.split(":");
                 String tipoEfecto = fields[0];
@@ -125,13 +127,29 @@ public class KitManager {
         addItemToPlayer(itemStack, p);
     }
 
+    private void handlePotions(Player p, int cantidad, String potionName) {
 
-    private void handlePotions(Player p, int cantidad, String potionTypeStr) {
-        int potionType = Integer.parseInt(potionTypeStr);
+        // (short) 16384 hace que la pocion sea arrojadiza.
+        ItemStack potionItem = new ItemStack(Material.POTION, cantidad, (short) 16384);
+        PotionMeta meta = (PotionMeta) potionItem.getItemMeta();
 
-        Potion potion = new Potion(potionType);
-        potion.setSplash(true);
-        ItemStack potionItem = potion.toItemStack(cantidad);
+        switch (potionName) {
+            case "SPEED":
+                meta.addCustomEffect(new PotionEffect(PotionEffectType.getByName(potionName), 20 * 90, 1), true);
+                break;
+            case "POISON":
+                meta.addCustomEffect(new PotionEffect(PotionEffectType.getByName(potionName), 20 * 12, 1), true);
+                break;
+            case "HEAL":
+            case "HARM":
+                meta.addCustomEffect(new PotionEffect(PotionEffectType.getByName(potionName), 1, 1), true);
+                break;
+
+            default:
+                break;
+        }
+        meta.setDisplayName("Poción de " + potionName);
+        potionItem.setItemMeta(meta);
 
         addItemToPlayer(potionItem, p);
     }
@@ -143,7 +161,6 @@ public class KitManager {
         addItemToPlayer(egg, p);
     }
 
-
     private void handleEnchants(Player p, Material material, int cantidad, String enchant, int level) {
         ItemStack itemStack = new ItemStack(material, cantidad);
         Enchantment enchantment = Enchantment.getByName(enchant.toUpperCase());
@@ -152,12 +169,12 @@ public class KitManager {
         if (enchantment != null) {
             switch (material) {
                 case DIAMOND_PICKAXE:
-                    if(kit.getName().equals("Prominero")) {
+                    if (kit.getName().equals("Prominero")) {
                         itemStack.addUnsafeEnchantment(enchantment, level);
                     }
                     break;
                 case GOLDEN_APPLE:
-                    if(kit.getName().equals("Troll")) {
+                    if (kit.getName().equals("Troll")) {
                         itemStack.addUnsafeEnchantment(enchantment, level);
                     }
                     break;
@@ -167,7 +184,6 @@ public class KitManager {
         } else {
             p.sendMessage("Encantamiento no válido: " + enchant);
         }
-
 
         addItemToPlayer(itemStack, p);
     }
@@ -207,6 +223,30 @@ public class KitManager {
     private void equipArmor(Player player, ItemStack armor) {
         PlayerInventory inventory = player.getInventory();
 
+        Kit kit = getKitByPlayer(player);
+
+        // Definir los colores para cada tipo de armadura de cuero SOLO si es Spiderman
+        Map<Material, Color> armorColors = new HashMap<>();
+        if (kit != null && kit.getName().equalsIgnoreCase("Spiderman")) {
+            armorColors.put(Material.LEATHER_HELMET, Color.RED);
+            armorColors.put(Material.LEATHER_CHESTPLATE, Color.BLUE);
+            armorColors.put(Material.LEATHER_LEGGINGS, Color.RED);
+            armorColors.put(Material.LEATHER_BOOTS, Color.BLUE);
+        }
+
+        // Verificar si el armor es cuero
+        if (armor.getType().toString().contains("LEATHER")) {
+            LeatherArmorMeta meta = (LeatherArmorMeta) armor.getItemMeta();
+
+            // Establecer el color según el tipo de armadura
+            Color color = armorColors.get(armor.getType());
+            if (color != null) {
+                meta.setColor(color);
+                armor.setItemMeta(meta);
+            }
+        }
+
+        // Asignar la armadura al inventario del jugador
         switch (armor.getType()) {
             case DIAMOND_HELMET:
             case CHAINMAIL_HELMET:

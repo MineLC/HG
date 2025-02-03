@@ -50,6 +50,7 @@ public class PlayerJoinListener implements Listener {
             }
         } else {
             player.setGameMode(GameMode.SPECTATOR);
+            player.teleport(plugin.getRandomSpawnLocation());
         }
 
         int scoreboardUpdateDelay = plugin.getConfig().getInt("scoreboard.update-delay", 5);

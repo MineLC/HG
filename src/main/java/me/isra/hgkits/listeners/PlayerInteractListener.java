@@ -16,6 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,6 +24,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
@@ -38,8 +41,8 @@ public class PlayerInteractListener implements Listener {
     private final KitManager kitManager;
     private final TranslateManager translateManager;
     private final Map<UUID, Long> cooldownsFlash = new HashMap<>();
-    //private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
-    private final Map<UUID, Long> cooldownsSaltamontes = new HashMap<>();
+    // private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
+    // private final Map<UUID, Long> cooldownsSaltamontes = new HashMap<>();
     private final Map<UUID, Long> cooldownsThor = new HashMap<>();
 
     public PlayerInteractListener(HGKits plugin, KitManager kitManager) {
@@ -60,13 +63,14 @@ public class PlayerInteractListener implements Listener {
             return;
         }
         Kit kit = kitManager.getKitByPlayer(player);
-        //INCLUYE EL ESTADO DE JUEGO INVINCIBILITY.
-        //LAS ACCIONES SE EJECUTARÁN TAMBIÉN CUANDO EL JUEGO
-        //ESTE EN PERIODO DE INVENCIBILIDAD.
+        // INCLUYE EL ESTADO DE JUEGO INVINCIBILITY.
+        // LAS ACCIONES SE EJECUTARÁN TAMBIÉN CUANDO EL JUEGO
+        // ESTE EN PERIODO DE INVENCIBILIDAD.
         handleGameInteractions(event, player, action, item, kit, clickedBlock);
     }
 
-    private void handlePregameInteractions(PlayerInteractEvent event, Player player, Action action, Block clickedBlock, ItemStack item) {
+    private void handlePregameInteractions(PlayerInteractEvent event, Player player, Action action, Block clickedBlock,
+            ItemStack item) {
         if (action == Action.RIGHT_CLICK_BLOCK && clickedBlock != null && isRestrictedBlock(clickedBlock.getType())) {
             event.setCancelled(true);
         }
@@ -80,13 +84,15 @@ public class PlayerInteractListener implements Listener {
                     sendPlayerStats(player);
                     return;
                 case BOW:
-                    player.performCommand("kit");    
+                    player.performCommand("kit");
                     return;
                 case BONE:
-                    new TopInventoryBuilder().build(player, TopStorage.deaths(), translateManager.getMessage("top-deaths-title"));
+                    new TopInventoryBuilder().build(player, TopStorage.deaths(),
+                            translateManager.getMessage("top-deaths-title"));
                     return;
                 case LEATHER:
-                    new TopInventoryBuilder().build(player, TopStorage.kills(), translateManager.getMessage("top-kills-title"));
+                    new TopInventoryBuilder().build(player, TopStorage.kills(),
+                            translateManager.getMessage("top-kills-title"));
                     return;
                 default:
                     break;
@@ -129,18 +135,19 @@ public class PlayerInteractListener implements Listener {
         List<String> statsMessages = translateManager.getMessageList("statistics-messages");
         for (String message : statsMessages) {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', message
-                .replace("%kills%", String.valueOf(data.kills))
-                .replace("%deaths%", String.valueOf(data.deaths))
-                .replace("%kdr%", String.format("%.2f", data.getKdr()))
-                .replace("%wins%", String.valueOf(data.wins))
-                .replace("%fame%", String.valueOf(data.fame))
-                .replace("%rank%", FameManager.getRankByFame(data.fame))
-            ));
+                    .replace("%kills%", String.valueOf(data.kills))
+                    .replace("%deaths%", String.valueOf(data.deaths))
+                    .replace("%kdr%", String.format("%.2f", data.getKdr()))
+                    .replace("%wins%", String.valueOf(data.wins))
+                    .replace("%fame%", String.valueOf(data.fame))
+                    .replace("%rank%", FameManager.getRankByFame(data.fame))));
         }
     }
 
-    private void handleGameInteractions(PlayerInteractEvent event, Player player, Action action, ItemStack item, Kit kit, Block clickedBlock) {
-        if (kit == null || item == null) return;
+    private void handleGameInteractions(PlayerInteractEvent event, Player player, Action action, ItemStack item,
+            Kit kit, Block clickedBlock) {
+        if (kit == null || item == null)
+            return;
 
         if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
             if (item.getType() == Material.MUSHROOM_SOUP && isHealingKit(kit.getName())) {
@@ -156,11 +163,11 @@ public class PlayerInteractListener implements Listener {
             } else if (item.getType() == Material.WATCH && "Meduza".equals(kit.getName())) {
                 handleFreezePlayers(player, item);
 
-            }else if (item.getType() == Material.FIREWORK && "Saltamontes".equals(kit.getName())){
+            } else if (item.getType() == Material.FIREWORK && "Saltamontes".equals(kit.getName())) {
                 event.setCancelled(true);
                 handleFireworkJump(player);
 
-            }else if (item.getType() == Material.COMPASS) {
+            } else if (item.getType() == Material.COMPASS) {
                 handleCompassUsage(player);
             }
         }
@@ -172,14 +179,15 @@ public class PlayerInteractListener implements Listener {
         }
 
         if (action == Action.RIGHT_CLICK_BLOCK) {
-            if(item.getType() == Material.DIAMOND_AXE && "Thor".equals(kit.getName())) {
+            if (item.getType() == Material.DIAMOND_AXE && "Thor".equals(kit.getName())) {
                 handleStrikeLightning(player, clickedBlock.getLocation().add(0, 1, 0));
             }
         }
     }
 
     private boolean isHealingKit(String kitName) {
-        return "Curandero".equals(kitName) || "Orco".equals(kitName) || "Canibal".equals(kitName) || "Coloso".equals(kitName);
+        return "Curandero".equals(kitName) || "Orco".equals(kitName) || "Canibal".equals(kitName)
+                || "Coloso".equals(kitName);
     }
 
     private void healOrFeedPlayer(Player player, ItemStack item) {
@@ -203,7 +211,8 @@ public class PlayerInteractListener implements Listener {
         if (cooldownsFlash.containsKey(playerId)) {
             long timeSinceLastUse = (System.currentTimeMillis() - cooldownsFlash.get(playerId)) / 1000;
             if (timeSinceLastUse < 60) {
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("flash-cooldown").replace("%seconds%", String.valueOf(60 - timeSinceLastUse))));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager
+                        .getMessage("flash-cooldown").replace("%seconds%", String.valueOf(60 - timeSinceLastUse))));
                 return;
             }
         }
@@ -230,7 +239,8 @@ public class PlayerInteractListener implements Listener {
                 player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.0f);
                 cooldownsFlash.put(playerId, System.currentTimeMillis());
             } else {
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("flash-too-far")));
+                player.sendMessage(
+                        ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("flash-too-far")));
             }
         }
     }
@@ -240,7 +250,8 @@ public class PlayerInteractListener implements Listener {
         double closestDistance = Double.MAX_VALUE;
 
         for (Player target : plugin.getPlayers()) {
-            if (target.equals(player)) continue;
+            if (target.equals(player))
+                continue;
 
             double distance = player.getLocation().distance(target.getLocation());
 
@@ -252,9 +263,12 @@ public class PlayerInteractListener implements Listener {
         }
 
         if (closestPlayer == null) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("no-players-nearby")));
+            player.sendMessage(
+                    ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("no-players-nearby")));
         } else {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("player-distance").replace("%player%", closestPlayer.getName()).replace("%distance%", String.valueOf((int) closestDistance))));
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    translateManager.getMessage("player-distance").replace("%player%", closestPlayer.getName())
+                            .replace("%distance%", String.valueOf((int) closestDistance))));
         }
     }
 
@@ -272,65 +286,71 @@ public class PlayerInteractListener implements Listener {
 
     private void handleFreezePlayers(Player player, ItemStack item) {
         if (plugin.getCooldownsMedusa().containsKey(player.getUniqueId())) {
-            long timeSinceLastUse = (System.currentTimeMillis() - plugin.getCooldownsMedusa().get(player.getUniqueId()));
+            long timeSinceLastUse = (System.currentTimeMillis()
+                    - plugin.getCooldownsMedusa().get(player.getUniqueId()));
             if (timeSinceLastUse < 30000) {
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-cooldown").replace("%seconds%", String.valueOf((30000 - timeSinceLastUse) / 1000))));
+                player.sendMessage(
+                        ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-cooldown")
+                                .replace("%seconds%", String.valueOf((30000 - timeSinceLastUse) / 1000))));
                 return;
             }
         }
 
         plugin.getCooldownsMedusa().put(player.getUniqueId(), System.currentTimeMillis());
-        if(player.getInventory().getItemInHand().getAmount() > 0) {
+        if (player.getInventory().getItemInHand().getAmount() > 0) {
             player.getInventory().getItemInHand().setAmount(player.getInventory().getItemInHand().getAmount() - 1);
         }
 
-
+        // HAY UNA LISTA EN HGKITS QUE ALMACENA LOS JUGADORES QUE ESTAN JUGANDO ENTONCES
+        // SE UTILIZA ESA LISTA PARA QUE LOS ESPECTADORES NO RECIBAN SLOWNESS TAMBIEN.
         Location playerLocation = player.getLocation();
-        for (Player nearbyPlayer : playerLocation.getWorld().getPlayers()) {
-            if (nearbyPlayer.equals(player)) continue; // Ignorar al jugador que usa el item
+        for (Player nearbyPlayer : plugin.getPlayers()) {
+            if (nearbyPlayer.equals(player))
+                continue; // Ignorar al jugador que usa el item
             if (nearbyPlayer.getLocation().distance(playerLocation) <= 25) {
                 plugin.getFrozenPlayers().add(nearbyPlayer);
-                nearbyPlayer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-frozen")));
-                nearbyPlayer.playSound(nearbyPlayer.getLocation(), Sound.ORB_PICKUP, 1.0F, 1.0F);
+                nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 255));
+                nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 0));
+                nearbyPlayer.sendMessage(
+                        ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-frozen")));
+                nearbyPlayer.playSound(nearbyPlayer.getLocation(), Sound.AMBIENCE_CAVE, 1.0F, 1.0F);
+                player.playSound(playerLocation, Sound.AMBIENCE_CAVE, 1.0F, 1.0F);
             }
         }
 
-        // Descongelar después de 30 segundos (600 ticks)
+        // Descongelar después de 5 segundos (100 ticks)
         new BukkitRunnable() {
             @Override
             public void run() {
                 // Enviar mensaje de descongelación a todos los jugadores que estaban congelados
                 for (Player p : plugin.getFrozenPlayers()) {
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-unfrozen")));
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                            translateManager.getMessage("medusa-unfrozen")));
                 }
                 plugin.removeAllFrozenPlayers();
             }
         }.runTaskLater(plugin, 100);
     }
 
-
     private void handleFireworkJump(Player player) {
-        if (cooldownsSaltamontes.containsKey(player.getUniqueId())) {
-            long timeSinceLastUse = (System.currentTimeMillis() - cooldownsSaltamontes.get(player.getUniqueId()));
-            if (timeSinceLastUse < 4000) {
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("saltamontes-cooldown").replace("%seconds%", String.valueOf((4000 - timeSinceLastUse) / 1000))));
-                return;
-            }
+        // Comprobar si el jugador está tocando el suelo
+        final Block b = player.getLocation().getBlock();
+        if (b.getType() != Material.AIR || b.getRelative(BlockFace.DOWN).getType() != Material.AIR) {
+            player.setFallDistance(-5.0f);
+            final Vector vector = player.getEyeLocation().getDirection();
+            vector.multiply(0.6f);
+            vector.setY(1);
+            player.setVelocity(vector);
         }
-
-        Vector velocity = player.getVelocity();
-        velocity.setY(1.5);
-        velocity.setX(player.getLocation().getDirection().getX() * 0.5);
-        velocity.setZ(player.getLocation().getDirection().getZ() * 0.5);
-        player.setVelocity(velocity);
-        cooldownsSaltamontes.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
     private void handleStrikeLightning(Player player, Location location) {
         if (cooldownsThor.containsKey(player.getUniqueId())) {
             long timeSinceLastUse = (System.currentTimeMillis() - cooldownsThor.get(player.getUniqueId()));
             if (timeSinceLastUse < 10000) {
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("thor-cooldown").replace("%seconds%", String.valueOf((10000 - timeSinceLastUse) / 1000))));
+                player.sendMessage(
+                        ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("thor-cooldown")
+                                .replace("%seconds%", String.valueOf((10000 - timeSinceLastUse) / 1000))));
                 return;
             }
         }

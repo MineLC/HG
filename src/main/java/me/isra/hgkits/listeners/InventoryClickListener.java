@@ -4,6 +4,7 @@ import me.isra.hgkits.HGKits;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.data.KitInventory;
 import me.isra.hgkits.enums.GameState;
+import me.isra.hgkits.enums.KitCategory;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.tops.inventory.TopInventoryHolder;
 import me.isra.hgkits.translate.TranslateManager;
@@ -38,7 +39,7 @@ public class InventoryClickListener implements Listener {
         }
         final InventoryHolder holder = event.getClickedInventory().getHolder();
         if (holder instanceof TopInventoryHolder) {
-            event.setCancelled(true); 
+            event.setCancelled(true);
             return;
         }
 
@@ -57,16 +58,30 @@ public class InventoryClickListener implements Listener {
 
             if (selectedKit != null) {
                 final Player player = (Player) event.getWhoClicked();
+                // Obtener la categoría del kit directamente desde el Map
+                KitCategory category = KitCategory.fromKitName(kitName);
+
+                String requiredPermission = category.getPermission();
+
+                if (!player.hasPermission(requiredPermission)) {
+                    player.sendMessage(
+                            ChatColor.RED + "No tienes permiso para seleccionar el kit " + selectedKit.getName() + ".");
+                    player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1F, 1F);
+                    return;
+                }
+
                 Map<String, String> variables = new HashMap<>();
                 variables.put("kitName", selectedKit.getName());
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("kit-selected").replace("%kitName%", selectedKit.getName())));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                        translateManager.getMessage("kit-selected").replace("%kitName%", selectedKit.getName())));
                 player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1F, 1F);
                 kitManager.addSelectedKit(player, selectedKit);
                 player.closeInventory();
             }
             return;
         }
-        if(HGKits.GAMESTATE == GameState.PREGAME) {
+        
+        if (HGKits.GAMESTATE == GameState.PREGAME) {
             event.setCancelled(true);
         }
     }

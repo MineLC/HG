@@ -190,7 +190,7 @@ public final class HGKits extends JavaPlugin {
                     List<String> effects = config.getOrDefault("effects", Arrays.asList("No effects"));
                     List<String> lores = config.getOrDefault("lore", Arrays.asList("No lore"));
 
-                    lores.replaceAll(s -> ChatColor.GRAY + "- " + s + ChatColor.RESET);
+                    lores.replaceAll(s -> ChatColor.GRAY + s + ChatColor.RESET);
 
                     Kit kit = new Kit(name, items, effects, lores);
                     kitManager.addKit(name, kit);
@@ -225,6 +225,8 @@ public final class HGKits extends JavaPlugin {
         pluginTopCommand.setExecutor(topCommand);
         pluginTopCommand.setTabCompleter(topCommand);
 
+        ProjectileHitListener projectileHitListener = new ProjectileHitListener(kitManager);
+
         List<Listener> listeners = Arrays.asList(
                 new PlayerItemConsumeListener(this, kitManager),
                 new PlayerInteractListener(this, kitManager),
@@ -236,13 +238,13 @@ public final class HGKits extends JavaPlugin {
                 new PlayerMoveListener(this),
 
                 new EntityTargetLivingEntityListener(kitManager, playerAttackManager),
-                new EntityDamageByEntityListener(kitManager, playerAttackManager, translateManager),
-                new EntityDamageListener(kitManager),
+                new EntityDamageByEntityListener(this, kitManager, playerAttackManager, translateManager, projectileHitListener),
+                new EntityDamageListener(this, kitManager),
 
                 new AsyncPlayerChatListener(kitManager, this),
                 new FoodLevelChangeListener(),
                 new InventoryClickListener(kitManager, translateManager),
-                new ProjectileHitListener(kitManager),
+                projectileHitListener,
                 new BreakBlockListener(kitManager),
                 new PlaceBlockListener()
         );

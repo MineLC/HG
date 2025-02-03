@@ -4,7 +4,12 @@ import me.isra.hgkits.HGKits;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.managers.KitManager;
+
+import java.util.Random;
+
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -13,7 +18,6 @@ import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.util.Vector;
 
 public class ProjectileHitListener implements Listener {
 
@@ -49,22 +53,28 @@ public class ProjectileHitListener implements Listener {
         }
 
         if (projectile instanceof Snowball && kit.getName().equalsIgnoreCase("Spiderman")) {
-            createWebStructure(projectile);
+            createWebStructure(projectile.getLocation());
         }
     }
 
-    private void createWebStructure(Projectile projectile) {
-        Vector hitLocation = projectile.getLocation().toVector();
-
-        for (int x = -1; x <= 1; x++) {
-            for (int y = 0; y <= 2; y++) { // Altura ajustada a 3 bloques (0, 1, 2)
-                for (int z = -1; z <= 1; z++) {
-                    Vector blockLocation = hitLocation.clone().add(new Vector(x, y, z));
-                    Material blockType = projectile.getWorld().getBlockAt(blockLocation.toLocation(projectile.getWorld())).getType();
-
-                    if (blockType == Material.AIR) {
-                        projectile.getWorld().getBlockAt(blockLocation.toLocation(projectile.getWorld())).setType(Material.WEB);
-                    }
+    public void createWebStructure(Location hitLocation) {
+        Random random = new Random();
+        int webCount = random.nextInt(3) + 1; // Genera entre 1 y 3 telarañas
+    
+        for (int i = 0; i < webCount; i++) {
+            // Genera la posición aleatoria dentro del área de 2x2 en el suelo
+            int offsetX = random.nextInt(2); // Rango: 0 a 1
+            int offsetZ = random.nextInt(2); // Rango: 0 a 1
+    
+            // Obtiene la ubicación del bloque en el suelo
+            Location webLocation = hitLocation.clone().add(offsetX, 0, offsetZ);
+            Block groundBlock = webLocation.getBlock();
+    
+            // Asegura que la telaraña se coloque sobre un bloque sólido
+            if (groundBlock.getType() == Material.AIR) {
+                Block blockBelow = groundBlock.getRelative(0, -1, 0); // Bloque debajo
+                if (blockBelow.getType().isSolid()) { // Solo colocar telaraña si hay suelo
+                    groundBlock.setType(Material.WEB);
                 }
             }
         }

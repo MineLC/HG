@@ -17,3 +17,33 @@ commands:
   top:
     description: Mira los tops disponibles
     usage: /top (kills/deaths)
+
+permissions:
+  chg.default:
+    description: Permiso para kits por defecto
+    default: true
+
+  chg.vip:
+    description: Permiso para kits VIP y anteriores
+    default: false
+    children:
+      chg.default: true
+
+  chg.svip:
+    description: Permiso para kits SVIP y anteriores
+    default: false
+    children:
+      chg.vip: true
+
+  chg.elite:
+    description: Permiso para kits Elite y anteriores
+    default: false
+    children:
+      chg.svip: true
+
+  chg.optimum:
+    description: Permiso para kits Optimum y anteriores
+    default: false
+    children:
+      chg.elite: true
+

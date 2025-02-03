@@ -7,38 +7,44 @@ import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
 import me.isra.hgkits.translate.TranslateManager;
 import net.md_5.bungee.api.ChatColor;
-
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 public class EntityDamageByEntityListener implements Listener {
+    private final HGKits plugin;
     private final KitManager kitManager;
     private final PlayerAttackManager attackManager;
     private final TranslateManager translateManager;
+    private final ProjectileHitListener projectileHitListener;
 
-    public EntityDamageByEntityListener(KitManager kitManager, PlayerAttackManager attackManager, TranslateManager translateManager) {
+    public EntityDamageByEntityListener(HGKits plugin, KitManager kitManager, PlayerAttackManager attackManager,
+            TranslateManager translateManager, ProjectileHitListener projectileHitListener) {
+        this.plugin = plugin;
         this.kitManager = kitManager;
         this.attackManager = attackManager;
         this.translateManager = translateManager;
+        this.projectileHitListener = projectileHitListener;
     }
 
     @EventHandler
     public void onEntityDamagedByEntity(EntityDamageByEntityEvent event) {
         Entity damagedEntity = event.getEntity();
+        Entity damagerEntity = event.getDamager();
 
-        // Verificar si la entidad dañada es un mob (Monster) y el atacante es un jugador
-        if (damagedEntity instanceof Monster && event.getDamager() instanceof Player) {
-            Player attacker = (Player) event.getDamager();
+        // Cuando un jugador daña a un Monster (mob)
+        if (damagedEntity instanceof Monster && damagerEntity instanceof Player) {
+            Player attacker = (Player) damagerEntity;
             Kit attackerKit = kitManager.getKitByPlayer(attacker);
 
-            // Añadir al jugador al attackManager si tiene uno de los kits específicos
             if (attackerKit != null && (attackerKit.getName().equals("Enderman") ||
                     attackerKit.getName().equals("Domabestias") ||
                     attackerKit.getName().equals("Domabestiaspro"))) {
@@ -46,14 +52,37 @@ public class EntityDamageByEntityListener implements Listener {
             }
         }
 
-        // Asegurarse de que la víctima y el atacante sean jugadores
-        if (event.getEntity() instanceof Player && event.getDamager() instanceof Player) {
-            if (HGKits.GAMESTATE == GameState.GAME) {
-                Player victim = (Player) event.getEntity();
-                Player attacker = (Player) event.getDamager();
-                Kit attackerKit = kitManager.getKitByPlayer(attacker);
+        // Cuando tanto el atacante como la víctima son jugadores
+        if (damagedEntity instanceof Player && damagerEntity instanceof Player && HGKits.GAMESTATE == GameState.GAME) {
+            Player victim = (Player) damagedEntity;
+            Player attacker = (Player) damagerEntity;
+            Kit attackerKit = kitManager.getKitByPlayer(attacker);
 
-                // Si el atacante tiene un kit, aplicamos los efectos correspondientes
+            if (attackerKit != null) {
+                applyKitEffects(event, attacker, attackerKit, victim);
+            }
+        }
+
+        // Cuando un jugador es dañado por una Snowball
+        if (damagedEntity instanceof Player && damagerEntity instanceof Snowball) {
+            Snowball snowball = (Snowball) damagerEntity;
+            if (snowball.getShooter() instanceof Player) {
+                Player victim = (Player) damagedEntity;
+                Player attacker = (Player) snowball.getShooter();
+                Kit attackerKit = kitManager.getKitByPlayer(attacker);
+                if (attackerKit != null) {
+                    applyKitEffects(event, attacker, attackerKit, victim);
+                }
+            }
+        }
+
+        // Cuando un jugador es dañado por una Flecha
+        if (damagedEntity instanceof Player && damagerEntity instanceof Arrow && HGKits.GAMESTATE == GameState.GAME) {
+            Arrow arrow = (Arrow) damagerEntity;
+            if (arrow.getShooter() instanceof Player) {
+                Player victim = (Player) damagedEntity;
+                Player attacker = (Player) arrow.getShooter();
+                Kit attackerKit = kitManager.getKitByPlayer(attacker);
                 if (attackerKit != null) {
                     applyKitEffects(event, attacker, attackerKit, victim);
                 }
@@ -62,73 +91,97 @@ public class EntityDamageByEntityListener implements Listener {
     }
 
     private void applyKitEffects(EntityDamageByEntityEvent event, Player attacker, Kit attackerKit, Player victim) {
-        // Blindness para Troll
-        if (attackerKit.getName().equals("Troll") && randomChance()) {
-            victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
-        }
-
-        // Poison para Matasanos
-        if (attackerKit.getName().equals("Matasanos") && randomChance()) {
-            victim.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 0));
-        }
-
-        // Weakness para Orco
-        if (attackerKit.getName().equals("Orco") && randomChance()) {
-            victim.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 0));
-        }
-
-        // Verificar si el daño fue causado por caída y si el atacante tiene el kit "Explorador" o "Saltamontes"
-        if (event.getCause() == EntityDamageEvent.DamageCause.FALL &&
-                (attackerKit.getName().equals("Explorador") || attackerKit.getName().equals("Saltamontes"))) {
-
-            double reducedDamage = 2.0;
-            event.setDamage(reducedDamage);
-
-            damageNearbyPlayers(attacker);
-        }
-
-        // Hulk: mayor daño si ataca con las manos vacías
-        if (attackerKit.getName().equals("Hulk") && attacker.getItemInHand().getType() == Material.AIR) {
-            event.setDamage(5.0);  // Ejemplo: Aumenta el daño en 5 puntos
-        }
-
-        // Ladron y Proladron: roban objetos si atacan con un palo
-        if ((attackerKit.getName().equals("Ladron") || attackerKit.getName().equals("Proladron")) && attacker.getItemInHand().getType() == Material.STICK) {
-            if (randomChance()) {
-                ItemStack victimItem = victim.getItemInHand();
-                if (victimItem != null && victimItem.getType() != Material.AIR) {
-                    victim.setItemInHand(new ItemStack(Material.AIR));
-                    attacker.setItemInHand(victimItem);
+        switch (attackerKit.getName()) {
+            case "Canibal":
+                applyCanibalEffect(event, attacker);
+                break;
+            case "Spiderman":
+                if (event.getDamager() instanceof Snowball) {
+                    projectileHitListener.createWebStructure(victim.getLocation());
                 }
-            }
+                break;
+            case "Meduza":
+                freezeVictimIfFrozen(victim, attacker);
+                break;
+            case "Troll":
+                if (randomChance())
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
+                    playSound(attacker);
+                break;
+            case "Matasanos":
+                if (randomChance())
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 0));
+                    playSound(attacker);
+                break;
+            case "Orco":
+                if (randomChance())
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 0));
+                    playSound(attacker);
+                break;
+            case "Hulk":
+                applyHulkEffect(event, attacker);
+                break;
+            case "Ladron":
+            case "Proladron":
+                applyLadronEffect(attacker, victim);
+                break;
+            case "Headshooter":
+            case "Elite":
+                applyHeadshooterEffect(attacker, victim);
+                break;
         }
+    }
 
-        // Headshooter y Elite: matar instantáneamente disparando a más de 30 bloques
-        if ((attackerKit.getName().equals("Headshooter") || attackerKit.getName().equals("Elite")) && event.getDamager() instanceof Arrow) {
-            Arrow arrow = (Arrow) event.getDamager();
-            if (arrow.getShooter() instanceof Player) {
-                // Si el disparo fue hecho por el atacante y la distancia es mayor a 30 bloques
-                if (attacker.getLocation().distance(victim.getLocation()) >= 30) {
-                    victim.setHealth(0.0);
-                    attacker.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("long-distance-kill").replace("%victim%", victim.getName())));
-                }
+    private void applyCanibalEffect(EntityDamageByEntityEvent event, Player attacker) {
+        if (event.getEntity() instanceof Player && attacker.getItemInHand().toString().contains("SWORD") && randomChance()) {
+            double damage = event.getDamage();
+            double healAmount = damage / 2.0;
+            double newHealth = Math.min(attacker.getHealth() + healAmount, attacker.getMaxHealth());
+            attacker.setHealth(newHealth);
+            playSound(attacker);
+        }
+    }
+
+    private void freezeVictimIfFrozen(Player victim, Player attacker) {
+        if (plugin.getFrozenPlayers().contains(victim)) {
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> victim.setVelocity(new Vector(0, 0, 0)), 1L);
+            playSound(attacker);
+        }
+    }
+
+    private void applyHulkEffect(EntityDamageByEntityEvent event, Player attacker) {
+        if (attacker.getItemInHand().getType() == Material.AIR) {
+            event.setDamage(5.0);
+        }
+    }
+
+    private void applyLadronEffect(Player attacker, Player victim) {
+        if (attacker.getItemInHand().getType() == Material.STICK && randomChance()) {
+            ItemStack victimItem = victim.getItemInHand();
+            if (victimItem != null && victimItem.getType() != Material.AIR) {
+                victim.setItemInHand(new ItemStack(Material.AIR));
+                attacker.setItemInHand(victimItem);
+                playSound(attacker);
             }
         }
     }
 
-    private void damageNearbyPlayers(Player player) {
-        // Obtener jugadores cercanos en un radio de 5 bloques
-        player.getNearbyEntities(5, 5, 5).stream()
-                .filter(entity -> entity instanceof Player && !entity.equals(player))
-                .forEach(nearbyEntity -> {
-                    Player nearbyPlayer = (Player) nearbyEntity;
-                    double damage = 4.0 + (Math.random() * (8.0 - 4.0));
-                    nearbyPlayer.damage(damage, player);
-                });
+    private void applyHeadshooterEffect(Player attacker, Player victim) {
+        if (attacker.getLocation().distance(victim.getLocation()) >= 25) {
+            playSound(attacker);
+            victim.setHealth(0.0);
+            Location l = victim.getLocation();
+            plugin.getServer().getWorlds().get(0).strikeLightningEffect(l.add(0.0, 100.0, 0.0));
+            attacker.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    translateManager.getMessage("long-distance-kill").replace("%victim%", victim.getName())));
+        }
+    }
+
+    private void playSound(Player attacker) {
+        attacker.playSound(attacker.getLocation(), Sound.ORB_PICKUP, 1.0f, 1.0f);
     }
 
     private boolean randomChance() {
         return Math.random() < 0.3;
     }
-
 }

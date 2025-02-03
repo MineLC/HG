@@ -92,8 +92,10 @@ public class KitCommand implements CommandExecutor {
                 item = new ItemStack(Material.ENCHANTMENT_TABLE);
                 break;
             case "Hulk":
-            case "Explorador":
                 item = new ItemStack(Material.STONE_SWORD);
+                break;
+            case "Explorador":
+                item = new ItemStack(Material.DIAMOND_BOOTS);
                 break;
             case "Barbaro":
                 item = new ItemStack(Material.STONE_AXE);
@@ -112,6 +114,8 @@ public class KitCommand implements CommandExecutor {
                 item = new ItemStack(Material.POTION);
                 break;
             case "Piromano":
+                item = new ItemStack(Material.FLINT_AND_STEEL);
+                break;
             case "Pyro":
                 item = new ItemStack(Material.FIREBALL);
                 break;
@@ -182,7 +186,7 @@ public class KitCommand implements CommandExecutor {
                 item = new ItemStack(Material.DIAMOND_AXE);
                 break;
             case "Saltamontes":
-                item = new ItemStack(Material.DIAMOND_BOOTS);
+                item = new ItemStack(Material.FIREWORK);
                 break;
             case "Meduza":
                 item = new ItemStack(Material.WATCH);
@@ -195,6 +199,7 @@ public class KitCommand implements CommandExecutor {
         if (item != null) {
             meta = item.getItemMeta();
             if (meta != null) {
+                
                 meta.setDisplayName(ChatColor.GREEN + kitName + ChatColor.RESET);
 
                 meta.setLore(kit.getLore());

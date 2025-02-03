@@ -25,9 +25,5 @@ public class PlayerMoveListener implements Listener {
                 player.teleport(spawnLocation);
             }
         }
-
-        if (plugin.getFrozenPlayers().contains(player)) {
-            event.setCancelled(true);
-        }
     }
 }
