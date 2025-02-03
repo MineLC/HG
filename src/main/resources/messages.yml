@@ -50,6 +50,11 @@ player-distance: "&aPlayer &2&l%player%&a is %distance% blocks away."
 medusa-frozen: "&cYou are frozen by Medusa!"
 medusa-unfrozen: "&aYou have been unfrozen!"
 
+# Final Battle Messages
+fb-countdown: "&aThe final battle will start in &2%minutes%&a minutes!"
+cage-teleport: "&eFinal Battle has started. Teleporting..."
+game-not-started: "&cThe game is not started yet!"
+
 # Statistics Messages
 statistics-messages:
   - "\n "

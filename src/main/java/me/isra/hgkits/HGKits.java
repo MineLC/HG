@@ -12,11 +12,11 @@ import com.grinderwolf.swm.api.world.properties.SlimePropertyMap;
 
 import io.github.ichocomilk.lightsidebar.Sidebar;
 import io.github.ichocomilk.lightsidebar.nms.v1_8R3.Sidebar1_8R3;
+import lc.schematicapi.data.SchematicFile;
+import lc.schematicapi.paste.Schematic;
+import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.isra.hgkits.commands.KitCommand;
-import me.isra.hgkits.commands.RankCommand;
-import me.isra.hgkits.commands.StartCommand;
-import me.isra.hgkits.commands.TopCommand;
+import me.isra.hgkits.commands.*;
 import me.isra.hgkits.config.Config;
 import me.isra.hgkits.config.ConfigManager;
 import me.isra.hgkits.enums.GameState;
@@ -24,6 +24,7 @@ import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.listeners.*;
+import me.isra.hgkits.managers.FinalBattleManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
 import me.isra.hgkits.tops.TopFiles;
@@ -77,17 +78,23 @@ public final class HGKits extends JavaPlugin {
     private BukkitRunnable invincibilityCountdownTask;
     private boolean isInvincibilityCountdownRunning = false;
 
+    private BukkitRunnable finalBattleCountdownTask;
+    private boolean finalBattleCountdownRunning = false;
+
     private BukkitRunnable checkWinnerCountdownTask;
     private boolean checkWinnerCountdownRunning = false;
 
     private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
-    private Set<Player> frozenPlayers = new HashSet<>();
+    private final Set<Player> frozenPlayers = new HashSet<>();
     private TopFiles topFiles;
 
+    @Getter
     public World currentWorld;
     private String date;
 
     private TranslateManager translateManager;
+    @Getter
+    private FinalBattleManager finalBattleManager;
 
     @Override
     public void onEnable() {
@@ -198,6 +205,8 @@ public final class HGKits extends JavaPlugin {
             }
         }
 
+        finalBattleManager = new FinalBattleManager(this);
+
         getConfig().addDefault("chat.format", "[%fame%] <%kit% %player%> %message%");
         getConfig().options().copyDefaults(true);
         saveConfig();
@@ -220,6 +229,7 @@ public final class HGKits extends JavaPlugin {
         getServer().getPluginCommand("kit").setExecutor(new KitCommand(kitManager, translateManager));
         getServer().getPluginCommand("start").setExecutor(new StartCommand(this));
         getServer().getPluginCommand("rank").setExecutor(new RankCommand(translateManager));
+        getServer().getPluginCommand("finalbattle").setExecutor(new FinalBattleCommand(translateManager, this));
         final PluginCommand pluginTopCommand = getCommand("top");
         final TopCommand topCommand = new TopCommand(translateManager);
         pluginTopCommand.setExecutor(topCommand);
@@ -252,6 +262,22 @@ public final class HGKits extends JavaPlugin {
         listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
 
         GAMESTATE = GameState.PREGAME;
+
+        setupFinalBattle();
+    }
+
+    private void setupFinalBattle() {
+        File schemFile = new File(getDataFolder(), "jaula.copy");
+
+        if(!schemFile.exists()) return;
+
+        try {
+            Schematic schematic = new SchematicFile().deserialize(schemFile);
+
+            finalBattleManager.update(schematic, 5);
+        }catch (Exception e){
+            getLogger().severe("No se pudo cargar la schematic de la Final Battle jaula.copy");
+        }
     }
 
     @Override
@@ -268,6 +294,10 @@ public final class HGKits extends JavaPlugin {
 
         if (checkWinnerCountdownTask != null) {
             checkWinnerCountdownTask.cancel();
+        }
+
+        if (finalBattleCountdownTask != null) {
+            finalBattleCountdownTask.cancel();
         }
 
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -390,7 +420,37 @@ public final class HGKits extends JavaPlugin {
 
             kitManager.loadKits();
             invincibilityCountdown();
+            finalBattleCountdown();
             checkWinner();
+        }
+    }
+
+    private void finalBattleCountdown() {
+        if(!finalBattleCountdownRunning) {
+            finalBattleCountdownRunning = true;
+
+            finalBattleCountdownTask = new BukkitRunnable() {
+                int ct = 10;
+                @Override
+                public void run() {
+                    if(ct % 2 == 0 || ct == 5 || ct == 1){
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                    getTranslateManager().getMessage("fb-countdown").replace("%minutes%", String.valueOf(ct))));
+                        }
+                    }
+                    if(ct <= 0){
+                        finalBattleManager.createBattle();
+                        finalBattleManager.teleportGamers(30);
+                        cancel();
+                        return;
+                    }
+                    ct--;
+                }
+
+            };
+
+            finalBattleCountdownTask.runTaskTimer(this, 0, 60 * 20);
         }
     }
 

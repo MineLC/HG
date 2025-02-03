@@ -113,5 +113,18 @@
           <version>2.11.6</version>
          <scope>provided</scope>
         </dependency>
-  </dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.36</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>lc.mine</groupId>
+            <artifactId>SchematicAPI</artifactId>
+            <version>0.0.2</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/SchematicAPI.jar</systemPath>
+        </dependency>
+    </dependencies>
 </project>
