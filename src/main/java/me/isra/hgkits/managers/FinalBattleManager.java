@@ -43,7 +43,7 @@ public class FinalBattleManager {
 
     public void teleportGamers(int addHeight) {
         final int centerX = mainBlock.getBlockX() + (schematic.amountBlocksX / 2);
-        final int centerY = mainBlock.getBlockY() + (schematic.amountBlocksY / 2);
+        final int centerY = mainBlock.getBlockY();
         final int centerZ = mainBlock.getBlockZ() + (schematic.amountBlocksZ / 2);
         final int newRadius = radius * 2;
 
@@ -51,7 +51,7 @@ public class FinalBattleManager {
             final Location location = new Location(
                     p.getWorld(),
                     centerX + genRandomPosition(newRadius),
-                    centerY + addHeight,
+                    centerY + 2,
                     centerZ + genRandomPosition(newRadius));
 
             p.teleport(location);

@@ -31,7 +31,7 @@ public class FinalBattleCommand implements CommandExecutor {
         }
 
         plugin.getFinalBattleManager().createBattle();
-        plugin.getFinalBattleManager().teleportGamers(25);
+        plugin.getFinalBattleManager().teleportGamers();
         return false;
     }
 }
