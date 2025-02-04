@@ -88,11 +88,11 @@ public class PlayerInteractListener implements Listener {
                     return;
                 case BONE:
                     new TopInventoryBuilder().build(player, TopStorage.deaths(),
-                            translateManager.getMessage("top-deaths-title"));
+                            ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-deaths-title")));
                     return;
                 case LEATHER:
                     new TopInventoryBuilder().build(player, TopStorage.kills(),
-                            translateManager.getMessage("top-kills-title"));
+                            ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kills-title")));
                     return;
                 default:
                     break;
