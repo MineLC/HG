@@ -8,6 +8,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import me.isra.hgkits.tops.Top;
+import org.bukkit.inventory.meta.SkullMeta;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class TopInventoryBuilder {
     
@@ -18,33 +22,19 @@ public class TopInventoryBuilder {
         Inventory inventory = Bukkit.createInventory(TOP_HOLDER, calculateRows(amountTops), title);
 
         for (int i = 0; i < amountTops; i++) {
-            Material material;
             Top.Player topPlayer = top.getPlayers()[i];
             if (topPlayer == null) {
                 break; 
             }
             int topPos = i + 1;
-            switch (topPos) {
-            case 1:
-                material = Material.DIAMOND_BLOCK;
-                break;
-            case 2:
-                material = Material.GOLD_BLOCK;
-                break;
-            case 3:
-                material = Material.IRON_BLOCK;
-                break;
-            default:
-                if (topPos <= 10) {
-                material = Material.REDSTONE_BLOCK;
-                break;
-                } 
-                material = Material.COAL;
-                break;
-            } 
-            ItemStack itemStack = new ItemStack(material);
-            ItemMeta meta = itemStack.getItemMeta();
-            meta.setDisplayName("§b#" + topPos + " §7- §e" + topPlayer.name + " §7 -> §a" + topPlayer.value);
+            ItemStack itemStack = new ItemStack(Material.SKULL_ITEM);
+            SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
+            meta.setOwner(topPlayer.name);
+            meta.setDisplayName("§6§l#" + topPos + " §8- §c" + topPlayer.name);
+            meta.setLore(List.of(
+                    "§7" + topPlayer.value + " asesinato" + (topPlayer.value != 1 ? "s" : "")
+            ));
+
             itemStack.setItemMeta(meta);
             inventory.setItem(i, itemStack);
         } 

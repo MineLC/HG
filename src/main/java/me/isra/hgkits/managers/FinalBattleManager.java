@@ -33,19 +33,17 @@ public class FinalBattleManager {
     }
 
     public void createBattle() {
-        mainBlock = getPlugin().getCurrentWorld().getSpawnLocation().clone();
-        mainBlock.setY(100D);
-
+        mainBlock = getPlugin().getCurrentWorld().getSpawnLocation().add(0.0D, 40, 0.0D);
         if (schematic == null) {
             plugin.getLogger().warning("Error on paste schematic. Not schematic found");
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> new PasteV1_8R3().paste(mainBlock.getBlockX(), mainBlock.getBlockY(), mainBlock.getBlockZ(), mainBlock.getWorld(), schematic));
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> new PasteV1_8R3().paste(mainBlock.getBlockX(), mainBlock.getBlockY() + 10, mainBlock.getBlockZ(), mainBlock.getWorld(), schematic));
     }
 
     public void teleportGamers() {
         final int centerX = mainBlock.getBlockX() + (schematic.amountBlocksX / 2);
-        final int centerY = mainBlock.getBlockY();
+        final int centerY = mainBlock.getBlockY() + (schematic.amountBlocksX / 2);
         final int centerZ = mainBlock.getBlockZ() + (schematic.amountBlocksZ / 2);
         final int newRadius = radius * 2;
 
