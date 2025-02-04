@@ -75,5 +75,4 @@ statistics-messages:
 statistics: "&eStatistics"
 
 # Top Inventory Titles
-top-kills: "&6Top Kills"
-top-deaths: "&cTop Deaths"
+top: "&6TOPs"

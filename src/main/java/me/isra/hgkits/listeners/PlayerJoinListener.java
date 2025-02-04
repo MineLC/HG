@@ -75,16 +75,11 @@ public class PlayerJoinListener implements Listener {
         item.setItemMeta(meta);
         inventory.setItem(4, item);
 
-        item = new ItemStack(Material.LEATHER);
+        item = new ItemStack(Material.PAPER);
         meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kills")));
-        item.setItemMeta(meta);
-        inventory.setItem(7, item);
-
-        item = new ItemStack(Material.BONE);
-        meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-deaths")));
+        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("tops")));
         item.setItemMeta(meta);
         inventory.setItem(8, item);
+
     }
 }
