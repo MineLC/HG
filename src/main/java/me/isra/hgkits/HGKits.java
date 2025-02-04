@@ -30,6 +30,8 @@ import me.isra.hgkits.managers.PlayerAttackManager;
 import me.isra.hgkits.tops.TopFiles;
 import me.isra.hgkits.utils.Constants;
 import me.isra.hgkits.translate.TranslateManager;
+import me.isra.hgkits.commands.TeamCommand;
+import me.isra.hgkits.listeners.PlayerInteractListener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -95,6 +97,8 @@ public final class HGKits extends JavaPlugin {
     private TranslateManager translateManager;
     @Getter
     private FinalBattleManager finalBattleManager;
+
+    private TeamManager teamManager;
 
     @Override
     public void onEnable() {
@@ -235,11 +239,15 @@ public final class HGKits extends JavaPlugin {
         pluginTopCommand.setExecutor(topCommand);
         pluginTopCommand.setTabCompleter(topCommand);
 
+        teamManager = new TeamManager(this);
+        getCommand("team").setExecutor(new TeamCommand(this, teamManager));
+        getServer().getPluginManager().registerEvents(new PlayerInteractListener(this, kitManager, teamManager), this);
+
         ProjectileHitListener projectileHitListener = new ProjectileHitListener(kitManager);
 
         List<Listener> listeners = Arrays.asList(
                 new PlayerItemConsumeListener(this, kitManager),
-                new PlayerInteractListener(this, kitManager),
+                new PlayerInteractListener(this, kitManager , teamManager),
                 new PlayerDropItemListener(),
                 new PlayerRespawnListener(this),
                 new PlayerDeathListener(this, kitManager),
@@ -676,5 +684,9 @@ public final class HGKits extends JavaPlugin {
 
     public TranslateManager getTranslateManager() {
         return translateManager;
+    }
+
+    public static HGKits getInstance() {
+        return JavaPlugin.getPlugin(HGKits.class);
     }
 }

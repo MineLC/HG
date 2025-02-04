@@ -58,6 +58,17 @@ fb-countdown: "&aThe final battle will start in &2%minutes%&a minutes!"
 cage-teleport: "&eFinal Battle has started. Teleporting..."
 game-not-started: "&cThe game is not started yet!"
 
+# Team Messages
+team-invite: "&a%inviter% has invited you to join their team. Type /team accept or /team deny."
+team-not-available: "&c%player% is not available to join a team."
+team-joined: "&aYou have joined %leader%'s team."
+team-denied: "&cYou have denied the team invitation."
+team-kicked: "&cYou have been kicked from %leader%'s team."
+team-toggle-enabled: "&aYour team invitation availability is now enabled."
+team-toggle-disabled: "&cYour team invitation availability is now disabled."
+team-player-not-found: "&cPlayer not found."
+team-usage: "&cUsage: /team <add|kick|accept|deny|toggle>"
+
 # Statistics Messages
 statistics-messages:
   - "\n "

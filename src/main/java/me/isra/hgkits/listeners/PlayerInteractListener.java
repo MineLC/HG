@@ -1,6 +1,7 @@
 package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.TeamManager;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
@@ -25,6 +26,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -46,11 +48,13 @@ public class PlayerInteractListener implements Listener {
     // private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
     // private final Map<UUID, Long> cooldownsSaltamontes = new HashMap<>();
     private final Map<UUID, Long> cooldownsThor = new HashMap<>();
+    private final TeamManager teamManager;
 
-    public PlayerInteractListener(HGKits plugin, KitManager kitManager) {
+    public PlayerInteractListener(HGKits plugin, KitManager kitManager, TeamManager teamManager) {
         this.plugin = plugin;
         this.kitManager = kitManager;
         this.translateManager = plugin.getTranslateManager();
+        this.teamManager = teamManager;
     }
 
     @EventHandler
@@ -60,6 +64,13 @@ public class PlayerInteractListener implements Listener {
         Block clickedBlock = event.getClickedBlock();
         ItemStack item = player.getInventory().getItemInHand();
 
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {
+            if (player.isSneaking() && player.getInventory().getItemInHand().getType() == Material.COMPASS) {
+            // Handle the interaction with the compass
+            player.sendMessage("You interacted with the compass while sneaking!");
+            return;
+        }
+
         if (HGKits.GAMESTATE == GameState.PREGAME) {
             handlePregameInteractions(event, player, action, clickedBlock, item);
             return;
@@ -68,7 +79,8 @@ public class PlayerInteractListener implements Listener {
         // INCLUYE EL ESTADO DE JUEGO INVINCIBILITY.
         // LAS ACCIONES SE EJECUTARÁN TAMBIÉN CUANDO EL JUEGO
         // ESTE EN PERIODO DE INVENCIBILIDAD.
-        handleGameInteractions(event, player, action, item, kit, clickedBlock);
+                handleGameInteractions(event, player, action, item, kit, clickedBlock);
+        }
     }
 
     private void handlePregameInteractions(PlayerInteractEvent event, Player player, Action action, Block clickedBlock,
