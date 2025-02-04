@@ -2,7 +2,9 @@ package me.isra.hgkits.managers;
 
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.data.Kit;
-
+import me.isra.hgkits.translate.TranslateManager;
+import me.isra.hgkits.utils.ItemBuilder;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -109,7 +111,12 @@ public class KitManager {
                 }
             }
 
-            p.getInventory().addItem(new ItemStack(Material.COMPASS, 1));
+            ItemStack compass = new ItemBuilder(Material.COMPASS)
+                    .setDisplayName(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("compass-title")))
+                    .addLore(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("compass-lore-left")))
+                    .addLore(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("compass-lore-right")))
+                    .build();
+            p.getInventory().addItem(compass);
         }
     }
 

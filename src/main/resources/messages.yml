@@ -99,3 +99,9 @@ statistics: "&eStatistics"
 
 # Top Inventory Titles
 top: "&6TOPs"
+
+# Compass Messages
+compass-title: "&6&lPlayer Tracker"
+compass-lore: "&7Use this to find the nearest player."
+compass-lore-left: "&7Left click to track the nearest player."
+compass-lore-right: "&7Right click to invite to team."

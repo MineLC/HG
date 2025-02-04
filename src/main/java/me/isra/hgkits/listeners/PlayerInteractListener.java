@@ -1,6 +1,7 @@
 package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.Team;
 import me.isra.hgkits.TeamManager;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
@@ -15,6 +16,7 @@ import me.isra.hgkits.tops.inventory.MainTopInventoryBuilder;
 import me.isra.hgkits.tops.inventory.TopInventoryBuilder;
 import me.isra.hgkits.translate.TranslateManager;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,8 +49,6 @@ public class PlayerInteractListener implements Listener {
     private final KitManager kitManager;
     private final TranslateManager translateManager;
     private final Map<UUID, Long> cooldownsFlash = new HashMap<>();
-    // private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
-    // private final Map<UUID, Long> cooldownsSaltamontes = new HashMap<>();
     private final Map<UUID, Long> cooldownsThor = new HashMap<>();
     private final TeamManager teamManager;
 
@@ -79,9 +79,6 @@ public class PlayerInteractListener implements Listener {
             return;
         }
         Kit kit = kitManager.getKitByPlayer(player);
-        // INCLUYE EL ESTADO DE JUEGO INVINCIBILITY.
-        // LAS ACCIONES SE EJECUTARÁN TAMBIÉN CUANDO EL JUEGO
-        // ESTE EN PERIODO DE INVENCIBILIDAD.
         handleGameInteractions(event, player, action, item, kit, clickedBlock);
     }
 
@@ -121,10 +118,6 @@ public class PlayerInteractListener implements Listener {
                 case PAPER:
                     new MainTopInventoryBuilder(player, plugin.getTranslateManager()).open(player);
                     return;
-                /*case LEATHER:
-                    new TopInventoryBuilder().build(player, TopStorage.kills(),
-                            ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kills-title")), TopType.DEATHS);
-                    return;*/
                 default:
                     break;
             }
@@ -198,14 +191,14 @@ public class PlayerInteractListener implements Listener {
                 event.setCancelled(true);
                 handleFireworkJump(player);
 
-            } else if (item.getType() == Material.COMPASS) {
-                handleCompassUsage(player);
+            } else if (item.getType() == Material.COMPASS && action == Action.RIGHT_CLICK_AIR) {
+                handleTeamCompassUsage(player);
             }
         }
 
         if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
             if (item.getType() == Material.COMPASS) {
-                handleCompassUsage(player);
+                handleEnemyCompassUsage(player);
             }
         }
 
@@ -276,7 +269,7 @@ public class PlayerInteractListener implements Listener {
         }
     }
 
-    private void handleCompassUsage(Player player) {
+    private void handleEnemyCompassUsage(Player player) {
         Player closestPlayer = null;
         double closestDistance = Double.MAX_VALUE;
 
@@ -299,6 +292,39 @@ public class PlayerInteractListener implements Listener {
         } else {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                     translateManager.getMessage("player-distance").replace("%player%", closestPlayer.getName())
+                            .replace("%distance%", String.valueOf((int) closestDistance))));
+        }
+    }
+
+    private void handleTeamCompassUsage(Player player) {
+        Team team = teamManager.getTeam(player);
+        if (team == null) {
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("team-not-in-team")));
+            return;
+        }
+
+        Player closestTeammate = null;
+        double closestDistance = Double.MAX_VALUE;
+
+        for (String memberName : team.getMembers()) {
+            Player teammate = Bukkit.getPlayer(memberName);
+            if (teammate == null || teammate.equals(player))
+                continue;
+
+            double distance = player.getLocation().distance(teammate.getLocation());
+
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestTeammate = teammate;
+                player.setCompassTarget(teammate.getLocation());
+            }
+        }
+
+        if (closestTeammate == null) {
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("no-players-nearby")));
+        } else {
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    translateManager.getMessage("player-distance").replace("%player%", closestTeammate.getName())
                             .replace("%distance%", String.valueOf((int) closestDistance))));
         }
     }
@@ -332,8 +358,6 @@ public class PlayerInteractListener implements Listener {
             player.getInventory().getItemInHand().setAmount(player.getInventory().getItemInHand().getAmount() - 1);
         }
 
-        // HAY UNA LISTA EN HGKITS QUE ALMACENA LOS JUGADORES QUE ESTAN JUGANDO ENTONCES
-        // SE UTILIZA ESA LISTA PARA QUE LOS ESPECTADORES NO RECIBAN SLOWNESS TAMBIEN.
         Location playerLocation = player.getLocation();
         for (Player nearbyPlayer : plugin.getPlayers()) {
             if (nearbyPlayer.equals(player))
@@ -349,11 +373,9 @@ public class PlayerInteractListener implements Listener {
             }
         }
 
-        // Descongelar después de 5 segundos (100 ticks)
         new BukkitRunnable() {
             @Override
             public void run() {
-                // Enviar mensaje de descongelación a todos los jugadores que estaban congelados
                 for (Player p : plugin.getFrozenPlayers()) {
                     p.sendMessage(ChatColor.translateAlternateColorCodes('&',
                             translateManager.getMessage("medusa-unfrozen")));
@@ -364,7 +386,6 @@ public class PlayerInteractListener implements Listener {
     }
 
     private void handleFireworkJump(Player player) {
-        // Comprobar si el jugador está tocando el suelo
         final Block b = player.getLocation().getBlock();
         if (b.getType() != Material.AIR || b.getRelative(BlockFace.DOWN).getType() != Material.AIR) {
             player.setFallDistance(-5.0f);
