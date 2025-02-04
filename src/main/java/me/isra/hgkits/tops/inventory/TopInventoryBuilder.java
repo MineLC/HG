@@ -28,12 +28,12 @@ public class TopInventoryBuilder {
                 break; 
             }
             int topPos = i + 1;
-            ItemStack itemStack = new ItemStack(Material.SKULL_ITEM);
+            ItemStack itemStack = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
             SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
             meta.setOwner(topPlayer.name);
             meta.setDisplayName("§6§l#" + topPos + " §8- §c" + topPlayer.name);
             meta.setLore(List.of(
-                    "§7" + topPlayer.value + type.displayName + (topPlayer.value != 1 ? "s" : "")
+                    "§7" + topPlayer.value + " "+type.displayName + (topPlayer.value != 1 ? "s" : "")
             ));
 
             itemStack.setItemMeta(meta);
