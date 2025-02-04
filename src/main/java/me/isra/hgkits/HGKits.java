@@ -256,7 +256,8 @@ public final class HGKits extends JavaPlugin {
                 new InventoryClickListener(kitManager, translateManager),
                 projectileHitListener,
                 new BreakBlockListener(kitManager),
-                new PlaceBlockListener()
+                new PlaceBlockListener(),
+                new MenuListener()
         );
 
         listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));

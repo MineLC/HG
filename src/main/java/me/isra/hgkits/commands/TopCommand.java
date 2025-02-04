@@ -3,6 +3,7 @@ package me.isra.hgkits.commands;
 import java.util.List;
 
 import me.isra.hgkits.tops.TopType;
+import me.isra.hgkits.tops.inventory.MainTopInventoryBuilder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -32,7 +33,8 @@ public class TopCommand implements TabExecutor {
             return true;
         }
         if (args.length < 1) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-command-format")));
+            new MainTopInventoryBuilder(player, translateManager).open(player);
+            // sender.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-command-format")));
             return true;
         }
         switch (args[0]) {

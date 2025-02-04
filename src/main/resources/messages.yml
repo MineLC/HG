@@ -28,6 +28,9 @@ your-rank: "&aRank: "
 top-command-format: "&cFormat: /top (kills/deaths)"
 top-kills-title: "&6Top Kills"
 top-deaths-title: "&cTop Deaths"
+top-main-title: "&0Tops Menu"
+top-wins-title: "&2Top Wins"
+top-kdr-title: "&eTop KDR"
 
 # Kit Messages
 kit-selected: "&aYou have selected &2&l%kitName%&a as your kit."

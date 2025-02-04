@@ -23,7 +23,7 @@ public class User {
     }
 
     public double getKdr() {
-        return (deaths == 0) ? kills : kills / deaths;
+        return (deaths == 0) ? kills : (double) kills / deaths;
     }
 
     public static final class New extends User {

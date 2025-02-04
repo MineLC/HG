@@ -1,5 +1,7 @@
 package me.isra.hgkits.tops.inventory;
 
+import me.isra.hgkits.database.DatabaseManager;
+import me.isra.hgkits.database.User;
 import me.isra.hgkits.tops.TopType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -33,7 +35,7 @@ public class TopInventoryBuilder {
             meta.setOwner(topPlayer.name);
             meta.setDisplayName("§6§l#" + topPos + " §8- §c" + topPlayer.name);
             meta.setLore(List.of(
-                    "§7" + topPlayer.value + " "+type.displayName + (topPlayer.value != 1 ? "s" : "")
+                    "§7" + (type != TopType.KDR ? topPlayer.value : DatabaseManager.getDatabase().getCached(player.getUniqueId()).getKdr()) + " "+type.displayName + (type != TopType.KDR ? (topPlayer.value != 1 ? "s" : "") : "")
             ));
 
             itemStack.setItemMeta(meta);
@@ -41,6 +43,7 @@ public class TopInventoryBuilder {
         } 
         player.openInventory(inventory);
     }
+
     
     private int calculateRows(int amountTops) {
         if (amountTops <= 9) {
