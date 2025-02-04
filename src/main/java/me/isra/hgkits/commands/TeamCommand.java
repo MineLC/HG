@@ -21,40 +21,70 @@ public class TeamCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("player-only-command")));
+            String message = plugin.getTranslateManager().getMessage("player-only-command");
+            if (message != null) {
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+            } else {
+                sender.sendMessage("Only players can use this command.");
+            }
             return true;
         }
 
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-usage")));
+            String message = plugin.getTranslateManager().getMessage("team-usage");
+            if (message != null) {
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+            } else {
+                player.sendMessage("Usage: /team <add|kick|accept|deny|toggle>");
+            }
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "add":
                 if (args.length < 2) {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-usage")));
+                    String message = plugin.getTranslateManager().getMessage("team-usage");
+                    if (message != null) {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                    } else {
+                        player.sendMessage("Usage: /team <add|kick|accept|deny|toggle>");
+                    }
                     return true;
                 }
                 Player invitee = Bukkit.getPlayer(args[1]);
                 if (invitee != null) {
                     teamManager.invitePlayer(player, invitee);
                 } else {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-player-not-found")));
+                    String message = plugin.getTranslateManager().getMessage("team-player-not-found");
+                    if (message != null) {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                    } else {
+                        player.sendMessage("Player not found.");
+                    }
                 }
                 break;
             case "kick":
                 if (args.length < 2) {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-usage")));
+                    String message = plugin.getTranslateManager().getMessage("team-usage");
+                    if (message != null) {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                    } else {
+                        player.sendMessage("Usage: /team <add|kick|accept|deny|toggle>");
+                    }
                     return true;
                 }
                 Player member = Bukkit.getPlayer(args[1]);
                 if (member != null) {
                     teamManager.kickPlayer(player, member);
                 } else {
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-player-not-found")));
+                    String message = plugin.getTranslateManager().getMessage("team-player-not-found");
+                    if (message != null) {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                    } else {
+                        player.sendMessage("Player not found.");
+                    }
                 }
                 break;
             case "accept":
@@ -67,7 +97,12 @@ public class TeamCommand implements CommandExecutor {
                 teamManager.toggleAvailability(player);
                 break;
             default:
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-usage")));
+                String message = plugin.getTranslateManager().getMessage("team-usage");
+                if (message != null) {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                } else {
+                    player.sendMessage("Usage: /team <add|kick|accept|deny|toggle>");
+                }
                 break;
         }
 

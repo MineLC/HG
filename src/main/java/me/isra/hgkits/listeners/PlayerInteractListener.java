@@ -28,6 +28,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -94,8 +95,13 @@ public class PlayerInteractListener implements Listener {
             event.setCancelled(true);
 
             switch (type) {
-                case BOOK:
-                    sendPlayerStats(player);
+                case SKULL_ITEM:
+                    if (item.getDurability() == 3) {
+                        SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
+                        if (skullMeta != null && skullMeta.getOwner() != null && skullMeta.getOwner().equals(player.getName())) {
+                            sendPlayerStats(player);
+                        }
+                    }
                     return;
                 case BOW:
                     player.performCommand("kit");

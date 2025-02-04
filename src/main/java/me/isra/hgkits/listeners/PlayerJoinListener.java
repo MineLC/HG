@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerJoinListener implements Listener {
@@ -39,7 +40,7 @@ public class PlayerJoinListener implements Listener {
             player.setGameMode(GameMode.SURVIVAL);
             player.teleport(plugin.getRandomSpawnLocation());
             player.setAllowFlight(true);
-            giveItems(event.getPlayer().getInventory());
+            giveItems(event.getPlayer().getInventory(), player);
             if (!plugin.isCountdownRunning()) {
                 if(Bukkit.getOnlinePlayers().size() == 1) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("not-enough-players")));
@@ -62,17 +63,18 @@ public class PlayerJoinListener implements Listener {
         }.runTaskLater(plugin, scoreboardUpdateDelay * 20L);
     }
 
-    public void giveItems(final PlayerInventory inventory) {
+    public void giveItems(final PlayerInventory inventory, Player player) {
         ItemStack item = new ItemStack(Material.BOW);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("kit-selector")));
         item.setItemMeta(meta);
         inventory.setItem(0, item);
 
-        item = new ItemStack(Material.BOOK);
-        meta = item.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("statistics")));
-        item.setItemMeta(meta);
+        item = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
+        skullMeta.setOwner(player.getName());
+        skullMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("statistics")));
+        item.setItemMeta(skullMeta);
         inventory.setItem(4, item);
 
         item = new ItemStack(Material.PAPER);
@@ -80,6 +82,5 @@ public class PlayerJoinListener implements Listener {
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("tops")));
         item.setItemMeta(meta);
         inventory.setItem(8, item);
-
     }
 }

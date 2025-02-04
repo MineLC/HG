@@ -60,6 +60,9 @@ game-not-started: "&cThe game is not started yet!"
 
 # Team Messages
 team-invite: "&a%inviter% has invited you to join their team. Type /team accept or /team deny."
+team-accept: "&a[Accept]"
+team-deny: "&c[Deny]"
+team-invite-duration: "&7You have 1 minute to respond."
 team-not-available: "&c%player% is not available to join a team."
 team-joined: "&aYou have joined %leader%'s team."
 team-denied: "&cYou have denied the team invitation."

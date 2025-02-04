@@ -3,6 +3,9 @@ package me.isra.hgkits;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
+import org.bukkit.scheduler.BukkitRunnable;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +34,26 @@ public class TeamManager {
             return;
         }
         invitations.put(invitee.getUniqueId(), inviter.getUniqueId());
-        invitee.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-invite").replace("%inviter%", inviter.getName())));
-        Bukkit.getScheduler().runTaskLater(plugin, () -> invitations.remove(invitee.getUniqueId()), 1200L); // 1 minute expiration
+
+        TextComponent message = new TextComponent(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-invite").replace("%inviter%", inviter.getName())));
+        message.addExtra("\n");
+        TextComponent accept = new TextComponent(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-accept")));
+        accept.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/team accept"));
+        message.addExtra(accept);
+        message.addExtra(" ");
+        TextComponent deny = new TextComponent(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-deny")));
+        deny.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/team deny"));
+        message.addExtra(deny);
+
+        invitee.spigot().sendMessage(message);
+        invitee.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-invite-duration")));
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                invitations.remove(invitee.getUniqueId());
+            }
+        }.runTaskLater(plugin, 1200L); // 1 minute expiration
     }
 
     public void acceptInvitation(Player invitee) {
