@@ -65,11 +65,12 @@ public class PlayerInteractListener implements Listener {
         Block clickedBlock = event.getClickedBlock();
         ItemStack item = player.getInventory().getItemInHand();
 
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {
-            if (player.isSneaking() && player.getInventory().getItemInHand().getType() == Material.COMPASS) {
-            // Handle the interaction with the compass
-            player.sendMessage("You interacted with the compass while sneaking!");
-            return;
+
+        if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_AIR) {
+            Player target = getTargetPlayer(player);
+            if (target != null) {
+                teamManager.invitePlayer(player, target);
+                return;
         }
 
         if (HGKits.GAMESTATE == GameState.PREGAME) {
@@ -82,6 +83,20 @@ public class PlayerInteractListener implements Listener {
         // ESTE EN PERIODO DE INVENCIBILIDAD.
                 handleGameInteractions(event, player, action, item, kit, clickedBlock);
         }
+    }
+
+    private Player getTargetPlayer(Player player) {
+        List<Player> nearbyPlayers = player.getNearbyEntities(5, 5, 5).stream()
+                .filter(entity -> entity instanceof Player)
+                .map(entity -> (Player) entity)
+                .toList();
+
+        for (Player target : nearbyPlayers) {
+            if (player.hasLineOfSight(target)) {
+                return target;
+            }
+        }
+        return null;
     }
 
     private void handlePregameInteractions(PlayerInteractEvent event, Player player, Action action, Block clickedBlock,

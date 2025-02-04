@@ -234,6 +234,7 @@ public final class HGKits extends JavaPlugin {
         getServer().getPluginCommand("start").setExecutor(new StartCommand(this));
         getServer().getPluginCommand("rank").setExecutor(new RankCommand(translateManager));
         getServer().getPluginCommand("finalbattle").setExecutor(new FinalBattleCommand(translateManager, this));
+        getServer().getPluginCommand("stats").setExecutor(new StatsCommand(this));
         final PluginCommand pluginTopCommand = getCommand("top");
         final TopCommand topCommand = new TopCommand(translateManager);
         pluginTopCommand.setExecutor(topCommand);

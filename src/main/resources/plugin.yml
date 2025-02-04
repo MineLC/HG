@@ -20,6 +20,8 @@ commands:
   rank:
     description: Muestra la fama al jugador
     usage: /<command>
+  stats:
+    description: Show your stats
   top:
     description: Mira los tops disponibles
     usage: /top (kills/deaths/wins/kdr)
