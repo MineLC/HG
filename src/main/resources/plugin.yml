@@ -3,6 +3,8 @@ version: 1.0
 main: me.isra.hgkits.HGKits
 depend: [SlimeWorldManager]
 commands:
+  team:
+    description: Comando para manejar tu equipo
   finalbattle:
     description: Comando que activa la batalla final
     aliases:
