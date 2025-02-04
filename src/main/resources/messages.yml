@@ -70,7 +70,12 @@ team-kicked: "&cYou have been kicked from %leader%'s team."
 team-toggle-enabled: "&aYour team invitation availability is now enabled."
 team-toggle-disabled: "&cYour team invitation availability is now disabled."
 team-player-not-found: "&cPlayer not found."
-team-usage: "&cUsage: /team <add|kick|accept|deny|toggle>"
+team-usage: "&cUsage: /team <add|kick|accept|deny|toggle|list>"
+team-list-header: "&aTeam Members:"
+team-list-member: "&7- %member%"
+team-not-in-team: "&cYou are not in a team."
+team-invite-self: "&cYou cannot invite yourself to a team."
+team-invite-sent: "&aYou have invited %player% to your team."
 
 # Statistics Messages
 statistics-messages:

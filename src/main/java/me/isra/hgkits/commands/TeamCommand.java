@@ -1,6 +1,7 @@
 package me.isra.hgkits.commands;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.Team;
 import me.isra.hgkits.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -37,7 +38,7 @@ public class TeamCommand implements CommandExecutor {
             if (message != null) {
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
             } else {
-                player.sendMessage("Usage: /team <add|kick|accept|deny|toggle>");
+                player.sendMessage("Usage: /team <add|kick|accept|deny|toggle|list>");
             }
             return true;
         }
@@ -49,7 +50,7 @@ public class TeamCommand implements CommandExecutor {
                     if (message != null) {
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
                     } else {
-                        player.sendMessage("Usage: /team <add|kick|accept|deny|toggle>");
+                        player.sendMessage("Usage: /team <add|kick|accept|deny|toggle|list>");
                     }
                     return true;
                 }
@@ -71,7 +72,7 @@ public class TeamCommand implements CommandExecutor {
                     if (message != null) {
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
                     } else {
-                        player.sendMessage("Usage: /team <add|kick|accept|deny|toggle>");
+                        player.sendMessage("Usage: /team <add|kick|accept|deny|toggle|list>");
                     }
                     return true;
                 }
@@ -96,12 +97,24 @@ public class TeamCommand implements CommandExecutor {
             case "toggle":
                 teamManager.toggleAvailability(player);
                 break;
+            case "list":
+                Team team = teamManager.getTeam(player);
+                if (team != null) {
+                    StringBuilder teamList = new StringBuilder(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-list-header")));
+                    for (String memberName : team.getMembers()) {
+                        teamList.append("\n").append(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-list-member").replace("%member%", memberName)));
+                    }
+                    player.sendMessage(teamList.toString());
+                } else {
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-not-in-team")));
+                }
+                break;
             default:
                 String message = plugin.getTranslateManager().getMessage("team-usage");
                 if (message != null) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
                 } else {
-                    player.sendMessage("Usage: /team <add|kick|accept|deny|toggle>");
+                    player.sendMessage("Usage: /team <add|kick|accept|deny|toggle|list>");
                 }
                 break;
         }

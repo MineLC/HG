@@ -29,6 +29,11 @@ public class TeamManager {
     }
 
     public void invitePlayer(Player inviter, Player invitee) {
+        if (inviter.getUniqueId().equals(invitee.getUniqueId())) {
+            inviter.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-invite-self")));
+            return;
+        }
+
         if (!availability.getOrDefault(invitee.getUniqueId(), true)) {
             inviter.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-not-available").replace("%player%", invitee.getName())));
             return;
@@ -47,6 +52,8 @@ public class TeamManager {
 
         invitee.spigot().sendMessage(message);
         invitee.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-invite-duration")));
+
+        inviter.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-invite-sent").replace("%player%", invitee.getName())));
 
         new BukkitRunnable() {
             @Override
@@ -84,5 +91,14 @@ public class TeamManager {
         boolean current = availability.getOrDefault(player.getUniqueId(), true);
         availability.put(player.getUniqueId(), !current);
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage(current ? "team-toggle-disabled" : "team-toggle-enabled")));
+    }
+
+    public Team getTeam(Player player) {
+        for (Team team : teams.values()) {
+            if (team.isMember(player.getName())) {
+                return team;
+            }
+        }
+        return null;
     }
 }
