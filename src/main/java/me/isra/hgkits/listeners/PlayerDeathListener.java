@@ -33,7 +33,7 @@ public class PlayerDeathListener implements Listener {
             Player player = event.getEntity();
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.AMBIENCE_THUNDER, 10000f, 2.9f);
+                onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.AMBIENCE_THUNDER, 10000f, 2f);
             }
 
             Location deathLocation = player.getLocation();

@@ -26,28 +26,28 @@ public class MainTopInventoryBuilder extends Menu {
         super(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-main-title")), 6);
         this.translateManager = translateManager;
 
-        addButton(11, new ItemBuilder(Material.PAPER).setDisplayName("&a&lAsesinatos")
+        addButton(11, new ItemBuilder(Material.SIGN).setDisplayName("&a&lAsesinatos")
                 .addLore("&7Click para ver a los jugadores con")
                 .addLore("&7más asesinatos.").build(),
                 clickType -> {
             new TopInventoryBuilder().build(viewer, TopStorage.kills(), ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kills-title")), TopType.KILLS);
         });
 
-        addButton(15, new ItemBuilder(Material.PAPER).setDisplayName("&c&lMuertes")
+        addButton(15, new ItemBuilder(Material.SIGN).setDisplayName("&a&lMuertes")
                         .addLore("&7Click para ver a los jugadores con")
                         .addLore("&7más muertes.").build(),
                 clickType -> {
                     new TopInventoryBuilder().build(viewer, TopStorage.deaths(), ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-deaths-title")), TopType.DEATHS);
                 });
 
-        addButton(38, new ItemBuilder(Material.PAPER).setDisplayName("&e&lVictorias")
+        addButton(38, new ItemBuilder(Material.SIGN).setDisplayName("&a&lVictorias")
                         .addLore("&7Click para ver a los jugadores con")
                         .addLore("&7más victorias.").build(),
                 clickType -> {
                     new TopInventoryBuilder().build(viewer, TopStorage.wins(), ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-wins-title")), TopType.WINS);
                 });
 
-        addButton(42, new ItemBuilder(Material.PAPER).setDisplayName("&6&lKDR")
+        addButton(42, new ItemBuilder(Material.SIGN).setDisplayName("&a&lKDR")
                         .addLore("&7Click para ver a los jugadores con")
                         .addLore("&7mejor KDR.").build(),
                 clickType -> {
