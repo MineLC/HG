@@ -23,7 +23,7 @@ public class MainTopInventoryBuilder extends Menu {
     private final TranslateManager translateManager;
 
     public MainTopInventoryBuilder(Player viewer, TranslateManager translateManager){
-        super(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-main-title")), 54);
+        super(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-main-title")), 6);
         this.translateManager = translateManager;
 
         addButton(11, new ItemBuilder(Material.PAPER).setDisplayName("&a&lAsesinatos")
