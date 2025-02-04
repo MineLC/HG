@@ -8,6 +8,7 @@ import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.managers.FameManager;
 import me.isra.hgkits.managers.KitManager;
+import me.isra.hgkits.menu.PlayerStatsMenu;
 import me.isra.hgkits.tops.TopStorage;
 import me.isra.hgkits.tops.TopType;
 import me.isra.hgkits.tops.inventory.MainTopInventoryBuilder;
@@ -65,12 +66,12 @@ public class PlayerInteractListener implements Listener {
         Block clickedBlock = event.getClickedBlock();
         ItemStack item = player.getInventory().getItemInHand();
 
-
         if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_AIR) {
             Player target = getTargetPlayer(player);
             if (target != null) {
                 teamManager.invitePlayer(player, target);
                 return;
+            }
         }
 
         if (HGKits.GAMESTATE == GameState.PREGAME) {
@@ -81,8 +82,7 @@ public class PlayerInteractListener implements Listener {
         // INCLUYE EL ESTADO DE JUEGO INVINCIBILITY.
         // LAS ACCIONES SE EJECUTARÁN TAMBIÉN CUANDO EL JUEGO
         // ESTE EN PERIODO DE INVENCIBILIDAD.
-                handleGameInteractions(event, player, action, item, kit, clickedBlock);
-        }
+        handleGameInteractions(event, player, action, item, kit, clickedBlock);
     }
 
     private Player getTargetPlayer(Player player) {
@@ -112,10 +112,7 @@ public class PlayerInteractListener implements Listener {
             switch (type) {
                 case SKULL_ITEM:
                     if (item.getDurability() == 3) {
-                        SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
-                        if (skullMeta != null && skullMeta.getOwner() != null && skullMeta.getOwner().equals(player.getName())) {
-                            sendPlayerStats(player);
-                        }
+                        new PlayerStatsMenu(player, plugin.getTranslateManager(), DatabaseManager.getDatabase().getCached(player.getUniqueId())).open(player);
                     }
                     return;
                 case BOW:
