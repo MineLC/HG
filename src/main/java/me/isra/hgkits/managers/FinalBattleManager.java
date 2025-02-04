@@ -51,7 +51,7 @@ public class FinalBattleManager {
             final Location location = new Location(
                     p.getWorld(),
                     centerX + genRandomPosition(newRadius),
-                    centerY,
+                    centerY + 8,
                     centerZ + genRandomPosition(newRadius));
 
             p.teleport(location);
