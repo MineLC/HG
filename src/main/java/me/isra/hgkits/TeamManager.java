@@ -70,6 +70,10 @@ public class TeamManager {
             if (team != null) {
                 team.addMember(invitee.getName());
                 invitee.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-joined").replace("%leader%", team.getLeader())));
+                Player inviter = Bukkit.getPlayer(inviterId);
+                if (inviter != null) {
+                    inviter.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getTranslateManager().getMessage("team-member-joined").replace("%member%", invitee.getName())));
+                }
             }
         }
     }

@@ -76,6 +76,7 @@ team-list-member: "&7- %member%"
 team-not-in-team: "&cYou are not in a team."
 team-invite-self: "&cYou cannot invite yourself to a team."
 team-invite-sent: "&aYou have invited %player% to your team."
+team-member-joined: "&a%member% has joined your team."
 
 # Statistics Messages
 statistics-messages:
