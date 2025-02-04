@@ -23,7 +23,7 @@ public class TopCommand implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return args.length == 0 ? List.of("kills", "deaths") : List.of();
+        return args.length == 0 ? List.of("kills", "deaths", "wins", "kdr") : List.of();
     }
 
     @Override
@@ -49,7 +49,19 @@ public class TopCommand implements TabExecutor {
             case "muerte":
                 topInventoryBuilder.build(player, TopStorage.deaths(), ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-deaths-title")), TopType.DEATHS);
                 break;
+
+            case "wins":
+            case "victorias":
+            case "victoria":
+                topInventoryBuilder.build(player, TopStorage.wins(), ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-wins-title")), TopType.WINS);
+                break;
+
+            case "kdr":
+                topInventoryBuilder.build(player, TopStorage.kdr(), ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kdr-title")), TopType.KDR);
+                break;
+
             default:
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-command-format")));
                 break;
         }
         return false;

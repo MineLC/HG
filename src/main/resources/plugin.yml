@@ -20,7 +20,7 @@ commands:
     usage: /<command>
   top:
     description: Mira los tops disponibles
-    usage: /top (kills/deaths)
+    usage: /top (kills/deaths/wins/kdr)
 
 permissions:
   chg.default:
@@ -50,4 +50,3 @@ permissions:
     default: false
     children:
       chg.elite: true
-

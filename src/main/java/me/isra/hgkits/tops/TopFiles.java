@@ -19,7 +19,7 @@ public final class TopFiles {
     }
     
     public void start() {
-        TopStorage.set(new TopStorage(this.read("kills"), this.read("deaths")));
+        TopStorage.set(new TopStorage(this.read("kills"), this.read("deaths"), this.read("wins"), this.read("kdr")));
     }
     
     private Top read(final String name) {
@@ -36,6 +36,8 @@ public final class TopFiles {
         }
         this.save("kills", TopStorage.kills());
         this.save("deaths", TopStorage.deaths());
+        this.save("wins", TopStorage.wins());
+        this.save("kdr", TopStorage.kdr());
     }
     
     public void saveTop(final File file, final Top top) {
