@@ -2,6 +2,7 @@ package me.isra.hgkits.commands;
 
 import java.util.List;
 
+import me.isra.hgkits.tops.TopType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -39,14 +40,14 @@ public class TopCommand implements TabExecutor {
             case "asesinatos":
             case "asesinato":
             case "kill":
-                topInventoryBuilder.build(player, TopStorage.kills(), translateManager.getMessage("top-kills-title"));
+                topInventoryBuilder.build(player, TopStorage.kills(), ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kills-title")), TopType.KILLS);
                 break;
 
             case "deaths":
             case "death":
             case "muertes":
             case "muerte":
-                topInventoryBuilder.build(player, TopStorage.deaths(), translateManager.getMessage("top-deaths-title"));
+                topInventoryBuilder.build(player, TopStorage.deaths(), ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-deaths-title")), TopType.DEATHS);
                 break;
             default:
                 break;

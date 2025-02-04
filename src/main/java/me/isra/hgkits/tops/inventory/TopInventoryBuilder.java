@@ -1,5 +1,6 @@
 package me.isra.hgkits.tops.inventory;
 
+import me.isra.hgkits.tops.TopType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,7 +18,7 @@ public class TopInventoryBuilder {
     
     private static final TopInventoryHolder TOP_HOLDER = new TopInventoryHolder();
     
-    public void build(Player player, Top top, String title) {
+    public void build(Player player, Top top, String title, TopType type) {
         final int amountTops = top.getPlayers().length;
         Inventory inventory = Bukkit.createInventory(TOP_HOLDER, calculateRows(amountTops), title);
 
@@ -32,7 +33,7 @@ public class TopInventoryBuilder {
             meta.setOwner(topPlayer.name);
             meta.setDisplayName("§6§l#" + topPos + " §8- §c" + topPlayer.name);
             meta.setLore(List.of(
-                    "§7" + topPlayer.value + " asesinato" + (topPlayer.value != 1 ? "s" : "")
+                    "§7" + topPlayer.value + type.displayName + (topPlayer.value != 1 ? "s" : "")
             ));
 
             itemStack.setItemMeta(meta);

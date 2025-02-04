@@ -8,6 +8,7 @@ import me.isra.hgkits.database.User;
 import me.isra.hgkits.managers.FameManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.tops.TopStorage;
+import me.isra.hgkits.tops.TopType;
 import me.isra.hgkits.tops.inventory.TopInventoryBuilder;
 import me.isra.hgkits.translate.TranslateManager;
 
@@ -88,11 +89,11 @@ public class PlayerInteractListener implements Listener {
                     return;
                 case BONE:
                     new TopInventoryBuilder().build(player, TopStorage.deaths(),
-                            ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-deaths-title")));
+                            ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-deaths-title")), TopType.KILLS);
                     return;
                 case LEATHER:
                     new TopInventoryBuilder().build(player, TopStorage.kills(),
-                            ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kills-title")));
+                            ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("top-kills-title")), TopType.DEATHS);
                     return;
                 default:
                     break;
