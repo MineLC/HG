@@ -433,7 +433,7 @@ public final class HGKits extends JavaPlugin {
                 int ct = 10;
                 @Override
                 public void run() {
-                    if(ct % 2 == 0 || ct == 5 || ct == 1){
+                    if(ct == 1){
                         for (Player player : Bukkit.getOnlinePlayers()) {
                             player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                                     getTranslateManager().getMessage("fb-countdown").replace("%minutes%", String.valueOf(ct))));
@@ -450,7 +450,7 @@ public final class HGKits extends JavaPlugin {
 
             };
 
-            finalBattleCountdownTask.runTaskTimer(this, 0, 60 * 20);
+            finalBattleCountdownTask.runTaskTimer(this, 60 * 20, 60 * 20);
         }
     }
 
