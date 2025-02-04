@@ -62,6 +62,8 @@ game-not-started: "&cThe game is not started yet!"
 team-invite: "&a%inviter% has invited you to join their team. Type /team accept or /team deny."
 team-accept: "&a[Accept]"
 team-deny: "&c[Deny]"
+team-accept-hover: "&aClick to accept the invitation"
+team-deny-hover: "&cClick to deny the invitation"
 team-invite-duration: "&7You have 1 minute to respond."
 team-not-available: "&c%player% is not available to join a team."
 team-joined: "&aYou have joined %leader%'s team."
@@ -77,6 +79,7 @@ team-not-in-team: "&cYou are not in a team."
 team-invite-self: "&cYou cannot invite yourself to a team."
 team-invite-sent: "&aYou have invited %player% to your team."
 team-member-joined: "&a%member% has joined your team."
+team-no-invitation: "&cYou do not have any pending invitations."
 
 # Statistics Messages
 statistics-messages:
