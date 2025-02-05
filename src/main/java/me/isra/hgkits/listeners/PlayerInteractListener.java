@@ -64,22 +64,59 @@ public class PlayerInteractListener implements Listener {
         Player player = event.getPlayer();
         Action action = event.getAction();
         Block clickedBlock = event.getClickedBlock();
-        ItemStack item = player.getInventory().getItemInHand();
+        ItemStack item = player.getItemInHand();
 
-        if (player.isSneaking() && event.getAction() == Action.RIGHT_CLICK_AIR) {
+        if (HGKits.GAMESTATE == GameState.PREGAME) {
+            handlePregameInteractions(event, player, action, clickedBlock, item);
+            return;
+        }
+
+        Kit kit = kitManager.getKitByPlayer(player);
+        if (kit == null || item == null) {
+            return;
+        }
+
+        if (item.getType() == Material.COMPASS) {
+            handleCompassUsage(event, player, action);
+        } else {
+            handleGameInteractions(event, player, action, item, kit, clickedBlock);
+        }
+    }
+    private Map<UUID, Long> lastClickedTime = new HashMap<>();
+    
+    private void handleCompassUsage(PlayerInteractEvent event, Player player, Action action) {
+        // Verificar si hay un cooldown de clic
+        UUID playerUUID = player.getUniqueId();
+        long currentTime = System.currentTimeMillis();
+    
+        if (lastClickedTime.containsKey(playerUUID)) {
+            long lastClickTime = lastClickedTime.get(playerUUID);
+            // Si el jugador hizo clic hace menos de 1 segundo, se cancela el evento
+            if (currentTime - lastClickTime < 1000) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    
+        // Guardamos el tiempo del último clic
+        lastClickedTime.put(playerUUID, currentTime);
+    
+        // Ahora manejamos el clic en el compás
+        event.setCancelled(true); // Cancelamos el evento para evitar otras interacciones
+    
+        if (player.isSneaking() && action == Action.RIGHT_CLICK_AIR) {
             Player target = getTargetPlayer(player);
             if (target != null) {
                 teamManager.invitePlayer(player, target);
                 return;
             }
         }
-
-        if (HGKits.GAMESTATE == GameState.PREGAME) {
-            handlePregameInteractions(event, player, action, clickedBlock, item);
-            return;
+    
+        if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
+            handleEnemyCompassUsage(player);
+        } else if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
+            handleTeamCompassUsage(player);
         }
-        Kit kit = kitManager.getKitByPlayer(player);
-        handleGameInteractions(event, player, action, item, kit, clickedBlock);
     }
 
     private Player getTargetPlayer(Player player) {
@@ -102,15 +139,13 @@ public class PlayerInteractListener implements Listener {
             event.setCancelled(true);
         }
 
-        if ((action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR)) {
+        if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
             final Material type = item.getType();
             event.setCancelled(true);
 
             switch (type) {
                 case SKULL_ITEM:
-                    if (item.getDurability() == 3) {
-                        new PlayerStatsMenu(player, plugin.getTranslateManager(), DatabaseManager.getDatabase().getCached(player.getUniqueId())).open(player);
-                    }
+                    new PlayerStatsMenu(player, plugin.getTranslateManager(), DatabaseManager.getDatabase().getCached(player.getUniqueId())).open(player);
                     return;
                 case BOW:
                     player.performCommand("kit");
@@ -191,14 +226,6 @@ public class PlayerInteractListener implements Listener {
                 event.setCancelled(true);
                 handleFireworkJump(player);
 
-            } else if (item.getType() == Material.COMPASS && action == Action.RIGHT_CLICK_AIR) {
-                handleTeamCompassUsage(player);
-            }
-        }
-
-        if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
-            if (item.getType() == Material.COMPASS) {
-                handleEnemyCompassUsage(player);
             }
         }
 
@@ -272,10 +299,12 @@ public class PlayerInteractListener implements Listener {
     private void handleEnemyCompassUsage(Player player) {
         Player closestPlayer = null;
         double closestDistance = Double.MAX_VALUE;
+        Team playerTeam = teamManager.getTeam(player);
 
         for (Player target : plugin.getPlayers()) {
-            if (target.equals(player))
+            if (target.equals(player) || (playerTeam != null && playerTeam.isMember(target.getName()))) {
                 continue;
+            }
 
             double distance = player.getLocation().distance(target.getLocation());
 
@@ -290,8 +319,8 @@ public class PlayerInteractListener implements Listener {
             player.sendMessage(
                     ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("no-players-nearby")));
         } else {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                    translateManager.getMessage("player-distance").replace("%player%", closestPlayer.getName())
+            player.sendMessage(ChatColor.RED + ChatColor.translateAlternateColorCodes('&',
+                    translateManager.getMessage("enemy-distance").replace("%player%", closestPlayer.getName())
                             .replace("%distance%", String.valueOf((int) closestDistance))));
         }
     }
@@ -323,8 +352,8 @@ public class PlayerInteractListener implements Listener {
         if (closestTeammate == null) {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("no-players-nearby")));
         } else {
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                    translateManager.getMessage("player-distance").replace("%player%", closestTeammate.getName())
+            player.sendMessage(ChatColor.GREEN + ChatColor.translateAlternateColorCodes('&',
+                    translateManager.getMessage("team-distance").replace("%player%", closestTeammate.getName())
                             .replace("%distance%", String.valueOf((int) closestDistance))));
         }
     }

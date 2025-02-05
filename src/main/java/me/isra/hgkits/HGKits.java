@@ -24,6 +24,7 @@ import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.listeners.*;
+import me.isra.hgkits.managers.FameManager;
 import me.isra.hgkits.managers.FinalBattleManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
@@ -242,7 +243,6 @@ public final class HGKits extends JavaPlugin {
 
         teamManager = new TeamManager(this);
         getCommand("team").setExecutor(new TeamCommand(this, teamManager));
-        getServer().getPluginManager().registerEvents(new PlayerInteractListener(this, kitManager, teamManager), this);
 
         ProjectileHitListener projectileHitListener = new ProjectileHitListener(kitManager);
 
@@ -614,15 +614,16 @@ public final class HGKits extends JavaPlugin {
 
         String title = ChatColor.translateAlternateColorCodes('&', getConfig().getString("scoreboard.title", "&6&lCHG"));
         List<String> lines = getConfig().getStringList("scoreboard.text");
-
-        for (int i = 0; i < lines.size(); i++) {
+       for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i)
                     .replace("%date%", date)
                     .replace("%kills%", String.valueOf(user.kills))
                     .replace("%deaths%", String.valueOf(user.deaths))
                     .replace("%wins%", String.valueOf(user.wins))
                     .replace("%kdr%", String.format("%.2f", user.getKdr()))
-                    .replace("%fame%", String.valueOf(user.fame));
+                    .replace("%fame%", String.valueOf(user.fame))
+                    .replace("%nivel%", FameManager.getRankByFame(user.fame))
+                    .replace("%count%", String.valueOf(getPlayers().size()));
 
             if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
                 line = PlaceholderAPI.setPlaceholders(player, line);
