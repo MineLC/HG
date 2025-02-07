@@ -15,7 +15,7 @@ public class PlayerStatsMenu extends Menu {
     private final TranslateManager translateManager;
 
     public PlayerStatsMenu(Player player, TranslateManager translateManager, User user) {
-        super(ChatColor.translateAlternateColorCodes('&', "Tus estadisticas"), 6);
+        super(ChatColor.translateAlternateColorCodes('&', "Tus Estadísticas"), 6);
         this.translateManager = translateManager;
 
         String lcoins = PlaceholderAPI.setPlaceholders(player, "%lc_lcoins%");

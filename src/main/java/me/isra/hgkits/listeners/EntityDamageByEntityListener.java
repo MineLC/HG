@@ -100,7 +100,7 @@ public class EntityDamageByEntityListener implements Listener {
                     projectileHitListener.createWebStructure(victim.getLocation());
                 }
                 break;
-            case "Meduza":
+            case "Medusa":
                 freezeVictimIfFrozen(victim, attacker);
                 break;
             case "Troll":

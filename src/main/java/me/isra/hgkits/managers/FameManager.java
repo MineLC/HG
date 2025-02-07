@@ -21,20 +21,38 @@ public class FameManager {
     }
 
     public static String getRankByFame(Object fame) {
-        if ((int) fame >= 200000) return "Héroe Mítico";
-        if ((int)fame >= 100000) return "Héroe Legendario";
-        if ((int)fame >= 50000) return "Héroe Emperador";
-        if ((int)fame >= 30000) return "Rey Héroe";
-        if ((int)fame >= 20000) return "Héroe Eminente";
-        if ((int)fame >= 15000) return "Héroe Ilustre";
-        if ((int)fame >= 10000) return "Héroe Renombrado";
-        if ((int)fame >= 5000) return "Héroe Conquistador";
-        if ((int)fame >= 2000) return "Héroe Terrorífico";
-        if ((int)fame >= 1000) return "Héroe Mortal";
-        if ((int)fame >= 500) return "Héroe Poderoso";
-        if ((int)fame >= 200) return "Héroe Feroz";
-        if ((int)fame >= 100) return "Héroe";
-        if ((int)fame >= 50) return "Aprendiz";
+        if ((int) fame >= 300000) return "Mítico";
+        if ((int) fame >= 150000) return "Legendario";
+        if ((int) fame >= 125000) return "Emperador";
+        if ((int) fame >= 95000) return "Rey";
+        if ((int) fame >= 75000) return "Eminente";
+        if ((int) fame >= 45000) return "Ilustre";
+        if ((int) fame >= 12000) return "Renombrado";
+        if ((int) fame >= 7050) return "Conquistador";
+        if ((int) fame >= 3650) return "Terrorífico";
+        if ((int) fame >= 1750) return "Mortal";
+        if ((int) fame >= 675) return "Poderoso";
+        if ((int) fame >= 250) return "Feroz";
+        if ((int) fame >= 75) return "Héroe";
+        if ((int) fame >= 25) return "Aprendiz";
         return "Nuevo";
+    }
+
+    public static String getRankColor(int fame) {
+        if (fame >= 300000) return "&0";
+        else if (fame >= 150000) return "&8";
+        else if (fame >= 125000) return "&4";
+        else if (fame >= 95000) return "&c";
+        else if (fame >= 75000) return "&6";
+        else if (fame >= 45000) return "&e";
+        else if (fame >= 12000) return "&d";
+        else if (fame >= 7050) return "&5";
+        else if (fame >= 3650) return "&1";
+        else if (fame >= 1750) return "&9";
+        else if (fame >= 675) return "&b";
+        else if (fame >= 250) return "&3";
+        else if (fame >= 75) return "&2";
+        else if (fame >= 25) return "&a";
+        else return "&7";
     }
 }

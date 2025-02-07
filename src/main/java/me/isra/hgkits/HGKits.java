@@ -29,10 +29,9 @@ import me.isra.hgkits.managers.FinalBattleManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
 import me.isra.hgkits.tops.TopFiles;
+import me.isra.hgkits.tops.TopManager;
 import me.isra.hgkits.utils.Constants;
 import me.isra.hgkits.translate.TranslateManager;
-import me.isra.hgkits.commands.TeamCommand;
-import me.isra.hgkits.listeners.PlayerInteractListener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -101,6 +100,7 @@ public final class HGKits extends JavaPlugin {
 
     private TeamManager teamManager;
 
+
     @Override
     public void onEnable() {
         if (!(Bukkit.getPluginManager().getPlugin("SlimeWorldManager") instanceof SlimePlugin slimePlugin)) {
@@ -122,7 +122,8 @@ public final class HGKits extends JavaPlugin {
         soundConfig.addDefault("sounds.startsound.pitch", 2.0F);
         soundConfig.options().copyDefaults(true);
         saveConfig();
-    
+
+        
         Instant instant = Instant.now();
         LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         date = "§8"+ldt.getDayOfMonth() + '-' + ldt.getMonthValue() + '-' + ldt.getYear();
@@ -188,7 +189,7 @@ public final class HGKits extends JavaPlugin {
                 "flash",
                 "thor",
                 "saltamontes",
-                "meduza",
+                "medusa",
                 "default");
 
 
@@ -274,6 +275,8 @@ public final class HGKits extends JavaPlugin {
         GAMESTATE = GameState.PREGAME;
 
         setupFinalBattle();
+
+        
     }
 
     private void setupFinalBattle() {
@@ -427,7 +430,7 @@ public final class HGKits extends JavaPlugin {
                     kitManager.addSelectedKit(p, kitManager.getKit("Default"));
                 }
             }
-
+ 
             kitManager.loadKits();
             invincibilityCountdown();
             finalBattleCountdown();
@@ -535,6 +538,7 @@ public final class HGKits extends JavaPlugin {
             checkWinnerCountdownTask = new BukkitRunnable() {
                 private int count = 8;
                 private Player winner = null;
+                private User uwinner = null;
                 private Location winnerLocation = null;
                 private boolean noWinnerMessageSent = false;
 
@@ -544,10 +548,12 @@ public final class HGKits extends JavaPlugin {
                     if (players.size() == 1 && winner == null) {
                         winner = players.get(0);
                         winnerLocation = winner.getLocation();
+                        uwinner = DatabaseManager.getDatabase().getCached(winner.getUniqueId());
+                        TopManager.calculateWins(uwinner);
 
                         if (count == 8) {
                             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("winner-announcement").replace("%winner%", winner.getName())));
-                            DatabaseManager.getDatabase().getCached(winner.getUniqueId()).wins++;
+                            uwinner.wins++;
                             DatabaseManager.getDatabase().saveAll(Bukkit.getOnlinePlayers());
 
                         }
@@ -610,11 +616,20 @@ public final class HGKits extends JavaPlugin {
 
     public void updatePlayerScore(Player player) {
         final User user = DatabaseManager.getDatabase().getCached(player.getUniqueId());
-        final Sidebar sidebar = new Sidebar1_8R3();
+        Sidebar sidebar  = new Sidebar1_8R3();
 
         String title = ChatColor.translateAlternateColorCodes('&', getConfig().getString("scoreboard.title", "&6&lCHG"));
         List<String> lines = getConfig().getStringList("scoreboard.text");
-       for (int i = 0; i < lines.size(); i++) {
+
+        int playerCount = Bukkit.getOnlinePlayers().size();
+        if (GAMESTATE == GameState.PREGAME || GAMESTATE == GameState.INVICIBILITY || GAMESTATE == GameState.GAME) {
+            playerCount = getPlayers().size();
+        }
+
+        String rankColor = FameManager.getRankColor(user.fame);
+        String rank = FameManager.getRankByFame(user.fame);
+
+        for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i)
                     .replace("%date%", date)
                     .replace("%kills%", String.valueOf(user.kills))
@@ -622,8 +637,9 @@ public final class HGKits extends JavaPlugin {
                     .replace("%wins%", String.valueOf(user.wins))
                     .replace("%kdr%", String.format("%.2f", user.getKdr()))
                     .replace("%fame%", String.valueOf(user.fame))
-                    .replace("%nivel%", FameManager.getRankByFame(user.fame))
-                    .replace("%count%", String.valueOf(getPlayers().size()));
+                    .replace("%nivel%", rank)
+                    .replace("%nivel-color%", rankColor)
+                    .replace("%count%", playerCount == 0 ? "-" : String.valueOf(playerCount));
 
             if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
                 line = PlaceholderAPI.setPlaceholders(player, line);
@@ -691,4 +707,5 @@ public final class HGKits extends JavaPlugin {
     public static HGKits getInstance() {
         return JavaPlugin.getPlugin(HGKits.class);
     }
+
 }

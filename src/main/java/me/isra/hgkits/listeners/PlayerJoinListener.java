@@ -2,8 +2,12 @@ package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.database.DatabaseManager;
+import me.isra.hgkits.database.User;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.translate.TranslateManager;
+
+import java.util.Collection;
+
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -53,14 +57,6 @@ public class PlayerJoinListener implements Listener {
             player.setGameMode(GameMode.SPECTATOR);
             player.teleport(plugin.getRandomSpawnLocation());
         }
-
-        int scoreboardUpdateDelay = plugin.getConfig().getInt("scoreboard.update-delay", 5);
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                plugin.updatePlayerScore(player);
-            }
-        }.runTaskLater(plugin, scoreboardUpdateDelay * 20L);
     }
 
     public void giveItems(final PlayerInventory inventory, Player player) {

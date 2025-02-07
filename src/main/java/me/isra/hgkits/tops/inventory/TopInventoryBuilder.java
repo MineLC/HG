@@ -34,8 +34,9 @@ public class TopInventoryBuilder {
             SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
             meta.setOwner(topPlayer.name);
             meta.setDisplayName("§6§l#" + topPos + " §8- §c" + topPlayer.name);
+            String value = type != TopType.KDR ? String.valueOf(topPlayer.value) : String.format("%.2f", DatabaseManager.getDatabase().getCached(player.getUniqueId()).getKdr());
             meta.setLore(List.of(
-                    "§7" + (type != TopType.KDR ? topPlayer.value : DatabaseManager.getDatabase().getCached(player.getUniqueId()).getKdr()) + " "+type.displayName + (type != TopType.KDR ? (topPlayer.value != 1 ? "s" : "") : "")
+                    "§7" + value + " " + type.displayName + (type != TopType.KDR ? (topPlayer.value != 1 ? "s" : "") : "")
             ));
 
             itemStack.setItemMeta(meta);

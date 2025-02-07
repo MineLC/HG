@@ -39,7 +39,6 @@ public class PlayerQuitListener implements Listener {
             if (!plugin.getPlayers().isEmpty()) {
                 String quitMessage = event.getQuitMessage();
                 event.setQuitMessage(ChatColor.RED + quitMessage);
-                Bukkit.broadcastMessage(ChatColor.RED + "Quedan " + plugin.getPlayers().size() + " jugadores vivos.");
             }
         }
 

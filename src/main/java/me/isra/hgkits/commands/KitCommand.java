@@ -200,7 +200,7 @@ public class KitCommand implements CommandExecutor {
             case "Saltamontes":
                 item = new ItemStack(Material.FIREWORK);
                 break;
-            case "Meduza":
+            case "Medusa":
                 item = new ItemStack(Material.WATCH);
                 break;
             default:

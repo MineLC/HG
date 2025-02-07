@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,6 +24,7 @@ public class AsyncPlayerChatListener implements Listener {
     private final KitManager kitManager;
     private final HGKits plugin;
     private final String chatFormat;
+    private final String spectatorChatFormat;
     private final List<String> hoverText;
 
     public AsyncPlayerChatListener(KitManager kitManager, HGKits plugin) {
@@ -30,6 +32,7 @@ public class AsyncPlayerChatListener implements Listener {
         this.plugin = plugin;
         FileConfiguration config = plugin.getConfig();
         this.chatFormat = config.getString("chat.format", "[%fame%] <%kit% %player%> %message%");
+        this.spectatorChatFormat = config.getString("chat.spectator-format", "&7[Spectator] %player%: %message%");
         this.hoverText = config.getStringList("chat.hover.text");
     }
 
@@ -43,12 +46,17 @@ public class AsyncPlayerChatListener implements Listener {
             return;
         }
         String fameRank = FameManager.getFameRank(user.fame);
+        String rankColor = FameManager.getRankColor(user.fame);
+        String rank = FameManager.getRankByFame(user.fame);
         String message = event.getMessage();
 
-        String formattedMessage = chatFormat
-                .replace("%fame%", ChatColor.GREEN + fameRank + ChatColor.RESET)
+        String format = player.getGameMode() == GameMode.SPECTATOR ? spectatorChatFormat : chatFormat;
+
+        String formattedMessage = format
+                .replace("%nivel-color%", rankColor)
+                .replace("%nivel%", rank)
                 .replace("%kit%", ChatColor.DARK_GRAY + "[" + kitName + "]" + ChatColor.RESET)
-                .replace("%player%", ChatColor.GRAY + player.getName() + ChatColor.RESET)
+                .replace("%player%", player.getDisplayName())
                 .replace("%kills%", String.valueOf(user.kills))
                 .replace("%deaths%", String.valueOf(user.deaths))
                 .replace("%wins%", String.valueOf(user.wins))
@@ -67,9 +75,10 @@ public class AsyncPlayerChatListener implements Listener {
 
         TextComponent textComponent = new TextComponent(formattedMessage);
         String hoverTextFormatted = String.join("\n", hoverText)
-                .replace("%fame%", ChatColor.GREEN + fameRank + ChatColor.RESET)
+                .replace("%nivel-color%", rankColor)
+                .replace("%nivel%", rank)
                 .replace("%kit%", ChatColor.DARK_GRAY + "[" + kitName + "]" + ChatColor.RESET)
-                .replace("%player%", ChatColor.GRAY + player.getName() + ChatColor.RESET)
+                .replace("%player%", player.getDisplayName())
                 .replace("%kills%", String.valueOf(user.kills))
                 .replace("%deaths%", String.valueOf(user.deaths))
                 .replace("%wins%", String.valueOf(user.wins))

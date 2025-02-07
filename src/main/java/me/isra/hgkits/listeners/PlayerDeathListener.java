@@ -74,6 +74,7 @@ public class PlayerDeathListener implements Listener {
                     killer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("your-fame") + killerData.fame));
                 
                     TopManager.calculateKills(killerData);
+                    TopManager.calculateKdr(killerData);
                 }
             }
 
@@ -86,6 +87,7 @@ public class PlayerDeathListener implements Listener {
             victim.deaths++;
             plugin.updatePlayerScore(player);
             TopManager.calculateDeaths(victim);
+            TopManager.calculateKdr(victim);
         }
     }
 }
