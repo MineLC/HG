@@ -23,7 +23,7 @@ public final class TopManager {
 
     public static void calculateKdr(User player) {
         Top.Player topPlayer = new Top.Player(player.name, 0);
-        topPlayer.value = (int) (player.getKdr() * 100); // Multiplicamos por 100 para evitar decimales
+        topPlayer.value = (int) (player.getKDR() * 100); // Multiplicamos por 100 para evitar decimales
         calculatePosition(topPlayer, TopStorage.kdr());
     }
 

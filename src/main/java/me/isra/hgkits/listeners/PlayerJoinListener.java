@@ -36,7 +36,7 @@ public class PlayerJoinListener implements Listener {
         }
 
         Player player = event.getPlayer();
-        DatabaseManager.getDatabase().load(player, () -> plugin.updatePlayerScore(player));
+        DatabaseManager.getDatabase().load(player);
 
         if(HGKits.GAMESTATE == GameState.PREGAME) {
             player.setHealth(20);

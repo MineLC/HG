@@ -1,7 +1,10 @@
 name: HGKits
 version: 1.0
 main: me.isra.hgkits.HGKits
-depend: [SlimeWorldManager]
+depend:
+  - SlimeWorldManager
+  - PlaceholderAPI
+  - Vault
 commands:
   team:
     description: Comando para manejar tu equipo

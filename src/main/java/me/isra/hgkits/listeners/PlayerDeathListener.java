@@ -66,11 +66,31 @@ public class PlayerDeathListener implements Listener {
                         }
                     }
 
+                    if(HGKits.getInstance().getPermission().playerInGroup(killer, "ruby")){
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lcadmin add 5 lcoins "+killer.getName());
+                        killer.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+"+5 LCoins");
+                    }
+                    else if(HGKits.getInstance().getPermission().playerInGroup(killer, "elite")){
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lcadmin add 4 lcoins "+killer.getName());
+                        killer.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+"+4 LCoins");
+                    }
+                    else if(HGKits.getInstance().getPermission().playerInGroup(killer, "svip")){
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lcadmin add 3 lcoins "+killer.getName());
+                        killer.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+"+3 LCoins");
+                    }
+                    else if(HGKits.getInstance().getPermission().playerInGroup(killer, "vip")){
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lcadmin add 2 lcoins "+killer.getName());
+                        killer.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+"+2 LCoins");
+                    }
+                    else {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lcadmin add 1 lcoins "+killer.getName());
+                        killer.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+"+1 LCoins");
+                    }
+
                     killerData.kills++;
-                    final double newFame = killerData.getKdr() * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
+                    final double newFame = killerData.getKDR() * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
                     killerData.fame = (int)newFame;
 
-                    plugin.updatePlayerScore(killer);
                     killer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("your-fame") + killerData.fame));
                 
                     TopManager.calculateKills(killerData);
@@ -85,7 +105,6 @@ public class PlayerDeathListener implements Listener {
             player.setGameMode(GameMode.SPECTATOR);
             final User victim = DatabaseManager.getDatabase().getCached(player.getUniqueId());
             victim.deaths++;
-            plugin.updatePlayerScore(player);
             TopManager.calculateDeaths(victim);
             TopManager.calculateKdr(victim);
         }

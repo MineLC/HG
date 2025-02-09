@@ -3,6 +3,7 @@ package me.isra.hgkits.listeners;
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.data.KitInventory;
+import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.enums.KitCategory;
 import me.isra.hgkits.managers.KitManager;
@@ -63,7 +64,7 @@ public class InventoryClickListener implements Listener {
 
                 String requiredPermission = category.getPermission();
 
-                if (!player.hasPermission(requiredPermission)) {
+                if (!player.hasPermission(requiredPermission) && !DatabaseManager.getDatabase().getCached(player.getUniqueId()).allKits) {
                     player.sendMessage(
                             ChatColor.RED + "No tienes permiso para seleccionar el kit " + selectedKit.getName() + ".");
                     player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1F, 1F);

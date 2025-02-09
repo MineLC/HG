@@ -1,19 +1,16 @@
 package me.isra.hgkits.tops.inventory;
 
 import me.isra.hgkits.database.DatabaseManager;
-import me.isra.hgkits.database.User;
 import me.isra.hgkits.tops.TopType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import me.isra.hgkits.tops.Top;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class TopInventoryBuilder {
@@ -34,7 +31,7 @@ public class TopInventoryBuilder {
             SkullMeta meta = (SkullMeta) itemStack.getItemMeta();
             meta.setOwner(topPlayer.name);
             meta.setDisplayName("§6§l#" + topPos + " §8- §c" + topPlayer.name);
-            String value = type != TopType.KDR ? String.valueOf(topPlayer.value) : String.format("%.2f", DatabaseManager.getDatabase().getCached(player.getUniqueId()).getKdr());
+            String value = type != TopType.KDR ? String.valueOf(topPlayer.value) : String.format("%.2f", DatabaseManager.getDatabase().getCached(player.getUniqueId()).getKDR());
             meta.setLore(List.of(
                     "§7" + value + " " + type.displayName + (type != TopType.KDR ? (topPlayer.value != 1 ? "s" : "") : "")
             ));

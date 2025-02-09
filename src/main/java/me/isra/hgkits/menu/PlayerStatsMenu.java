@@ -33,7 +33,7 @@ public class PlayerStatsMenu extends Menu {
 
         addButton(14, new ItemBuilder(Material.IRON_AXE)
                 .setDisplayName(ChatColor.translateAlternateColorCodes('&', "&6&lKDR"))
-                .addLore(ChatColor.translateAlternateColorCodes('&', "&7" + String.format("%.2f", user.getKdr())))
+                .addLore(ChatColor.translateAlternateColorCodes('&', "&7" + String.format("%.2f", user.getKDR())))
                 .build(), click -> {});
 
         addButton(16, new ItemBuilder(Material.GOLDEN_APPLE).setAmount(1)

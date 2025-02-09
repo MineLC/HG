@@ -60,7 +60,7 @@ public class AsyncPlayerChatListener implements Listener {
                 .replace("%kills%", String.valueOf(user.kills))
                 .replace("%deaths%", String.valueOf(user.deaths))
                 .replace("%wins%", String.valueOf(user.wins))
-                .replace("%kdr%", String.format("%.2f", user.getKdr()))
+                .replace("%kdr%", String.format("%.2f", user.getKDR()))
                 .replace("%message%", message);
 
         if (plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
@@ -82,7 +82,7 @@ public class AsyncPlayerChatListener implements Listener {
                 .replace("%kills%", String.valueOf(user.kills))
                 .replace("%deaths%", String.valueOf(user.deaths))
                 .replace("%wins%", String.valueOf(user.wins))
-                .replace("%kdr%", String.format("%.2f", user.getKdr()));
+                .replace("%kdr%", String.format("%.2f", user.getKDR()));
 
         if (plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             hoverTextFormatted = PlaceholderAPI.setPlaceholders(player, hoverTextFormatted);

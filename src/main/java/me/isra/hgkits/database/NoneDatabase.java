@@ -18,10 +18,10 @@ public class NoneDatabase implements Database {
     }
 
     @Override
-    public void load(Player player, SupplyOperation operation) {
+    public void load(Player player) {
         final User user = new User(player.getUniqueId(), player.getName());
         cache.put(player.getUniqueId(), user);
-        operation.execute();
+
     }
 
     @Override

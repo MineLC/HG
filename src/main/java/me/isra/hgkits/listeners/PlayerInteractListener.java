@@ -10,10 +10,7 @@ import me.isra.hgkits.database.User;
 import me.isra.hgkits.managers.FameManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.menu.PlayerStatsMenu;
-import me.isra.hgkits.tops.TopStorage;
-import me.isra.hgkits.tops.TopType;
 import me.isra.hgkits.tops.inventory.MainTopInventoryBuilder;
-import me.isra.hgkits.tops.inventory.TopInventoryBuilder;
 import me.isra.hgkits.translate.TranslateManager;
 
 import org.bukkit.Bukkit;
@@ -29,9 +26,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -196,7 +191,7 @@ public class PlayerInteractListener implements Listener {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', message
                     .replace("%kills%", String.valueOf(data.kills))
                     .replace("%deaths%", String.valueOf(data.deaths))
-                    .replace("%kdr%", String.format("%.2f", data.getKdr()))
+                    .replace("%kdr%", String.format("%.2f", data.getKDR()))
                     .replace("%wins%", String.valueOf(data.wins))
                     .replace("%fame%", String.valueOf(data.fame))
                     .replace("%rank%", FameManager.getRankByFame(data.fame))));

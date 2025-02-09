@@ -10,8 +10,6 @@ import com.grinderwolf.swm.api.world.SlimeWorld;
 import com.grinderwolf.swm.api.world.properties.SlimeProperties;
 import com.grinderwolf.swm.api.world.properties.SlimePropertyMap;
 
-import io.github.ichocomilk.lightsidebar.Sidebar;
-import io.github.ichocomilk.lightsidebar.nms.v1_8R3.Sidebar1_8R3;
 import lc.schematicapi.data.SchematicFile;
 import lc.schematicapi.paste.Schematic;
 import lombok.Getter;
@@ -33,6 +31,7 @@ import me.isra.hgkits.tops.TopManager;
 import me.isra.hgkits.utils.Constants;
 import me.isra.hgkits.translate.TranslateManager;
 
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -46,6 +45,7 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -54,6 +54,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,15 +93,39 @@ public final class HGKits extends JavaPlugin {
     private final Set<Player> frozenPlayers = new HashSet<>();
     private TopFiles topFiles;
 
+    @Override
+    public void onLoad() {
+        try {
+
+            File archivo = new File(getDataFolder(), "libs/mongodb-driver-sync-5.3.1.jar");
+            if (!archivo.exists()) {
+                getLogger().warning("No se encontró la librería: mongodb-driver-sync-5.3.1.jar");
+                return;
+            }
+
+            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+            method.setAccessible(true);
+
+            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            method.invoke(classLoader, archivo.toURI().toURL());
+
+            getLogger().info("Librería cargada: mongodb-driver-sync-5.3.1.jar");
+        } catch (Exception e) {
+            getLogger().severe("Error al cargar la librería mongodb-driver-sync-5.3.1.jar");
+            e.printStackTrace();
+        }
+    }
+
     @Getter
     public World currentWorld;
+    @Getter
+    private Permission permission;
+    @Getter
     private String date;
 
     private TranslateManager translateManager;
     @Getter
     private FinalBattleManager finalBattleManager;
-
-    private TeamManager teamManager;
 
 
     @Override
@@ -122,6 +149,11 @@ public final class HGKits extends JavaPlugin {
         soundConfig.addDefault("sounds.startsound.pitch", 2.0F);
         soundConfig.options().copyDefaults(true);
         saveConfig();
+
+        RegisteredServiceProvider<Permission> provider = getServer().getServicesManager().getRegistration(Permission.class);
+
+        if(provider != null)
+            permission = provider.getProvider();
 
         
         Instant instant = Instant.now();
@@ -211,6 +243,7 @@ public final class HGKits extends JavaPlugin {
             }
         }
 
+        new HGExpansion().register();
         finalBattleManager = new FinalBattleManager(this);
 
         getConfig().addDefault("chat.format", "[%fame%] <%kit% %player%> %message%");
@@ -242,7 +275,7 @@ public final class HGKits extends JavaPlugin {
         pluginTopCommand.setExecutor(topCommand);
         pluginTopCommand.setTabCompleter(topCommand);
 
-        teamManager = new TeamManager(this);
+        TeamManager teamManager = new TeamManager(this);
         getCommand("team").setExecutor(new TeamCommand(this, teamManager));
 
         ProjectileHitListener projectileHitListener = new ProjectileHitListener(kitManager);
@@ -424,6 +457,8 @@ public final class HGKits extends JavaPlugin {
                 p.teleport(randomLocation);
                 p.setAllowFlight(false);
                 players.add(p);
+                User user = DatabaseManager.getDatabase().getCached(p.getUniqueId());
+                user.allKits = false;
 
                 if (kitManager.getSelectedKits().stream().noneMatch(entry -> entry.getKey().equals(p))) {
                     removeInventory(p);
@@ -553,6 +588,7 @@ public final class HGKits extends JavaPlugin {
 
                         if (count == 8) {
                             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("winner-announcement").replace("%winner%", winner.getName())));
+                            uwinner.allKits = true;
                             uwinner.wins++;
                             DatabaseManager.getDatabase().saveAll(Bukkit.getOnlinePlayers());
 
@@ -613,7 +649,7 @@ public final class HGKits extends JavaPlugin {
                 players.clear();
             }, 100L);
     }
-
+/*
     public void updatePlayerScore(Player player) {
         final User user = DatabaseManager.getDatabase().getCached(player.getUniqueId());
         Sidebar sidebar  = new Sidebar1_8R3();
@@ -635,7 +671,7 @@ public final class HGKits extends JavaPlugin {
                     .replace("%kills%", String.valueOf(user.kills))
                     .replace("%deaths%", String.valueOf(user.deaths))
                     .replace("%wins%", String.valueOf(user.wins))
-                    .replace("%kdr%", String.format("%.2f", user.getKdr()))
+                    .replace("%kdr%", user.getFormattedKDR())
                     .replace("%fame%", String.valueOf(user.fame))
                     .replace("%nivel%", rank)
                     .replace("%nivel-color%", rankColor)
@@ -653,7 +689,7 @@ public final class HGKits extends JavaPlugin {
         sidebar.sendLines(player);
         sidebar.sendTitle(player);
     }
-
+*/
     private void launchFirework(Location location) {
         Firework firework = location.getWorld().spawn(location, Firework.class);
         FireworkMeta meta = firework.getFireworkMeta();

@@ -12,6 +12,7 @@ public class User {
     public int fame = 0;
 
     public int wins = 0;
+    public boolean allKits = false;
 
     public User(UUID uuid, String name) {
         this.uuid = uuid;
@@ -22,8 +23,12 @@ public class User {
         return false;
     }
 
-    public double getKdr() {
+    public double getKDR() {
         return (deaths == 0) ? kills : (double) kills / deaths;
+    }
+
+    public String getFormattedKDR() {
+        return String.format("%.2f", getKDR());
     }
 
     public static final class New extends User {

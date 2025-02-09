@@ -1,6 +1,7 @@
 package me.isra.hgkits.commands;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.enums.KitCategory;
 import me.isra.hgkits.data.Kit;
@@ -69,7 +70,7 @@ public class KitCommand implements CommandExecutor {
             ItemStack item = getItemIcon(kitName, category, kitManager, player);
 
             String requiredPermission = category.getPermission();
-            if(player.hasPermission(requiredPermission)) {
+            if(player.hasPermission(requiredPermission) || DatabaseManager.getDatabase().getCached(player.getUniqueId()).allKits) {
                 menu.setItem(slot, item);
                 slot++;
             } else {
@@ -208,17 +209,15 @@ public class KitCommand implements CommandExecutor {
                 break;
         }
 
-        if (item != null) {
-            meta = item.getItemMeta();
-            if (meta != null) {
-                
-                meta.setDisplayName((player.hasPermission(category.getPermission()) ? ChatColor.GREEN : ChatColor.RED) + kitName + ChatColor.RESET);
+        meta = item.getItemMeta();
+        if (meta != null) {
 
-                meta.setLore(kit.getLore());
-                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            meta.setDisplayName((player.hasPermission(category.getPermission()) || DatabaseManager.getDatabase().getCached(player.getUniqueId()).allKits ? ChatColor.GREEN : ChatColor.RED) + kitName + ChatColor.RESET);
 
-                item.setItemMeta(meta);
-            }
+            meta.setLore(kit.getLore());
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+
+            item.setItemMeta(meta);
         }
 
         return item;

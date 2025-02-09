@@ -22,6 +22,7 @@ import com.mongodb.client.model.Updates;
 import me.isra.hgkits.database.Database;
 import me.isra.hgkits.database.SupplyOperation;
 import me.isra.hgkits.database.User;
+import org.jetbrains.annotations.Nullable;
 
 final class MongoDBImpl implements Database {
 
@@ -34,6 +35,7 @@ final class MongoDBImpl implements Database {
         KILLS = "kills",
         DEATHS = "deaths",
         FAME = "fame",
+        ALL_KITS = "all_kits",
         WINS = "wins";
 
     MongoDBImpl(MongoClient client, MongoCollection<Document> collection, ExecutorService service) {
@@ -43,8 +45,9 @@ final class MongoDBImpl implements Database {
     }
     
     @Override
+    @Nullable
     public User getCached(UUID uuid) {
-        return cache.get(uuid);
+        return cache.getOrDefault(uuid, null);
     }
 
     @Override
@@ -71,6 +74,7 @@ final class MongoDBImpl implements Database {
         setIf(document, DEATHS, user.deaths, 0);
         setIf(document, FAME, user.fame, 0);
         setIf(document, WINS, user.wins, 0);
+        setIf(document, ALL_KITS, user.allKits ? 1 : 0, 0);
         
         return document;
     }
@@ -82,6 +86,7 @@ final class MongoDBImpl implements Database {
         setIf(update, DEATHS, data.deaths, 0);
         setIf(update, FAME, data.fame, 0);
         setIf(update, WINS, data.wins, 0);
+        setIf(update, ALL_KITS, data.allKits ? 1 : 0, 0);
 
         if (update.isEmpty()) {
             return null;
@@ -102,14 +107,13 @@ final class MongoDBImpl implements Database {
     }
 
     @Override
-    public void load(final Player player, final SupplyOperation operation) {
+    public void load(final Player player) {
         service.submit(() -> {
             final UUID uuid = player.getUniqueId();
             final Document document = collection.find(Filters.eq("_id", uuid)).limit(1).first();
             if (document == null) {
                 final User user = new User.New(uuid, player.getName());
                 cache.put(uuid, user);
-                operation.execute();
                 return;
             }
         
@@ -119,9 +123,9 @@ final class MongoDBImpl implements Database {
             user.deaths = getOrDefault(document.getInteger(DEATHS), 0);
             user.fame = getOrDefault(document.getInteger(FAME), 0);
             user.wins = getOrDefault(document.getInteger(WINS), 0);
+            user.allKits = getOrDefault(document.getInteger(ALL_KITS), 0) == 1;
 
             cache.put(uuid, user);
-            operation.execute();
         });
     }
 
