@@ -107,3 +107,11 @@ compass-lore-left: "&7Left click to track the nearest team player."
 compass-lore-right: "&7Shift + Right click to invite to team."
 enemy-distance: "&cEnemy &4&l%player%&c is %distance% blocks away."
 team-distance: "&aTeammate &2&l%player%&a is %distance% blocks away."
+
+# Border Messages
+border-countdown: "&c&lThe &nSafe Zone &c&lwill bed reduced in %minutes% minutes."
+reducing-border: "&4&lThe border is reducing..."
+
+# Final Messages
+wither-final: "&c&lMaybe the Wither Effect will make you finish this game!"
+dragons-final: "&4&lIsn't over yet?! Well, some dragons will make you die. :>"

@@ -34,6 +34,7 @@ import me.isra.hgkits.translate.TranslateManager;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.*;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -41,6 +42,7 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.yaml.snakeyaml.Yaml;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -322,6 +324,14 @@ public final class HGKits extends JavaPlugin {
             finalBattleCountdownTask.cancel();
         }
 
+        if(borderTask != null){
+            borderTask.cancel();
+        }
+
+        if(removingBorderTask != null){
+            removingBorderTask.cancel();
+        }
+
         for (Player p : Bukkit.getOnlinePlayers()) {
             removeInventory(p);
         }
@@ -530,6 +540,7 @@ public final class HGKits extends JavaPlugin {
 
                         finalBattleManager.createBattle();
                         finalBattleManager.teleportGamers();
+                        scheduleFinalEffects();
                         cancel();
                         return;
                     }
@@ -540,6 +551,40 @@ public final class HGKits extends JavaPlugin {
 
             finalBattleCountdownTask.runTaskTimer(this, 60 * 20, 60 * 20);
         }
+    }
+
+    private void scheduleFinalEffects() {
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if(players.size() > 1) {
+                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("wither-final")));
+                    for (Player player : players) {
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, Integer.MAX_VALUE, 0, false, false));
+                    }
+                }
+            }
+        }.runTaskLater(this, 3 * 60 * 20);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if(players.size() > 1) {
+                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("dragons-final")));
+                    scheduleDragons();
+                }
+            }
+        }.runTaskLater(this, 5 * 60 * 20);
+    }
+
+    private void scheduleDragons() {
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if(players.size() > 1) {
+                    currentWorld.spawnEntity(getRandomSpawnLocation(), EntityType.ENDER_DRAGON);
+                }
+            }
+        }.runTaskTimer(this, 0, 20 * 60);
     }
 
     public Location getRandomSpawnLocation() {
