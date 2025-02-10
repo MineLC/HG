@@ -1,0 +1,12 @@
+name: "Paladín"
+
+items:
+  - STONE_SWORD:1:DAMAGE_ALL:1
+  - LEATHER_CHESTPLATE:1:PROTECTION_ENVIRONMENTAL:2
+  - CHAINMAIL_LEGGINGS:1
+
+lore:
+  - 1x Espada de Piedra [Filo I].
+  - 1x Peto de cuero [Protección II].
+  - 1x Grebas de mallas.
+  - "§d+ Velocidad V y Regeneración V por unos segudos al matar a un jugador."

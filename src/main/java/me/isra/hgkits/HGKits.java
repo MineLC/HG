@@ -161,6 +161,7 @@ public final class HGKits extends JavaPlugin {
 
         configManager.createIfAbsent("kits",
                 "asesino",
+                "paladín",
                 "arquero",
                 "barbaro",
                 "camaleon",

@@ -14,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerDeathListener implements Listener {
@@ -90,6 +92,11 @@ public class PlayerDeathListener implements Listener {
                     killerData.kills++;
                     final double newFame = killerData.getKDR() * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
                     killerData.fame = (int)newFame;
+
+                    if(kitManager.getKitByPlayer(killer).getName().equals("Paladín")){
+                        killer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 4, 4));
+                        killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 4, 4));
+                    }
 
                     killer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("your-fame") + killerData.fame));
                 

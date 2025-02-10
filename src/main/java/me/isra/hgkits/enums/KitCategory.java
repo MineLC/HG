@@ -32,7 +32,7 @@ public enum KitCategory {
                 "ironman", "prominero", "proladron", "thor");
 
         registerKits(SVIP, "tanque", "saltamontes", "proarquero", "matasanos", "escudero", 
-                "caballero", "pyro");
+                "caballero", "pyro", "paladín");
 
         registerKits(ELITE, "elite", "flash", "medusa", "troll", "canibal");
 

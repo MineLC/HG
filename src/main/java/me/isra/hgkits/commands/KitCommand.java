@@ -123,6 +123,9 @@ public class KitCommand implements CommandExecutor {
             case "Domabestiaspro":
                 item = new ItemStack(Material.MONSTER_EGG);
                 break;
+            case "Paladín":
+                item = new ItemStack(Material.DIAMOND_AXE);
+                break;
             case "Brujo":
                 item = new ItemStack(Material.POTION);
                 break;
