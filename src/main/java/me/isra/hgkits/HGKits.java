@@ -32,14 +32,7 @@ import me.isra.hgkits.utils.Constants;
 import me.isra.hgkits.translate.TranslateManager;
 
 import net.milkbowl.vault.permission.Permission;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
@@ -89,32 +82,15 @@ public final class HGKits extends JavaPlugin {
     private BukkitRunnable checkWinnerCountdownTask;
     private boolean checkWinnerCountdownRunning = false;
 
+    private BukkitRunnable borderTask;
+    private boolean borderTaskRunning = false;
+
+    private BukkitRunnable removingBorderTask;
+    private boolean removingBorderRunning = false;
+
     private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
     private final Set<Player> frozenPlayers = new HashSet<>();
     private TopFiles topFiles;
-
-    @Override
-    public void onLoad() {
-        try {
-
-            File archivo = new File(getDataFolder(), "libs/mongodb-driver-sync-5.3.1.jar");
-            if (!archivo.exists()) {
-                getLogger().warning("No se encontró la librería: mongodb-driver-sync-5.3.1.jar");
-                return;
-            }
-
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-
-            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            method.invoke(classLoader, archivo.toURI().toURL());
-
-            getLogger().info("Librería cargada: mongodb-driver-sync-5.3.1.jar");
-        } catch (Exception e) {
-            getLogger().severe("Error al cargar la librería mongodb-driver-sync-5.3.1.jar");
-            e.printStackTrace();
-        }
-    }
 
     @Getter
     public World currentWorld;
@@ -367,9 +343,14 @@ public final class HGKits extends JavaPlugin {
             properties.setString(SlimeProperties.DIFFICULTY, "normal");
             final SlimeWorld slimeWorld = plugin.loadWorld(fileLoader, worldName, false, properties);
             plugin.generateWorld(slimeWorld);
-            
             final World world = Bukkit.getWorld(worldName);
             world.setAutoSave(false);
+            world.getWorldBorder().setCenter(world.getSpawnLocation());
+            world.getWorldBorder().setSize(400);
+            world.getWorldBorder().setWarningDistance(10);
+            world.getWorldBorder().setDamageAmount(1);
+            world.setPVP(true);
+
             currentWorld = world;
             world.setGameRuleValue("keepInventory", "false");
         } catch (UnknownWorldException | CorruptedWorldException | NewerFormatException | WorldInUseException | IOException e) {
@@ -469,9 +450,67 @@ public final class HGKits extends JavaPlugin {
             kitManager.loadKits();
             invincibilityCountdown();
             finalBattleCountdown();
+            checkBorder();
             checkWinner();
         }
     }
+
+    private void checkBorder() {
+        if(!borderTaskRunning) {
+            borderTaskRunning = true;
+
+            borderTask = new BukkitRunnable() {
+                int ct = 7;
+                @Override
+                public void run() {
+                    if(ct < 4){
+                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&',
+                                getTranslateManager().getMessage("border-countdown").replace("%minutes%", String.valueOf(ct))));
+                    }
+                    if(ct <= 0){
+                        scheduleBorderRemoving(currentWorld.getWorldBorder());
+                        cancel();
+                        return;
+                    }
+                    ct--;
+                }
+
+            };
+
+            borderTask.runTaskTimer(this, 60 * 20, 60 * 20);
+        }
+    }
+
+    private void scheduleBorderRemoving(WorldBorder border) {
+        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&',
+                getTranslateManager().getMessage("reducing-border")));
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers())
+            onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.ENDERDRAGON_HIT, 1f, 1f);
+
+        if(!removingBorderRunning){
+            removingBorderRunning = true;
+            removingBorderTask = new BukkitRunnable() {
+                final double decrement = 50.0 / 60.0;
+                final double minSize = 50.0;
+
+                @Override
+                public void run() {
+                    double currentSize = border.getSize();
+
+                    if (currentSize <= minSize) {
+                        border.setSize(minSize);
+                        cancel();
+                        return;
+                    }
+
+                    border.setSize(currentSize - decrement);
+                }
+
+            };
+            removingBorderTask.runTaskTimer(this, 0L, 40L);
+        }
+    }
+
 
     private void finalBattleCountdown() {
         if(!finalBattleCountdownRunning) {
@@ -482,12 +521,13 @@ public final class HGKits extends JavaPlugin {
                 @Override
                 public void run() {
                     if(ct == 1){
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                    getTranslateManager().getMessage("fb-countdown").replace("%minutes%", String.valueOf(ct))));
-                        }
+                        Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&',
+                                getTranslateManager().getMessage("fb-countdown").replace("%minutes%", String.valueOf(ct))));
                     }
                     if(ct <= 0){
+                        for (Player onlinePlayer : Bukkit.getOnlinePlayers())
+                            onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.ENDERDRAGON_DEATH, 1f, 1f);
+
                         finalBattleManager.createBattle();
                         finalBattleManager.teleportGamers();
                         cancel();

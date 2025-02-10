@@ -6,18 +6,12 @@ import me.isra.hgkits.TeamManager;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
-import me.isra.hgkits.database.User;
-import me.isra.hgkits.managers.FameManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.menu.PlayerStatsMenu;
 import me.isra.hgkits.tops.inventory.MainTopInventoryBuilder;
 import me.isra.hgkits.translate.TranslateManager;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Fireball;
@@ -77,7 +71,7 @@ public class PlayerInteractListener implements Listener {
             handleGameInteractions(event, player, action, item, kit, clickedBlock);
         }
     }
-    private Map<UUID, Long> lastClickedTime = new HashMap<>();
+    private final Map<UUID, Long> lastClickedTime = new HashMap<>();
     
     private void handleCompassUsage(PlayerInteractEvent event, Player player, Action action) {
         // Verificar si hay un cooldown de clic
@@ -99,7 +93,7 @@ public class PlayerInteractListener implements Listener {
         // Ahora manejamos el clic en el compás
         event.setCancelled(true); // Cancelamos el evento para evitar otras interacciones
     
-        if (player.isSneaking() && action == Action.RIGHT_CLICK_AIR) {
+        if (player.isSneaking() && action == Action.RIGHT_CLICK_AIR && player.getGameMode() != GameMode.SPECTATOR) {
             Player target = getTargetPlayer(player);
             if (target != null) {
                 teamManager.invitePlayer(player, target);
@@ -155,36 +149,15 @@ public class PlayerInteractListener implements Listener {
     }
 
     private boolean isRestrictedBlock(Material material) {
-        switch (material) {
-            case CHEST:
-            case TRAPPED_CHEST:
-            case WOOD_BUTTON:
-            case STONE_BUTTON:
-            case TRAP_DOOR:
-            case IRON_TRAPDOOR:
-            case WOODEN_DOOR:
-            case IRON_DOOR_BLOCK:
-            case FENCE_GATE:
-            case WOOD_PLATE:
-            case STONE_PLATE:
-            case IRON_PLATE:
-            case LEVER:
-            case FURNACE:
-            case BURNING_FURNACE:
-            case WORKBENCH:
-            case DISPENSER:
-            case DROPPER:
-            case ENCHANTMENT_TABLE:
-            case ANVIL:
-            case BREWING_STAND:
-            case HOPPER:
-                return true;
-            default:
-                return false;
-        }
+        return switch (material) {
+            case CHEST, TRAPPED_CHEST, WOOD_BUTTON, STONE_BUTTON, TRAP_DOOR, IRON_TRAPDOOR, WOODEN_DOOR,
+                 IRON_DOOR_BLOCK, FENCE_GATE, WOOD_PLATE, STONE_PLATE, IRON_PLATE, LEVER, FURNACE, BURNING_FURNACE,
+                 WORKBENCH, DISPENSER, DROPPER, ENCHANTMENT_TABLE, ANVIL, BREWING_STAND, HOPPER -> true;
+            default -> false;
+        };
     }
 
-    private void sendPlayerStats(final Player player) {
+    /*private void sendPlayerStats(final Player player) {
         final User data = DatabaseManager.getDatabase().getCached(player.getUniqueId());
         List<String> statsMessages = translateManager.getMessageList("statistics-messages");
         for (String message : statsMessages) {
@@ -196,7 +169,7 @@ public class PlayerInteractListener implements Listener {
                     .replace("%fame%", String.valueOf(data.fame))
                     .replace("%rank%", FameManager.getRankByFame(data.fame))));
         }
-    }
+    }*/
 
     private void handleGameInteractions(PlayerInteractEvent event, Player player, Action action, ItemStack item,
             Kit kit, Block clickedBlock) {
@@ -215,7 +188,7 @@ public class PlayerInteractListener implements Listener {
                 handleLaunchFireball(player, item);
 
             } else if (item.getType() == Material.WATCH && "Meduza".equals(kit.getName())) {
-                handleFreezePlayers(player, item);
+                handleFreezePlayers(player);
 
             } else if (item.getType() == Material.FIREWORK && "Saltamontes".equals(kit.getName())) {
                 event.setCancelled(true);
@@ -365,7 +338,7 @@ public class PlayerInteractListener implements Listener {
         }
     }
 
-    private void handleFreezePlayers(Player player, ItemStack item) {
+    private void handleFreezePlayers(Player player) {
         if (plugin.getCooldownsMedusa().containsKey(player.getUniqueId())) {
             long timeSinceLastUse = (System.currentTimeMillis()
                     - plugin.getCooldownsMedusa().get(player.getUniqueId()));
