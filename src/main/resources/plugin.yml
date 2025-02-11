@@ -5,6 +5,7 @@ depend:
   - SlimeWorldManager
   - PlaceholderAPI
   - Vault
+  - LCCore
 commands:
   team:
     description: Comando para manejar tu equipo

@@ -52,8 +52,8 @@ public class EntityDamageListener implements Listener {
                     || event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK
                     || event.getCause() == EntityDamageEvent.DamageCause.LAVA) {
                 Kit kit = kitManager.getKitByPlayer(player);
-                if (kit.getName().equals("Piromano") || kit.getName().equals("Pyro")
-                        || kit.getName().equals("Tanque")) {
+                if (kit.name().equals("Piromano") || kit.name().equals("Pyro")
+                        || kit.name().equals("Tanque")) {
                             
                     event.setCancelled(true);
                     if (!isInCooldown(player)) {
@@ -65,7 +65,7 @@ public class EntityDamageListener implements Listener {
             if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
                 Kit kit = kitManager.getKitByPlayer(player);
 
-                if (kit.getName().equals("Saltamontes") || kit.getName().equals("Explorador")) {
+                if (kit.name().equals("Saltamontes") || kit.name().equals("Explorador")) {
                     if (event.getDamage() > 4.0) {
                         event.setCancelled(true);
                         player.damage(4.0);
@@ -112,7 +112,7 @@ public class EntityDamageListener implements Listener {
     // Método para aplicar el efecto de fuerza una sola vez y activar el cooldown
     private void applyFireStrengthEffect(Player player, Kit kit) {
 
-        switch (kit.getName()) {
+        switch (kit.name()) {
             case "Pyro":
                 player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 260, 1));
                 player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 260, 1));

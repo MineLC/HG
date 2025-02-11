@@ -45,7 +45,7 @@ public class PlayerDeathListener implements Listener {
             String deathMessage = event.getDeathMessage();
             event.setDeathMessage(ChatColor.RED + deathMessage);
 
-            if (playerKit != null && (playerKit.getName().equals("Creeper") || playerKit.getName().equals("Ultracreeper"))) {
+            if (playerKit != null && (playerKit.name().equals("Creeper") || playerKit.name().equals("Ultracreeper"))) {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -62,7 +62,7 @@ public class PlayerDeathListener implements Listener {
                 if (killerData != null) {
                     Kit killerKit = kitManager.getKitByPlayer(killer);
 
-                    if (killerKit != null && (killerKit.getName().equals("Guerrero") || killerKit.getName().equals("Matasanos"))) {
+                    if (killerKit != null && (killerKit.name().equals("Guerrero") || killerKit.name().equals("Matasanos"))) {
                         if (killer.getFoodLevel() < 20) {
                             killer.setFoodLevel(20);
                         }
@@ -93,7 +93,7 @@ public class PlayerDeathListener implements Listener {
                     final double newFame = killerData.getKDR() * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
                     killerData.fame = (int)newFame;
 
-                    if(kitManager.getKitByPlayer(killer).getName().equals("Paladín")){
+                    if(kitManager.getKitByPlayer(killer).name().equals("Paladín")){
                         killer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 4, 4));
                         killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 4, 4));
                     }

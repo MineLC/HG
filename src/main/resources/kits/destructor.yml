@@ -1,0 +1,21 @@
+name: Destructor
+
+items:
+  - STONE_SWORD:1
+  - GOLD_HELMET:1
+  - BLAZE_ROD:1
+  - COOKED_BEEF:2
+  - LOG:4
+effects:
+  - SPEED:-1:0
+  - INVISIBILITY:60:0
+
+lore:
+  - 1x Espada de piedra.
+  - 1x Casco de oro.
+  - 1x Barra de Blaze.
+  - 2x Filete.
+  - 4x Madera de roble.
+  - "§b* VELOCIDAD I. (Duración: infinita)"
+  - "§b* INVISIBILIDAD. (Duración: 60 seg.)"
+  - "§d+ Con una barra de blaze puedes eliminar objetos a otros jugadores."

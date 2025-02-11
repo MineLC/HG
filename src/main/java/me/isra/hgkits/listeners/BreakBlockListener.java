@@ -34,7 +34,7 @@ public class BreakBlockListener implements Listener {
                 return;
             }
 
-            if (kit.getName().equals("Barbaro")) {
+            if (kit.name().equals("Barbaro")) {
                 Block block = event.getBlock();
                 if (block.getType() == Material.LOG) {
                     destroyTree(block);

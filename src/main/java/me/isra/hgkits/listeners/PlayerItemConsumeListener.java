@@ -35,7 +35,7 @@ public class PlayerItemConsumeListener implements Listener {
             return;
         }
 
-        if (kit.getName().equals("Asesino") || kit.getName().equals("Brujo") || kit.getName().equals("Caballero")) {
+        if (kit.name().equals("Asesino") || kit.name().equals("Brujo") || kit.name().equals("Caballero")) {
             if (event.getItem().getType() == Material.COOKIE) {
                 if (!playersWithCookieEffect.contains(player.getUniqueId())) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 100, 0));
@@ -48,7 +48,7 @@ public class PlayerItemConsumeListener implements Listener {
             }
         }
 
-        if (kit.getName().equals("Camaleon")) {
+        if (kit.name().equals("Camaleon")) {
             if (event.getItem().getType() == Material.APPLE) {
                 if (!playersWithAppleEffect.contains(player.getUniqueId())) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 200, 0));

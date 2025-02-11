@@ -45,9 +45,9 @@ public class EntityDamageByEntityListener implements Listener {
             Player attacker = (Player) damagerEntity;
             Kit attackerKit = kitManager.getKitByPlayer(attacker);
 
-            if (attackerKit != null && (attackerKit.getName().equals("Enderman") ||
-                    attackerKit.getName().equals("Domabestias") ||
-                    attackerKit.getName().equals("Domabestiaspro"))) {
+            if (attackerKit != null && (attackerKit.name().equals("Enderman") ||
+                    attackerKit.name().equals("Domabestias") ||
+                    attackerKit.name().equals("Domabestiaspro"))) {
                 attackManager.addPlayer(attacker);
             }
         }
@@ -91,7 +91,7 @@ public class EntityDamageByEntityListener implements Listener {
     }
 
     private void applyKitEffects(EntityDamageByEntityEvent event, Player attacker, Kit attackerKit, Player victim) {
-        switch (attackerKit.getName()) {
+        switch (attackerKit.name()) {
             case "Canibal":
                 applyCanibalEffect(event, attacker);
                 break;
@@ -104,19 +104,30 @@ public class EntityDamageByEntityListener implements Listener {
                 freezeVictimIfFrozen(victim, attacker);
                 break;
             case "Troll":
-                if (randomChance())
+                if (randomChance()){
                     victim.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
                     playSound(attacker);
+                }
                 break;
             case "Matasanos":
-                if (randomChance())
+                if (randomChance()){
                     victim.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 100, 0));
                     playSound(attacker);
+                }
                 break;
+            case "Destructor":
+                applyDestructorEffect(victim, attacker);
             case "Orco":
-                if (randomChance())
+                if (randomChance()) {
                     victim.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 0));
                     playSound(attacker);
+                }
+                break;
+            case "Serpiente":
+                if (randomChance()) {
+                    victim.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 0));
+                    playSound(attacker);
+                }
                 break;
             case "Hulk":
                 applyHulkEffect(event, attacker);
@@ -129,6 +140,16 @@ public class EntityDamageByEntityListener implements Listener {
             case "Elite":
                 applyHeadshooterEffect(attacker, victim);
                 break;
+        }
+    }
+
+    private void applyDestructorEffect(Player victim, Player attacker) {
+        if (attacker.getItemInHand().getType() == Material.BLAZE_ROD && randomChance()) {
+            ItemStack victimItem = victim.getItemInHand();
+            if (victimItem != null && victimItem.getType() != Material.AIR) {
+                victim.setItemInHand(new ItemStack(Material.AIR));
+                playSound(attacker);
+            }
         }
     }
 

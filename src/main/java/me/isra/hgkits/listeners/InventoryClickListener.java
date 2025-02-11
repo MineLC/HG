@@ -4,8 +4,8 @@ import me.isra.hgkits.HGKits;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.data.KitInventory;
 import me.isra.hgkits.database.DatabaseManager;
+import me.isra.hgkits.database.User;
 import me.isra.hgkits.enums.GameState;
-import me.isra.hgkits.enums.KitCategory;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.tops.inventory.TopInventoryHolder;
 import me.isra.hgkits.translate.TranslateManager;
@@ -45,6 +45,7 @@ public class InventoryClickListener implements Listener {
         }
 
         if (holder instanceof KitInventory) {
+            User user = DatabaseManager.getDatabase().getCached(event.getWhoClicked().getUniqueId());
             event.setCancelled(true);
 
             final ItemStack clickedItem = event.getCurrentItem();
@@ -59,25 +60,37 @@ public class InventoryClickListener implements Listener {
 
             if (selectedKit != null) {
                 final Player player = (Player) event.getWhoClicked();
-                // Obtener la categoría del kit directamente desde el Map
-                KitCategory category = KitCategory.fromKitName(kitName);
 
-                String requiredPermission = category.getPermission();
+                if(event.isLeftClick()) {
+                    if (((selectedKit.cost() > 0 && !user.purchasedKits.contains(kitName)) && !user.allKits)) {
+                        player.sendMessage(
+                                ChatColor.RED + "No tienes permiso para seleccionar el kit " + selectedKit.name() + ".");
+                        player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1F, 1F);
+                        return;
+                    }
 
-                if (!player.hasPermission(requiredPermission) && !DatabaseManager.getDatabase().getCached(player.getUniqueId()).allKits) {
-                    player.sendMessage(
-                            ChatColor.RED + "No tienes permiso para seleccionar el kit " + selectedKit.getName() + ".");
-                    player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1F, 1F);
-                    return;
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                            translateManager.getMessage("kit-selected").replace("%kitName%", selectedKit.name())));
+                    player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1F, 1F);
+                    kitManager.addSelectedKit(player, selectedKit);
+                    player.closeInventory();
+                }else if(event.isRightClick()){
+                    if(selectedKit.cost() > 0){
+                        if(!user.purchasedKits.contains(kitName)){
+                            if(!HGKits.getInstance().getEconomy().has(player, selectedKit.cost())){
+                                player.sendMessage(
+                                        ChatColor.RED + "No tienes suficientes LCoins.");
+                                player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1F, 1F);
+                                return;
+                            }
+                            player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&eCompraste el Kit &6&o"+kitName+"&e."));
+                            user.purchasedKits.add(kitName);
+                            HGKits.getInstance().getEconomy().withdrawPlayer(player, selectedKit.cost());
+                            player.closeInventory();
+                            DatabaseManager.getDatabase().save(player);
+                        }
+                    }
                 }
-
-                Map<String, String> variables = new HashMap<>();
-                variables.put("kitName", selectedKit.getName());
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                        translateManager.getMessage("kit-selected").replace("%kitName%", selectedKit.getName())));
-                player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1F, 1F);
-                kitManager.addSelectedKit(player, selectedKit);
-                player.closeInventory();
             }
             return;
         }

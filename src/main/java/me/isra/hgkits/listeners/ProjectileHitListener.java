@@ -47,12 +47,12 @@ public class ProjectileHitListener implements Listener {
             return;
         }
 
-        if (projectile instanceof Arrow && kit.getName().equalsIgnoreCase("Proarquero")) {
+        if (projectile instanceof Arrow && kit.name().equalsIgnoreCase("Proarquero")) {
             projectile.getWorld().createExplosion(projectile.getLocation(), 2.0F);
             projectile.remove();
         }
 
-        if (projectile instanceof Snowball && kit.getName().equalsIgnoreCase("Spiderman")) {
+        if (projectile instanceof Snowball && kit.name().equalsIgnoreCase("Spiderman")) {
             createWebStructure(projectile.getLocation());
         }
     }

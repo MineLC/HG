@@ -2,7 +2,6 @@ package me.isra.hgkits.managers;
 
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.data.Kit;
-import me.isra.hgkits.translate.TranslateManager;
 import me.isra.hgkits.utils.ItemBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -62,7 +61,7 @@ public class KitManager {
 
             Kit k = entry.getValue();
 
-            for (String objetoYcantidad : k.getItems()) {
+            for (String objetoYcantidad : k.items()) {
                 String[] fields = objetoYcantidad.split(":");
                 String objeto = fields[0];
                 int cantidad = Integer.parseInt(fields[1]);
@@ -87,7 +86,7 @@ public class KitManager {
                 }
             }
 
-            for (String efecto : k.getEffects()) {
+            for (String efecto : k.effects()) {
                 String[] fields = efecto.split(":");
                 String tipoEfecto = fields[0];
 
@@ -176,12 +175,12 @@ public class KitManager {
         if (enchantment != null) {
             switch (material) {
                 case DIAMOND_PICKAXE:
-                    if (kit.getName().equals("Prominero")) {
+                    if (kit.name().equals("Prominero")) {
                         itemStack.addUnsafeEnchantment(enchantment, level);
                     }
                     break;
                 case GOLDEN_APPLE:
-                    if (kit.getName().equals("Troll")) {
+                    if (kit.name().equals("Troll")) {
                         itemStack.addUnsafeEnchantment(enchantment, level);
                     }
                     break;
@@ -234,7 +233,7 @@ public class KitManager {
 
         // Definir los colores para cada tipo de armadura de cuero SOLO si es Spiderman
         Map<Material, Color> armorColors = new HashMap<>();
-        if (kit != null && kit.getName().equalsIgnoreCase("Spiderman")) {
+        if (kit != null && kit.name().equalsIgnoreCase("Spiderman")) {
             armorColors.put(Material.LEATHER_HELMET, Color.RED);
             armorColors.put(Material.LEATHER_CHESTPLATE, Color.BLUE);
             armorColors.put(Material.LEATHER_LEGGINGS, Color.RED);

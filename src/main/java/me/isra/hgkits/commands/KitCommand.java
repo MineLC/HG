@@ -2,8 +2,8 @@ package me.isra.hgkits.commands;
 
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.database.DatabaseManager;
+import me.isra.hgkits.database.User;
 import me.isra.hgkits.enums.GameState;
-import me.isra.hgkits.enums.KitCategory;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.data.KitInventory;
 import me.isra.hgkits.managers.KitManager;
@@ -20,6 +20,8 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class KitCommand implements CommandExecutor {
@@ -36,8 +38,7 @@ public class KitCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
         if (command.getName().equalsIgnoreCase("kit")) {
             if(HGKits.GAMESTATE == GameState.PREGAME) {
-                if (sender instanceof Player) {
-                    Player player = (Player) sender;
+                if (sender instanceof Player player) {
                     openKitMenu(player);
                     return true;
                 } else {
@@ -62,28 +63,29 @@ public class KitCommand implements CommandExecutor {
         int slot = 0;
         int slot2 = 53;
 
+        User user = DatabaseManager.getDatabase().getCached(player.getUniqueId());
+
         for (Map.Entry<String, Kit> entry : kits.entrySet()) {
             String kitName = entry.getKey();
+            if(kitName.equals("Default")) continue;
             //player.sendMessage(kitName);
-            KitCategory category = KitCategory.fromKitName(kitName);
 
-            ItemStack item = getItemIcon(kitName, category, kitManager, player);
+            ItemStack item = getItemIcon(kitName, kitManager, user);
 
-            String requiredPermission = category.getPermission();
-            if(player.hasPermission(requiredPermission) || DatabaseManager.getDatabase().getCached(player.getUniqueId()).allKits) {
-                menu.setItem(slot, item);
-                slot++;
-            } else {
+            if((entry.getValue().cost() > 0 && !user.purchasedKits.contains(kitName)) && !DatabaseManager.getDatabase().getCached(player.getUniqueId()).allKits) {
                 menu.setItem(slot2, item);
                 slot2--;
+            } else {
+                menu.setItem(slot, item);
+                slot++;
             }
         }
 
         player.openInventory(menu);
     }
 
-    private static ItemStack getItemIcon(String kitName, KitCategory category, KitManager kitManager, Player player) {
-        ItemStack item = null;
+    private static ItemStack getItemIcon(String kitName, KitManager kitManager, User user) {
+        ItemStack item;
         ItemMeta meta;
         Kit kit = kitManager.getKit(kitName);
 
@@ -124,7 +126,7 @@ public class KitCommand implements CommandExecutor {
                 item = new ItemStack(Material.MONSTER_EGG);
                 break;
             case "Paladín":
-                item = new ItemStack(Material.DIAMOND_AXE);
+                item = new ItemStack(Material.IRON_CHESTPLATE);
                 break;
             case "Brujo":
                 item = new ItemStack(Material.POTION);
@@ -168,6 +170,12 @@ public class KitCommand implements CommandExecutor {
             case "Coloso":
                 item = new ItemStack(Material.IRON_BLOCK);
                 break;
+            case "Destructor":
+                item = new ItemStack(Material.BLAZE_ROD);
+                break;
+            case "Serpiente":
+                item = new ItemStack(Material.SOUL_SAND);
+                break;
             case "Kratos":
                 item = new ItemStack(Material.IRON_BARDING);
                 break;
@@ -178,7 +186,7 @@ public class KitCommand implements CommandExecutor {
                 item = new ItemStack(Material.DIAMOND_PICKAXE);
                 break;
             case "Escudero":
-                item = new ItemStack(Material.IRON_CHESTPLATE);
+                item = new ItemStack(Material.GOLD_SWORD);
                 break;
             case "Tanque":
                 item = new ItemStack(Material.GOLDEN_APPLE);
@@ -215,9 +223,22 @@ public class KitCommand implements CommandExecutor {
         meta = item.getItemMeta();
         if (meta != null) {
 
-            meta.setDisplayName((player.hasPermission(category.getPermission()) || DatabaseManager.getDatabase().getCached(player.getUniqueId()).allKits ? ChatColor.GREEN : ChatColor.RED) + kitName + ChatColor.RESET);
+            meta.setDisplayName(((kit.cost() > 0 && !user.purchasedKits.contains(kitName) && !user.allKits) ? ChatColor.RED : ChatColor.GREEN) + kitName + ChatColor.RESET);
 
-            meta.setLore(kit.getLore());
+            List<String> lore = new ArrayList<>();
+            if(kit.cost() > 0 && !user.purchasedKits.contains(kitName)){
+                lore.add(ChatColor.GRAY+"Costo: "+ChatColor.YELLOW+"$"+kit.cost()+" LCoins");
+                lore.add(" ");
+            }
+            lore.addAll(kit.lore());
+            lore.add(" ");
+            lore.add(ChatColor.YELLOW+"¡Click Izquierdo para seleccionar!");
+
+            if(kit.cost() > 0 && !user.purchasedKits.contains(kitName)){
+                lore.add(ChatColor.YELLOW+"¡Click Derecho para comprar!");
+            }
+
+            meta.setLore(lore);
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
 
             item.setItemMeta(meta);

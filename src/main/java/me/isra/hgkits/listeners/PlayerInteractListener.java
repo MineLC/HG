@@ -177,20 +177,21 @@ public class PlayerInteractListener implements Listener {
             return;
 
         if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
-            if (item.getType() == Material.MUSHROOM_SOUP && isHealingKit(kit.getName())) {
+            if (item.getType() == Material.MUSHROOM_SOUP && isHealingKit(kit.name())) {
                 healOrFeedPlayer(player, item);
                 event.setCancelled(true);
 
-            } else if (item.getType() == Material.REDSTONE_TORCH_ON && "Flash".equals(kit.getName())) {
+            } else if (item.getType() == Material.REDSTONE_TORCH_ON && "Flash".equals(kit.name())) {
                 handleFlashTeleport(player);
 
-            } else if (item.getType() == Material.FIREBALL && "Pyro".equals(kit.getName())) {
+            } else if (item.getType() == Material.FIREBALL && "Pyro".equals(kit.name())) {
                 handleLaunchFireball(player, item);
 
-            } else if (item.getType() == Material.WATCH && "Meduza".equals(kit.getName())) {
+            } else if (item.getType() == Material.WATCH && "Meduza".equals(kit.name())) {
                 handleFreezePlayers(player);
-
-            } else if (item.getType() == Material.FIREWORK && "Saltamontes".equals(kit.getName())) {
+            } else if (item.getType() == Material.WATCH && "Cambiador".equals(kit.name())) {
+              handleFreezePlayers(player);
+            }else if (item.getType() == Material.FIREWORK && "Saltamontes".equals(kit.name())) {
                 event.setCancelled(true);
                 handleFireworkJump(player);
 
@@ -198,7 +199,7 @@ public class PlayerInteractListener implements Listener {
         }
 
         if (action == Action.RIGHT_CLICK_BLOCK) {
-            if (item.getType() == Material.DIAMOND_AXE && "Thor".equals(kit.getName())) {
+            if (item.getType() == Material.DIAMOND_AXE && "Thor".equals(kit.name())) {
                 handleStrikeLightning(player, clickedBlock.getLocation().add(0, 1, 0));
             }
         }
@@ -339,9 +340,9 @@ public class PlayerInteractListener implements Listener {
     }
 
     private void handleFreezePlayers(Player player) {
-        if (plugin.getCooldownsMedusa().containsKey(player.getUniqueId())) {
+        if (plugin.getAbilitiesCooldown().containsKey(player.getUniqueId())) {
             long timeSinceLastUse = (System.currentTimeMillis()
-                    - plugin.getCooldownsMedusa().get(player.getUniqueId()));
+                    - plugin.getAbilitiesCooldown().get(player.getUniqueId()));
             if (timeSinceLastUse < 30000) {
                 player.sendMessage(
                         ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-cooldown")
@@ -350,7 +351,7 @@ public class PlayerInteractListener implements Listener {
             }
         }
 
-        plugin.getCooldownsMedusa().put(player.getUniqueId(), System.currentTimeMillis());
+        plugin.getAbilitiesCooldown().put(player.getUniqueId(), System.currentTimeMillis());
         if (player.getInventory().getItemInHand().getAmount() > 0) {
             player.getInventory().getItemInHand().setAmount(player.getInventory().getItemInHand().getAmount() - 1);
         }

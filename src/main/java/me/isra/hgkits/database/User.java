@@ -1,5 +1,6 @@
 package me.isra.hgkits.database;
 
+import java.util.List;
 import java.util.UUID;
 
 public class User {
@@ -13,6 +14,7 @@ public class User {
 
     public int wins = 0;
     public boolean allKits = false;
+    public List<String> purchasedKits;
 
     public User(UUID uuid, String name) {
         this.uuid = uuid;

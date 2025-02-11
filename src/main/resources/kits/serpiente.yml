@@ -1,0 +1,12 @@
+name: Serpiente
+
+items:
+  - STONE_AXE:1:DAMAGE_ALL:2
+  - CHAINMAIL_CHESTPLATE
+  - GOLD_BOOTS
+
+lore:
+  - 1x Hacha de piedra [Filo II].
+  - 1x Peto de cota de mallas.
+  - 1x Botas de oro.
+  - "§d+ Posibilidad de darle lentitud a otros jugadores."

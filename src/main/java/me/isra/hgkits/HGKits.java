@@ -13,7 +13,6 @@ import com.grinderwolf.swm.api.world.properties.SlimePropertyMap;
 import lc.schematicapi.data.SchematicFile;
 import lc.schematicapi.paste.Schematic;
 import lombok.Getter;
-import me.clip.placeholderapi.PlaceholderAPI;
 import me.isra.hgkits.commands.*;
 import me.isra.hgkits.config.Config;
 import me.isra.hgkits.config.ConfigManager;
@@ -22,7 +21,6 @@ import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.listeners.*;
-import me.isra.hgkits.managers.FameManager;
 import me.isra.hgkits.managers.FinalBattleManager;
 import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.managers.PlayerAttackManager;
@@ -31,6 +29,7 @@ import me.isra.hgkits.tops.TopManager;
 import me.isra.hgkits.utils.Constants;
 import me.isra.hgkits.translate.TranslateManager;
 
+import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.*;
 import org.bukkit.command.PluginCommand;
@@ -49,9 +48,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,6 +64,7 @@ import java.time.ZoneId;
 public final class HGKits extends JavaPlugin {
     public static GameState GAMESTATE;
 
+    @Getter
     private final List<Player> players = new ArrayList<>();
 
     private KitManager kitManager;
@@ -90,7 +87,9 @@ public final class HGKits extends JavaPlugin {
     private BukkitRunnable removingBorderTask;
     private boolean removingBorderRunning = false;
 
-    private final Map<UUID, Long> cooldownsMedusa = new HashMap<>();
+    @Getter
+    private final Map<UUID, Long> abilitiesCooldown = new HashMap<>();
+    @Getter
     private final Set<Player> frozenPlayers = new HashSet<>();
     private TopFiles topFiles;
 
@@ -99,8 +98,11 @@ public final class HGKits extends JavaPlugin {
     @Getter
     private Permission permission;
     @Getter
+    private Economy economy;
+    @Getter
     private String date;
 
+    @Getter
     private TranslateManager translateManager;
     @Getter
     private FinalBattleManager finalBattleManager;
@@ -133,7 +135,12 @@ public final class HGKits extends JavaPlugin {
         if(provider != null)
             permission = provider.getProvider();
 
-        
+        RegisteredServiceProvider<Economy> provider2 = getServer().getServicesManager().getRegistration(Economy.class);
+
+        if(provider2 != null)
+            economy = provider2.getProvider();
+
+
         Instant instant = Instant.now();
         LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         date = "§8"+ldt.getDayOfMonth() + '-' + ldt.getMonthValue() + '-' + ldt.getYear();
@@ -161,6 +168,7 @@ public final class HGKits extends JavaPlugin {
 
         configManager.createIfAbsent("kits",
                 "asesino",
+                "destructor",
                 "paladín",
                 "arquero",
                 "barbaro",
@@ -213,10 +221,10 @@ public final class HGKits extends JavaPlugin {
                     List<String> items = config.getOrDefault("items", Arrays.asList("No items"));
                     List<String> effects = config.getOrDefault("effects", Arrays.asList("No effects"));
                     List<String> lores = config.getOrDefault("lore", Arrays.asList("No lore"));
-
+                    int cost = config.getOrDefault("cost", 0);
                     lores.replaceAll(s -> ChatColor.GRAY + s + ChatColor.RESET);
 
-                    Kit kit = new Kit(name, items, effects, lores);
+                    Kit kit = new Kit(name, cost, items, effects, lores);
                     kitManager.addKit(name, kit);
                 }
             }
@@ -802,28 +810,12 @@ public final class HGKits extends JavaPlugin {
         }
     }
 
-    public List<Player> getPlayers() {
-        return players;
-    }
-
     public boolean isCountdownRunning() {
         return isCountdownRunning;
     }
 
-    public Map<UUID, Long> getCooldownsMedusa() {
-        return cooldownsMedusa;
-    }
-
-    public Set<Player> getFrozenPlayers() {
-        return frozenPlayers;
-    }
-
     public void removeAllFrozenPlayers() {
         frozenPlayers.clear();
-    }
-
-    public TranslateManager getTranslateManager() {
-        return translateManager;
     }
 
     public static HGKits getInstance() {

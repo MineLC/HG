@@ -40,7 +40,7 @@ public class AsyncPlayerChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         Kit kit = kitManager.getKitByPlayer(player);
-        String kitName = (kit != null && kit.getName() != null) ? kit.getName() : "Default";
+        String kitName = (kit != null && kit.name() != null) ? kit.name() : "Default";
         User user = DatabaseManager.getDatabase().getCached(player.getUniqueId());
         if (user == null) {
             return;

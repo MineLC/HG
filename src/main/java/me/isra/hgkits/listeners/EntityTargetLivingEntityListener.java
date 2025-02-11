@@ -33,7 +33,7 @@ public class EntityTargetLivingEntityListener implements Listener {
                     return;
                 }
 
-                if (kit.getName().equals("Enderman") || kit.getName().equals("Domabestias") || kit.getName().equals("Domabestiaspro")) {
+                if (kit.name().equals("Enderman") || kit.name().equals("Domabestias") || kit.name().equals("Domabestiaspro")) {
                     if (!attackManager.hasPlayerAttacked(player)) {
                         event.setCancelled(true);
                     }
