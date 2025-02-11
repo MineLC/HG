@@ -14,9 +14,8 @@ public class MenuListener implements Listener {
             return;
         }
         if(e.getClickedInventory().getHolder() == null) return;
-        if(e.getClickedInventory().getHolder() instanceof Menu){
+        if(e.getClickedInventory().getHolder() instanceof Menu menu){
             e.setCancelled(true);
-            Menu menu = (Menu) e.getClickedInventory().getHolder();
             for (MenuButton button : menu.getButtons()) {
                 if(e.getSlot() == button.getSlot()) button.getAction().accept(e.getClick());
             }

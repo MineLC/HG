@@ -17,6 +17,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public class EntityDamageByEntityListener implements Listener {
@@ -35,14 +36,87 @@ public class EntityDamageByEntityListener implements Listener {
         this.projectileHitListener = projectileHitListener;
     }
 
+
+    private void handleFreezePlayers(Player player) {
+        if (plugin.getAbilitiesCooldown().containsKey(player.getUniqueId())) {
+            long timeSinceLastUse = (System.currentTimeMillis()
+                    - plugin.getAbilitiesCooldown().get(player.getUniqueId()));
+            if (timeSinceLastUse < 30000) {
+                player.sendMessage(
+                        org.bukkit.ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-cooldown")
+                                .replace("%seconds%", String.valueOf((30000 - timeSinceLastUse) / 1000))));
+                return;
+            }
+        }
+
+        plugin.getAbilitiesCooldown().put(player.getUniqueId(), System.currentTimeMillis());
+        if (player.getInventory().getItemInHand().getAmount() > 0) {
+            player.getInventory().getItemInHand().setAmount(player.getInventory().getItemInHand().getAmount() - 1);
+        }
+
+        Location playerLocation = player.getLocation();
+        for (Player nearbyPlayer : plugin.getPlayers()) {
+            if (nearbyPlayer.equals(player))
+                continue; // Ignorar al jugador que usa el item
+            if (nearbyPlayer.getLocation().distance(playerLocation) <= 25) {
+                plugin.getFrozenPlayers().add(nearbyPlayer);
+                nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 255));
+                nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 0));
+                nearbyPlayer.sendMessage(
+                        org.bukkit.ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-frozen")));
+                nearbyPlayer.playSound(nearbyPlayer.getLocation(), Sound.AMBIENCE_CAVE, 1.0F, 1.0F);
+                player.playSound(playerLocation, Sound.AMBIENCE_CAVE, 1.0F, 1.0F);
+            }
+        }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player p : plugin.getFrozenPlayers()) {
+                    p.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',
+                            translateManager.getMessage("medusa-unfrozen")));
+                }
+                plugin.removeAllFrozenPlayers();
+            }
+        }.runTaskLater(plugin, 100);
+    }
+
     @EventHandler
     public void onEntityDamagedByEntity(EntityDamageByEntityEvent event) {
         Entity damagedEntity = event.getEntity();
         Entity damagerEntity = event.getDamager();
 
+        if(damagerEntity instanceof Snowball snowball && damagedEntity instanceof Player victim){
+            if(snowball.getShooter() instanceof Player shooter) {
+                Kit attackerKit = kitManager.getKitByPlayer(shooter);
+                if(attackerKit.name().equals("Cambiador")){
+
+                    if (plugin.getAbilitiesCooldown().containsKey(shooter.getUniqueId())) {
+                        long timeSinceLastUse = (System.currentTimeMillis()
+                                - plugin.getAbilitiesCooldown().get(shooter.getUniqueId()));
+                        if (timeSinceLastUse < 10000) {
+                            shooter.sendMessage(
+                                    org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cEspera &4"+ (10000 - timeSinceLastUse) / 1000 +"&cpara volver a usar la habilidad nuevamente."));
+                            return;
+                        }
+                    }
+
+                    plugin.getAbilitiesCooldown().put(shooter.getUniqueId(), System.currentTimeMillis());
+
+                    Location sl = shooter.getLocation();
+                    Location vl = victim.getLocation();
+                    event.setCancelled(true);
+                    victim.teleport(sl);
+                    shooter.teleport(vl);
+
+                    shooter.sendMessage(ChatColor.YELLOW+"Intercambiaste posiciones con "+ ChatColor.GOLD+victim.getName()+ChatColor.YELLOW+".");
+                    victim.sendMessage(ChatColor.YELLOW+"Intercambiaste posiciones con "+ ChatColor.GOLD+shooter.getName()+ChatColor.YELLOW+".");
+                }
+            }
+        }
+
         // Cuando un jugador daña a un Monster (mob)
-        if (damagedEntity instanceof Monster && damagerEntity instanceof Player) {
-            Player attacker = (Player) damagerEntity;
+        if (damagedEntity instanceof Monster && damagerEntity instanceof Player attacker) {
             Kit attackerKit = kitManager.getKitByPlayer(attacker);
 
             if (attackerKit != null && (attackerKit.name().equals("Enderman") ||

@@ -1,0 +1,23 @@
+name: Cambiador
+
+cost: 2100
+
+items:
+  - SNOW_BALL:10
+  - STONE_SWORD:1
+  - CHAINMAIL_CHESTPLATE:1
+  - CHAINMAIL_HELMET:1
+  - POTION:2:SPEED
+
+effects:
+  - JUMP:-1:0
+
+lore:
+  - 10x Bola de nieve.
+  - 1x Espada de piedra.
+  - 1x Peto de cota de mallas.
+  - 1x Casco de cota de mallas.
+  - 2x Pocion arrojadiza de velocidad.
+  - ""
+  - "§b* SALTO. (Duración: infinita)"
+  - "§d+ Intercambias posiciones golpeando a un jugador con una bola de nieve."

@@ -96,8 +96,8 @@ public class KitCommand implements CommandExecutor {
             case "Camaleon":
                 item = new ItemStack(Material.APPLE);
                 break;
-            case "Sonic":
-                item = new ItemStack(Material.FEATHER);
+            case "Cambiador":
+                item = new ItemStack(Material.SNOW_BALL);
                 break;
             case "Arquero":
             case "Proarquero":

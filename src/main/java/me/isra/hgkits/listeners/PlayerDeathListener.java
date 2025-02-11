@@ -94,8 +94,8 @@ public class PlayerDeathListener implements Listener {
                     killerData.fame = (int)newFame;
 
                     if(kitManager.getKitByPlayer(killer).name().equals("Paladín")){
-                        killer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 4, 4));
-                        killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 4, 4));
+                        killer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 5*20, 4));
+                        killer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5*20, 4));
                     }
 
                     killer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("your-fame") + killerData.fame));

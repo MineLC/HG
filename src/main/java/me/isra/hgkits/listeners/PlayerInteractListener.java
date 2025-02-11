@@ -189,8 +189,6 @@ public class PlayerInteractListener implements Listener {
 
             } else if (item.getType() == Material.WATCH && "Meduza".equals(kit.name())) {
                 handleFreezePlayers(player);
-            } else if (item.getType() == Material.WATCH && "Cambiador".equals(kit.name())) {
-              handleFreezePlayers(player);
             }else if (item.getType() == Material.FIREWORK && "Saltamontes".equals(kit.name())) {
                 event.setCancelled(true);
                 handleFireworkJump(player);
@@ -204,6 +202,7 @@ public class PlayerInteractListener implements Listener {
             }
         }
     }
+
 
     private boolean isHealingKit(String kitName) {
         return "Curandero".equals(kitName) || "Orco".equals(kitName) || "Canibal".equals(kitName)
