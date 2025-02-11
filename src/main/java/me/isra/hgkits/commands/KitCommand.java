@@ -206,6 +206,9 @@ public class KitCommand implements CommandExecutor {
             case "Flash":
                 item = new ItemStack(Material.REDSTONE_TORCH_ON);
                 break;
+            case "Vikingo":
+                item = new ItemStack(Material.IRON_AXE);
+                break;
             case "Thor":
                 item = new ItemStack(Material.DIAMOND_AXE);
                 break;
@@ -227,6 +230,7 @@ public class KitCommand implements CommandExecutor {
 
             List<String> lore = new ArrayList<>();
             if(kit.cost() > 0 && !user.purchasedKits.contains(kitName)){
+                lore.add(" ");
                 lore.add(ChatColor.GRAY+"Costo: "+ChatColor.YELLOW+"$"+kit.cost()+" LCoins");
                 lore.add(" ");
             }

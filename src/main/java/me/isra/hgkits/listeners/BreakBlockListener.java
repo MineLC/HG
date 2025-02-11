@@ -7,6 +7,7 @@ import me.isra.hgkits.managers.KitManager;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,6 +28,8 @@ public class BreakBlockListener implements Listener {
         if (HGKits.GAMESTATE == GameState.PREGAME) {
             event.setCancelled(true);
         } else {
+            Block block = event.getBlock();
+
             Player player = event.getPlayer();
             Kit kit = kitManager.getKitByPlayer(player);
 
@@ -34,8 +37,15 @@ public class BreakBlockListener implements Listener {
                 return;
             }
 
+            if(kit.name().equals("Encantador")) {
+                if (    block.getType() == Material.DIRT ||
+                        block.getType() == Material.LEAVES ||
+                        block.getType() == Material.LEAVES_2) {
+                    event.setExpToDrop(10);
+                }
+            }
+
             if (kit.name().equals("Barbaro")) {
-                Block block = event.getBlock();
                 if (block.getType() == Material.LOG) {
                     destroyTree(block);
                 }

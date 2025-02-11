@@ -10,13 +10,16 @@ import me.isra.hgkits.tops.TopManager;
 import me.isra.hgkits.translate.TranslateManager;
 
 import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 public class PlayerDeathListener implements Listener {
     private final HGKits plugin;
@@ -99,7 +102,23 @@ public class PlayerDeathListener implements Listener {
                     }
 
                     killer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("your-fame") + killerData.fame));
-                
+
+                    if(kitManager.getKitByPlayer(killer).name().equals("Vikingo")){
+                        ItemStack axe = getBetterAxe(killer);
+                        if(axe != null){
+                            if(getAxeTypeByLevel(getAxeLevel(axe)+1) == null){
+                                if(axe.getEnchantments().containsKey(Enchantment.DAMAGE_ALL)){
+                                    int level = axe.getEnchantments().get(Enchantment.DAMAGE_ALL);
+                                    axe.addEnchantment(Enchantment.DAMAGE_ALL, level+1);
+                                }else{
+                                    axe.addEnchantment(Enchantment.DAMAGE_ALL, 1);
+                                }
+                                axe.setType(getAxeTypeByLevel(getAxeLevel(axe)+1));
+                                killer.sendMessage(ChatColor.YELLOW+""+ChatColor.BOLD+"¡Has evolucionado tu hacha!");
+                            }
+                        }
+                    }
+
                     TopManager.calculateKills(killerData);
                     TopManager.calculateKdr(killerData);
                 }
@@ -115,5 +134,50 @@ public class PlayerDeathListener implements Listener {
             TopManager.calculateDeaths(victim);
             TopManager.calculateKdr(victim);
         }
+    }
+
+    @Nullable
+    private ItemStack getBetterAxe(Player player) {
+        ItemStack item = null;
+        for (ItemStack is : player.getInventory().getContents()) {
+            if(is != null) {
+                if (isAxe(is.getType())){
+                    if(item == null){
+                        item = is;
+                        continue;
+                    }
+                    if(getAxeLevel(is) >= getAxeLevel(item)){
+                        item = is;
+                    }
+                }
+            }
+        }
+        return item;
+    }
+
+    private int getAxeLevel(ItemStack ie){
+        return switch (ie.getType()){
+            case STONE_AXE -> 1;
+            case IRON_AXE -> 2;
+            case GOLD_AXE -> 3;
+            case DIAMOND_AXE -> 4;
+            default -> 0;
+        };
+    }
+
+    @Nullable
+    private Material getAxeTypeByLevel(int i){
+        if(i > 4) return null;
+        return switch (i){
+            case 1 -> Material.STONE_AXE;
+            case 2 -> Material.IRON_AXE;
+            case 3 -> Material.GOLD_AXE;
+            case 4 -> Material.DIAMOND_AXE;
+            default -> Material.WOOD_AXE;
+        };
+    }
+
+    private boolean isAxe(Material type) {
+        return type == Material.DIAMOND_AXE || type == Material.GOLD_AXE || type == Material.IRON_AXE || type == Material.STONE_AXE || type == Material.WOOD_AXE;
     }
 }
