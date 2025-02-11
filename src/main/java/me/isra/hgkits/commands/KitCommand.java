@@ -197,8 +197,14 @@ public class KitCommand implements CommandExecutor {
             case "Spiderman":
                 item = new ItemStack(Material.STRING);
                 break;
+            case "Ultimátum":
+                item = new ItemStack(Material.GLASS);
+                break;
             case "Headshooter":
                 item = new ItemStack(Material.BOW);
+                break;
+            case "Gusano":
+                item = new ItemStack(Material.DIRT);
                 break;
             case "Elite":
                 item = new ItemStack(Material.SKULL_ITEM);

@@ -1,0 +1,18 @@
+name: Ultimátum
+
+cost: 3500
+
+items:
+  - GOLD_AXE:1
+  - GLASS:32
+  - STICK:1
+  - POTION:3:INCREASE_DAMAGE
+
+lore:
+  - 1x Hacha de oro.
+  - 1x Palo.
+  - 32x Cristal.
+  - 3x Pocion arrojadiza de fuerza.
+  - "§d+ Genera una jaula de cristal al golpear un jugador"
+  - "§d   con un palo y se romperá cuando solo quede un solo "
+  - "§d   jugador dentro de ella."

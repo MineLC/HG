@@ -1,9 +1,11 @@
 package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.data.BlockBackup;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.managers.KitManager;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -31,6 +33,17 @@ public class BreakBlockListener implements Listener {
             Block block = event.getBlock();
 
             Player player = event.getPlayer();
+
+            EntityDamageByEntityListener.jaulas.forEach((pj, jaula) -> {
+                for (BlockBackup oldBlock : jaula.getOldBlocks()) {
+                    if(oldBlock.getBlock().equals(block)){
+                        event.setCancelled(true);
+                        player.sendMessage(ChatColor.RED+"Solo cuando haya un solo jugador en la jaula, desaparecerá.");
+                        return;
+                    }
+                }
+            });
+
             Kit kit = kitManager.getKitByPlayer(player);
 
             if (kit == null) {

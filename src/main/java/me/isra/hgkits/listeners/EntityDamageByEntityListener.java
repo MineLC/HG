@@ -1,6 +1,7 @@
 package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.data.Jaula;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.managers.KitManager;
@@ -20,13 +21,16 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class EntityDamageByEntityListener implements Listener {
     private final HGKits plugin;
     private final KitManager kitManager;
     private final PlayerAttackManager attackManager;
     private final TranslateManager translateManager;
     private final ProjectileHitListener projectileHitListener;
-
+    public static final Map<Player, Jaula> jaulas = new HashMap<>();
     public EntityDamageByEntityListener(HGKits plugin, KitManager kitManager, PlayerAttackManager attackManager,
             TranslateManager translateManager, ProjectileHitListener projectileHitListener) {
         this.plugin = plugin;
@@ -34,51 +38,6 @@ public class EntityDamageByEntityListener implements Listener {
         this.attackManager = attackManager;
         this.translateManager = translateManager;
         this.projectileHitListener = projectileHitListener;
-    }
-
-
-    private void handleFreezePlayers(Player player) {
-        if (plugin.getAbilitiesCooldown().containsKey(player.getUniqueId())) {
-            long timeSinceLastUse = (System.currentTimeMillis()
-                    - plugin.getAbilitiesCooldown().get(player.getUniqueId()));
-            if (timeSinceLastUse < 30000) {
-                player.sendMessage(
-                        org.bukkit.ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-cooldown")
-                                .replace("%seconds%", String.valueOf((30000 - timeSinceLastUse) / 1000))));
-                return;
-            }
-        }
-
-        plugin.getAbilitiesCooldown().put(player.getUniqueId(), System.currentTimeMillis());
-        if (player.getInventory().getItemInHand().getAmount() > 0) {
-            player.getInventory().getItemInHand().setAmount(player.getInventory().getItemInHand().getAmount() - 1);
-        }
-
-        Location playerLocation = player.getLocation();
-        for (Player nearbyPlayer : plugin.getPlayers()) {
-            if (nearbyPlayer.equals(player))
-                continue; // Ignorar al jugador que usa el item
-            if (nearbyPlayer.getLocation().distance(playerLocation) <= 25) {
-                plugin.getFrozenPlayers().add(nearbyPlayer);
-                nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 255));
-                nearbyPlayer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 100, 0));
-                nearbyPlayer.sendMessage(
-                        org.bukkit.ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("medusa-frozen")));
-                nearbyPlayer.playSound(nearbyPlayer.getLocation(), Sound.AMBIENCE_CAVE, 1.0F, 1.0F);
-                player.playSound(playerLocation, Sound.AMBIENCE_CAVE, 1.0F, 1.0F);
-            }
-        }
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Player p : plugin.getFrozenPlayers()) {
-                    p.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&',
-                            translateManager.getMessage("medusa-unfrozen")));
-                }
-                plugin.removeAllFrozenPlayers();
-            }
-        }.runTaskLater(plugin, 100);
     }
 
     @EventHandler
@@ -151,11 +110,9 @@ public class EntityDamageByEntityListener implements Listener {
         }
 
         // Cuando un jugador es dañado por una Flecha
-        if (damagedEntity instanceof Player && damagerEntity instanceof Arrow && HGKits.GAMESTATE == GameState.GAME) {
-            Arrow arrow = (Arrow) damagerEntity;
-            if (arrow.getShooter() instanceof Player) {
+        if (damagedEntity instanceof Player && damagerEntity instanceof Arrow arrow && HGKits.GAMESTATE == GameState.GAME) {
+            if (arrow.getShooter() instanceof Player attacker) {
                 Player victim = (Player) damagedEntity;
-                Player attacker = (Player) arrow.getShooter();
                 Kit attackerKit = kitManager.getKitByPlayer(attacker);
                 if (attackerKit != null) {
                     applyKitEffects(event, attacker, attackerKit, victim);
@@ -176,6 +133,9 @@ public class EntityDamageByEntityListener implements Listener {
                 break;
             case "Medusa":
                 freezeVictimIfFrozen(victim, attacker);
+                break;
+            case "Ultimátum":
+                if(attacker.getItemInHand() != null && attacker.getItemInHand().getType() == Material.STICK) jaula(victim, attacker);
                 break;
             case "Troll":
                 if (randomChance()){
@@ -215,6 +175,39 @@ public class EntityDamageByEntityListener implements Listener {
                 applyHeadshooterEffect(attacker, victim);
                 break;
         }
+    }
+
+    private void jaula(Player victim, Player attacker) {
+        if (plugin.getAbilitiesCooldown().containsKey(attacker.getUniqueId())) {
+            long timeSinceLastUse = (System.currentTimeMillis()
+                    - plugin.getAbilitiesCooldown().get(attacker.getUniqueId()));
+            if (timeSinceLastUse < 60000) {
+                attacker.sendMessage(
+                        org.bukkit.ChatColor.translateAlternateColorCodes('&', "&cEspera &4"+ (10000 - timeSinceLastUse) / 1000 +"&cpara volver a usar la habilidad nuevamente."));
+                return;
+            }
+        }
+
+
+        if(jaulas.containsKey(attacker)){
+            attacker.sendMessage(ChatColor.RED+"¡Ya creaste una jaula!");
+            return;
+        }
+
+        plugin.getAbilitiesCooldown().put(attacker.getUniqueId(), System.currentTimeMillis());
+
+        Jaula jaula = new Jaula(attacker);
+        jaula.build();
+
+        jaulas.put(attacker, jaula);
+
+        victim.teleport(jaula.getCenter());
+        attacker.teleport(jaula.getCenter());
+
+        attacker.playSound(attacker.getLocation(), Sound.ENDERDRAGON_WINGS, 1f, 1f);
+        victim.playSound(attacker.getLocation(), Sound.ENDERDRAGON_WINGS, 1f, 1f);
+        attacker.sendMessage(ChatColor.YELLOW+"Has creado una jaula "+ ChatColor.RED+"¡Solo uno puede quedar en pie!");
+        victim.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+attacker.getName()+" "+ChatColor.YELLOW+"ha creado una jaula "+ ChatColor.RED+"¡Solo uno puede quedar en pie!");
     }
 
     private void applyDestructorEffect(Player victim, Player attacker) {

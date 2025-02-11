@@ -176,6 +176,13 @@ public class PlayerInteractListener implements Listener {
         if (kit == null || item == null)
             return;
 
+        if(action == Action.LEFT_CLICK_BLOCK && kit.name().equals("Gusano")){
+            if(item.getType() == Material.AIR && event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.DIRT){
+                event.getClickedBlock().breakNaturally();
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2 * 20, 2));
+                player.setHealth(Math.min(player.getHealth() + 2, player.getMaxHealth()));
+            }
+        }
         if (action == Action.RIGHT_CLICK_BLOCK || action == Action.RIGHT_CLICK_AIR) {
             if (item.getType() == Material.MUSHROOM_SOUP && isHealingKit(kit.name())) {
                 healOrFeedPlayer(player, item);

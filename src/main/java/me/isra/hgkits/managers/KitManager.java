@@ -150,7 +150,8 @@ public class KitManager {
             case "HARM":
                 meta.addCustomEffect(new PotionEffect(PotionEffectType.getByName(potionName), 1, 1), true);
                 break;
-
+            case "INCREASE_DAMAGE":
+                meta.addCustomEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * 90, 0), true);
             default:
                 break;
         }

@@ -1,6 +1,7 @@
 package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.data.BlockBackup;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
@@ -36,6 +37,12 @@ public class PlayerDeathListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (HGKits.GAMESTATE == GameState.GAME) {
             Player player = event.getEntity();
+
+            EntityDamageByEntityListener.jaulas.forEach((pj, jaula) -> {
+                if(jaula.getPlayersInJaula(5) <= 1){
+                    jaula.restoreBlocks();
+                }
+            });
 
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.AMBIENCE_THUNDER, 10000f, 2f);

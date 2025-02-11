@@ -1,0 +1,18 @@
+name: Gusano
+
+cost: 4000
+
+items:
+  - STONE_SWORD:1
+  - CHAINMAIL_HELMET:1
+  - DIRT:24
+
+effects:
+  - INCREASE_DAMAGE:60:0
+
+lore:
+  - 1x Espada de piedra.
+  - 1x Casco de cota de mallas.
+  - 24x Tierra.
+  - "§d+ Comer tierra instantáneamente con la mano."
+  - "§d+ Recuperar salud y Velocidad III al comer tierra."
