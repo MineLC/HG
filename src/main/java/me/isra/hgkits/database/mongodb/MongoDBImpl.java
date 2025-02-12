@@ -37,7 +37,8 @@ final class MongoDBImpl implements Database {
         FAME = "fame",
         ALL_KITS = "all_kits",
         WINS = "wins",
-        PURCHASED_KITS = "purchased_kits";;
+        PURCHASED_KITS = "purchased_kits",
+        SELECTED_KIT = "selected_kit";
 
     MongoDBImpl(MongoClient client, MongoCollection<Document> collection, ExecutorService service) {
         this.client = client;
@@ -76,6 +77,7 @@ final class MongoDBImpl implements Database {
         setIf(document, FAME, user.fame, 0);
         setIf(document, WINS, user.wins, 0);
         setIf(document, ALL_KITS, user.allKits ? 1 : 0, 0);
+        document.put(SELECTED_KIT, user.selectedKit);
         document.put(PURCHASED_KITS, user.purchasedKits != null ? user.purchasedKits : new ArrayList<>());
 
         return document;
@@ -89,6 +91,7 @@ final class MongoDBImpl implements Database {
         setIf(update, FAME, data.fame, 0);
         setIf(update, WINS, data.wins, 0);
         setIf(update, ALL_KITS, data.allKits ? 1 : 0, 0);
+        update.add(Updates.set(SELECTED_KIT, data.selectedKit));
 
         if (data.purchasedKits != null) {
             update.add(Updates.set(PURCHASED_KITS, data.purchasedKits));
@@ -127,8 +130,8 @@ final class MongoDBImpl implements Database {
             user.fame = getOrDefault(document.getInteger(FAME), 0);
             user.wins = getOrDefault(document.getInteger(WINS), 0);
             user.allKits = getOrDefault(document.getInteger(ALL_KITS), 0) == 1;
-
-            user.purchasedKits = getOrDefault(document.getList(PURCHASED_KITS, String.class), new ArrayList<>());
+            user.selectedKit = getOrDefault(document.getString(SELECTED_KIT), "Default");
+            user.purchasedKits = getOrDefault(new ArrayList<>(document.getList(PURCHASED_KITS, String.class)), new ArrayList<>());
 
             cache.put(uuid, user);
         });

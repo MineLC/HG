@@ -4,6 +4,7 @@ import me.isra.hgkits.HGKits;
 import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.enums.GameState;
+import me.isra.hgkits.managers.KitManager;
 import me.isra.hgkits.translate.TranslateManager;
 
 import java.util.Collection;
@@ -23,10 +24,11 @@ public class PlayerJoinListener implements Listener {
 
     private final HGKits plugin;
     private final TranslateManager translateManager;
-
-    public PlayerJoinListener(HGKits plugin) {
+    private final KitManager kitManager;
+    public PlayerJoinListener(HGKits plugin, KitManager kitManager) {
         this.plugin = plugin;
         this.translateManager = plugin.getTranslateManager();
+        this.kitManager = kitManager;
     }
 
     @EventHandler

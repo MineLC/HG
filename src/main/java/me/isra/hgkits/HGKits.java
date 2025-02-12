@@ -273,7 +273,7 @@ public final class HGKits extends JavaPlugin {
                 new PlayerDropItemListener(),
                 new PlayerRespawnListener(this),
                 new PlayerDeathListener(this, kitManager),
-                new PlayerJoinListener(this),
+                new PlayerJoinListener(this, kitManager),
                 new PlayerQuitListener(this),
                 new PlayerMoveListener(this),
 
@@ -365,7 +365,7 @@ public final class HGKits extends JavaPlugin {
             final World world = Bukkit.getWorld(worldName);
             world.setAutoSave(false);
             world.getWorldBorder().setCenter(world.getSpawnLocation());
-            world.getWorldBorder().setSize(400);
+            world.getWorldBorder().setSize(500);
             world.getWorldBorder().setWarningDistance(10);
             world.getWorldBorder().setDamageAmount(1);
             world.setPVP(true);
@@ -499,18 +499,18 @@ public final class HGKits extends JavaPlugin {
             borderTask.runTaskTimer(this, 60 * 20, 60 * 20);
         }
     }
-
     private void scheduleBorderRemoving(WorldBorder border) {
         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&',
                 getTranslateManager().getMessage("reducing-border")));
         for (Player onlinePlayer : Bukkit.getOnlinePlayers())
             onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.ENDERDRAGON_HIT, 1f, 1f);
 
-        if(!removingBorderRunning){
+        if (!removingBorderRunning) {
             removingBorderRunning = true;
             removingBorderTask = new BukkitRunnable() {
-                final double decrement = 50.0 / 60.0;
                 final double minSize = 50.0;
+                final double initialSize = border.getSize();
+                final double decrement = (initialSize - minSize) / 60.0; // Ajuste basado en 60 ejecuciones
 
                 @Override
                 public void run() {
@@ -519,6 +519,7 @@ public final class HGKits extends JavaPlugin {
                     if (currentSize <= minSize) {
                         border.setSize(minSize);
                         cancel();
+                        removingBorderRunning = false;
                         return;
                     }
 

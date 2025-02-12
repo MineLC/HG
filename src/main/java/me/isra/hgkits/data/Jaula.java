@@ -71,6 +71,8 @@ public class Jaula {
         int count = 0;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if(!HGKits.getInstance().getPlayers().contains(player)) continue;
+
             Location loc = player.getLocation();
             double distance = loc.distance(center);
 

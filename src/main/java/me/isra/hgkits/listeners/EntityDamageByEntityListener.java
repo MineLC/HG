@@ -135,7 +135,7 @@ public class EntityDamageByEntityListener implements Listener {
                 freezeVictimIfFrozen(victim, attacker);
                 break;
             case "Ultimátum":
-                if(attacker.getItemInHand() != null && attacker.getItemInHand().getType() == Material.STICK) jaula(victim, attacker);
+                if(attacker.getItemInHand() != null && attacker.getItemInHand().getType() == Material.GLASS) jaula(victim, attacker);
                 break;
             case "Troll":
                 if (randomChance()){

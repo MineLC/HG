@@ -73,7 +73,9 @@ public class InventoryClickListener implements Listener {
                             translateManager.getMessage("kit-selected").replace("%kitName%", selectedKit.name())));
                     player.playSound(player.getLocation(), Sound.ORB_PICKUP, 1F, 1F);
                     kitManager.addSelectedKit(player, selectedKit);
+                    user.selectedKit = kitName;
                     player.closeInventory();
+                    DatabaseManager.getDatabase().save(player);
                 }else if(event.isRightClick()){
                     if(selectedKit.cost() > 0){
                         if(!user.purchasedKits.contains(kitName)){

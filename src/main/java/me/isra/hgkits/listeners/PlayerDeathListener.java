@@ -38,12 +38,6 @@ public class PlayerDeathListener implements Listener {
         if (HGKits.GAMESTATE == GameState.GAME) {
             Player player = event.getEntity();
 
-            EntityDamageByEntityListener.jaulas.forEach((pj, jaula) -> {
-                if(jaula.getPlayersInJaula(5) <= 1){
-                    jaula.restoreBlocks();
-                }
-            });
-
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 onlinePlayer.playSound(onlinePlayer.getLocation(), Sound.AMBIENCE_THUNDER, 10000f, 2f);
             }
@@ -110,21 +104,27 @@ public class PlayerDeathListener implements Listener {
 
                     killer.sendMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("your-fame") + killerData.fame));
 
-                    if(kitManager.getKitByPlayer(killer).name().equals("Vikingo")){
+                    if (kitManager.getKitByPlayer(killer).name().equals("Vikingo")) {
                         ItemStack axe = getBetterAxe(killer);
-                        if(axe != null){
-                            if(getAxeTypeByLevel(getAxeLevel(axe)+1) == null){
-                                if(axe.getEnchantments().containsKey(Enchantment.DAMAGE_ALL)){
-                                    int level = axe.getEnchantments().get(Enchantment.DAMAGE_ALL);
-                                    axe.addEnchantment(Enchantment.DAMAGE_ALL, level+1);
-                                }else{
-                                    axe.addEnchantment(Enchantment.DAMAGE_ALL, 1);
-                                }
-                                axe.setType(getAxeTypeByLevel(getAxeLevel(axe)+1));
-                                killer.sendMessage(ChatColor.YELLOW+""+ChatColor.BOLD+"¡Has evolucionado tu hacha!");
+                        if (axe != null) {
+                            int currentLevel = getAxeLevel(axe);
+                            int nextLevel = currentLevel + 1;
+                            Material nextAxeType = getAxeTypeByLevel(nextLevel);
+
+                            if (nextAxeType != null) {
+                                axe.setType(nextAxeType);
+                                killer.sendMessage(ChatColor.YELLOW + "" + ChatColor.BOLD + "¡Has evolucionado tu hacha!");
+                            }
+
+                            if (axe.getEnchantments().containsKey(Enchantment.DAMAGE_ALL)) {
+                                int level = axe.getEnchantmentLevel(Enchantment.DAMAGE_ALL);
+                                axe.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, level + 1);
+                            } else {
+                                axe.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
                             }
                         }
                     }
+
 
                     TopManager.calculateKills(killerData);
                     TopManager.calculateKdr(killerData);
@@ -134,6 +134,12 @@ public class PlayerDeathListener implements Listener {
             if (plugin.getPlayers().remove(player) && plugin.getPlayers().size() > 1) {
                 Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("players-left").replace("%count%", String.valueOf(plugin.getPlayers().size()))));
             }
+
+            EntityDamageByEntityListener.jaulas.forEach((pj, jaula) -> {
+                if(jaula.getPlayersInJaula(5) <= 1){
+                    jaula.restoreBlocks();
+                }
+            });
 
             player.setGameMode(GameMode.SPECTATOR);
             final User victim = DatabaseManager.getDatabase().getCached(player.getUniqueId());

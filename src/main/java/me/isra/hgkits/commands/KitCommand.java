@@ -56,6 +56,7 @@ public class KitCommand implements CommandExecutor {
     private static final KitInventory HOLDER = new KitInventory();
 
     private void openKitMenu(Player player) {
+        kitManager.addSelectedKit(player, kitManager.getKit(DatabaseManager.getDatabase().getCached(player.getUniqueId()).selectedKit));
         Inventory menu = Bukkit.createInventory(HOLDER, 54, ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("kit-menu-title")));
 
         Map<String, Kit> kits = kitManager.getAllKits();
