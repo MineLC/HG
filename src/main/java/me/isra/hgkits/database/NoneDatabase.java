@@ -23,13 +23,6 @@ public class NoneDatabase implements Database {
         cache.put(player.getUniqueId(), user);
 
     }
-
-    @Override
-    public void load(UUID id, String name) {
-        final User user = new User(id, name);
-        cache.put(id, user);
-    }
-
     @Override
     public User getCached(UUID uuid) {
         return cache.get(uuid);
