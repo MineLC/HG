@@ -2,6 +2,7 @@ package me.isra.hgkits.listeners;
 
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.data.BlockBackup;
+import me.isra.hgkits.data.Jaula;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
@@ -21,6 +22,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class PlayerDeathListener implements Listener {
     private final HGKits plugin;
@@ -135,11 +140,16 @@ public class PlayerDeathListener implements Listener {
                 Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', translateManager.getMessage("players-left").replace("%count%", String.valueOf(plugin.getPlayers().size()))));
             }
 
-            EntityDamageByEntityListener.jaulas.forEach((pj, jaula) -> {
-                if(jaula.getPlayersInJaula(5) <= 1){
-                    jaula.restoreBlocks();
+            List<Player> toRemove = new ArrayList<>();
+
+            for (Map.Entry<Player, Jaula> playerJaulaEntry : EntityDamageByEntityListener.jaulas.entrySet()) {
+                if (playerJaulaEntry.getValue().getPlayersInJaula(5) <= 1) {
+                    playerJaulaEntry.getValue().restoreBlocks();
+                    toRemove.add(playerJaulaEntry.getKey());
                 }
-            });
+            }
+
+            toRemove.forEach(EntityDamageByEntityListener.jaulas::remove);
 
             player.setGameMode(GameMode.SPECTATOR);
             final User victim = DatabaseManager.getDatabase().getCached(player.getUniqueId());

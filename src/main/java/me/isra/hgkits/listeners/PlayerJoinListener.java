@@ -13,7 +13,9 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -24,19 +26,18 @@ public class PlayerJoinListener implements Listener {
 
     private final HGKits plugin;
     private final TranslateManager translateManager;
-    private final KitManager kitManager;
-    public PlayerJoinListener(HGKits plugin, KitManager kitManager) {
+
+    public PlayerJoinListener(HGKits plugin) {
         this.plugin = plugin;
         this.translateManager = plugin.getTranslateManager();
-        this.kitManager = kitManager;
     }
+
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.playSound(p.getLocation(), Sound.ENDERDRAGON_WINGS, 1.0f, 1.0f);
         }
-
         Player player = event.getPlayer();
         DatabaseManager.getDatabase().load(player);
 

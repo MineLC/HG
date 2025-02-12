@@ -273,7 +273,7 @@ public final class HGKits extends JavaPlugin {
                 new PlayerDropItemListener(),
                 new PlayerRespawnListener(this),
                 new PlayerDeathListener(this, kitManager),
-                new PlayerJoinListener(this, kitManager),
+                new PlayerJoinListener(this),
                 new PlayerQuitListener(this),
                 new PlayerMoveListener(this),
 
@@ -458,8 +458,10 @@ public final class HGKits extends JavaPlugin {
                 p.setAllowFlight(false);
                 players.add(p);
                 User user = DatabaseManager.getDatabase().getCached(p.getUniqueId());
-                user.allKits = false;
-
+                if(user.allKits) {
+                    user.allKits = false;
+                    DatabaseManager.getDatabase().save(p);
+                }
                 if (kitManager.getSelectedKits().stream().noneMatch(entry -> entry.getKey().equals(p))) {
                     removeInventory(p);
                     kitManager.addSelectedKit(p, kitManager.getKit("Default"));
@@ -542,7 +544,7 @@ public final class HGKits extends JavaPlugin {
                 public void run() {
                     if(ct == 1){
                         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&',
-                                getTranslateManager().getMessage("fb-countdown").replace("%minutes%", String.valueOf(ct))));
+                                getTranslateManager().getMessage("fb-countdown")));
                     }
                     if(ct <= 0){
                         for (Player onlinePlayer : Bukkit.getOnlinePlayers())

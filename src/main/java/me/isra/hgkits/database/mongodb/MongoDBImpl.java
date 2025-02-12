@@ -20,7 +20,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import me.isra.hgkits.database.Database;
-import me.isra.hgkits.database.SupplyOperation;
 import me.isra.hgkits.database.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,9 +63,7 @@ final class MongoDBImpl implements Database {
         }
 
         final Bson query = createUpdateQuery(data);
-        if (query != null) {
-            service.submit(() -> collection.updateOne(Filters.eq("_id", player.getUniqueId()), query));
-        }
+        service.submit(() -> collection.updateOne(Filters.eq("_id", player.getUniqueId()), query));
     }
     private Document getNew(final User user) {
         final Document document = new Document();
@@ -76,7 +73,7 @@ final class MongoDBImpl implements Database {
         setIf(document, DEATHS, user.deaths, 0);
         setIf(document, FAME, user.fame, 0);
         setIf(document, WINS, user.wins, 0);
-        setIf(document, ALL_KITS, user.allKits ? 1 : 0, 0);
+        document.put(ALL_KITS, user.allKits);
         document.put(SELECTED_KIT, user.selectedKit);
         document.put(PURCHASED_KITS, user.purchasedKits != null ? user.purchasedKits : new ArrayList<>());
 
@@ -90,14 +87,14 @@ final class MongoDBImpl implements Database {
         setIf(update, DEATHS, data.deaths, 0);
         setIf(update, FAME, data.fame, 0);
         setIf(update, WINS, data.wins, 0);
-        setIf(update, ALL_KITS, data.allKits ? 1 : 0, 0);
+        update.add(Updates.set(ALL_KITS, data.allKits));
         update.add(Updates.set(SELECTED_KIT, data.selectedKit));
 
         if (data.purchasedKits != null) {
             update.add(Updates.set(PURCHASED_KITS, data.purchasedKits));
         }
 
-        return update.isEmpty() ? null : Updates.combine(update);
+        return Updates.combine(update);
     }
 
     private void setIf(final Document document, final String key, final int value, final int compare) {
@@ -122,14 +119,39 @@ final class MongoDBImpl implements Database {
                 cache.put(uuid, user);
                 return;
             }
-        
+
             final User user = new User(uuid, player.getName());
 
             user.kills = getOrDefault(document.getInteger(KILLS), 0);
             user.deaths = getOrDefault(document.getInteger(DEATHS), 0);
             user.fame = getOrDefault(document.getInteger(FAME), 0);
             user.wins = getOrDefault(document.getInteger(WINS), 0);
-            user.allKits = getOrDefault(document.getInteger(ALL_KITS), 0) == 1;
+            user.allKits = document.getBoolean(ALL_KITS);
+            user.selectedKit = getOrDefault(document.getString(SELECTED_KIT), "Default");
+            List<String> purchased = document.getList(PURCHASED_KITS, String.class);
+            user.purchasedKits = getOrDefault(purchased, new ArrayList<>());
+
+            cache.put(uuid, user);
+        });
+    }
+
+    @Override
+    public void load(final UUID uuid, String name) {
+        service.submit(() -> {
+            final Document document = collection.find(Filters.eq("_id", uuid)).limit(1).first();
+            if (document == null) {
+                final User user = new User.New(uuid, name);
+                cache.put(uuid, user);
+                return;
+            }
+
+            final User user = new User(uuid, name);
+
+            user.kills = getOrDefault(document.getInteger(KILLS), 0);
+            user.deaths = getOrDefault(document.getInteger(DEATHS), 0);
+            user.fame = getOrDefault(document.getInteger(FAME), 0);
+            user.wins = getOrDefault(document.getInteger(WINS), 0);
+            user.allKits = document.getBoolean(ALL_KITS);
             user.selectedKit = getOrDefault(document.getString(SELECTED_KIT), "Default");
             user.purchasedKits = getOrDefault(new ArrayList<>(document.getList(PURCHASED_KITS, String.class)), new ArrayList<>());
 
