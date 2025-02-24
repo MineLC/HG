@@ -99,6 +99,8 @@ public class PlayerDeathListener implements Listener {
                     }
 
                     killerData.kills++;
+                    HGKits.getKills().put(killerData.name, HGKits.getKills().getOrDefault(killerData.name, 0)+1);
+
                     final double newFame = killerData.getKDR() * killerData.kills + (killerData.wins == 0 ? 0 : (double)(killerData.wins)/2D);
                     killerData.fame = (int)newFame;
 

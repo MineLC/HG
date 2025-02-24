@@ -49,15 +49,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -106,6 +98,8 @@ public final class HGKits extends JavaPlugin {
     private TranslateManager translateManager;
     @Getter
     private FinalBattleManager finalBattleManager;
+    @Getter
+    private final static Map<String, Integer> kills = new HashMap<>();
 
 
     @Override
@@ -689,7 +683,18 @@ public final class HGKits extends JavaPlugin {
                             uwinner.wins++;
                             DatabaseManager.getDatabase().saveAll(Bukkit.getOnlinePlayers());
 
+                            for(Player player : Bukkit.getOnlinePlayers()) {
+                                player.sendMessage(ChatColor.GREEN+""+ChatColor.BOLD+ChatColor.STRIKETHROUGH+"----------------------------------");
+                                player.sendMessage(ChatColor.GOLD+""+ChatColor.BOLD+"                      HG");
+                                player.sendMessage("");
+                                player.sendMessage(ChatColor.YELLOW+"                   Ganador: "+ChatColor.GRAY+winner.getName());
+                                player.sendMessage("");
+                                sayKillersWinners(player);
+                                player.sendMessage("");
+                                player.sendMessage(ChatColor.GREEN+""+ChatColor.BOLD+ChatColor.STRIKETHROUGH+"----------------------------------");
+                            }
                         }
+
                     }
 
                     // Si hay un ganador, lanzamos fuegos artificiales
@@ -725,6 +730,36 @@ public final class HGKits extends JavaPlugin {
 
             checkWinnerCountdownTask.runTaskTimer(this, 0, 20);
         }
+    }
+
+    private void sayKillersWinners(Player player) {
+        Map<String, Integer> asesinatos = sortByValue(kills);
+
+        int st = 0;
+        ChatColor color = ChatColor.YELLOW;
+        for(Map.Entry<String, Integer> pk : asesinatos.entrySet()) {
+            st++;
+            if(st == 2) {
+                color = ChatColor.GOLD;
+            } else if(st == 3) {
+                color = ChatColor.RED;
+            }
+            player.sendMessage(color+"             Asesino #"+st+": "+ChatColor.GRAY+pk.getKey() + " - "+pk.getValue());
+            if(st >= 3) {
+                break;
+            }
+        }
+    }
+
+    private Map<String, Integer> sortByValue(Map<String, Integer> unsortedMap) {
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(unsortedMap.entrySet());
+
+        list.sort((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()));
+
+        Map<String, Integer> sortedMap = new LinkedHashMap<>();
+        list.forEach(entry -> sortedMap.put(entry.getKey(), entry.getValue()));
+
+        return sortedMap;
     }
 
     private void endGame() {
