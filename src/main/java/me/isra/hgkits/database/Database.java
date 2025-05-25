@@ -12,6 +12,7 @@ public interface Database {
     void saveAll(final Collection<? extends Player> players);
     void load(final Player player);
     User getCached(UUID uuid);
+
     Map<UUID, User> getUsers();
     void close();
 }

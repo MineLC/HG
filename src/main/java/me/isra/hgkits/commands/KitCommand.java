@@ -1,6 +1,7 @@
 package me.isra.hgkits.commands;
 
 import me.isra.hgkits.HGKits;
+import me.isra.hgkits.data.ServerRank;
 import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.enums.GameState;
@@ -230,14 +231,18 @@ public class KitCommand implements CommandExecutor {
                 break;
         }
 
+        Player player = Bukkit.getPlayer(user.uuid);
         meta = item.getItemMeta();
         if (meta != null) {
 
-            meta.setDisplayName(((kit.cost() > 0 && !user.purchasedKits.contains(kitName) && !user.allKits) ? ChatColor.RED : ChatColor.GREEN) + kitName + ChatColor.RESET);
+            if(kit.rank() != ServerRank.DEFAULT){
+                meta.setDisplayName(((kit.cost() > 0 && !user.purchasedKits.contains(kitName) && !user.allKits && !player.hasPermission(kit.rank().getPermission())) ? ChatColor.RED : ChatColor.GREEN) + kitName + ChatColor.RESET);
+            }else{
+                meta.setDisplayName(((kit.cost() > 0 && !user.purchasedKits.contains(kitName) && !user.allKits) ? ChatColor.RED : ChatColor.GREEN) + kitName + ChatColor.RESET);
+            }
 
             List<String> lore = new ArrayList<>();
             if(kit.cost() > 0 && !user.purchasedKits.contains(kitName)){
-                lore.add(" ");
                 lore.add(ChatColor.GRAY+"Costo: "+ChatColor.YELLOW+"$"+kit.cost()+" LCoins");
                 lore.add(" ");
             }

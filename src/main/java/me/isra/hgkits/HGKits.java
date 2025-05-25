@@ -16,6 +16,7 @@ import lombok.Getter;
 import me.isra.hgkits.commands.*;
 import me.isra.hgkits.config.Config;
 import me.isra.hgkits.config.ConfigManager;
+import me.isra.hgkits.data.ServerRank;
 import me.isra.hgkits.enums.GameState;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.database.DatabaseManager;
@@ -216,9 +217,10 @@ public final class HGKits extends JavaPlugin {
                     List<String> effects = config.getOrDefault("effects", Arrays.asList("No effects"));
                     List<String> lores = config.getOrDefault("lore", Arrays.asList("No lore"));
                     int cost = config.getOrDefault("cost", 0);
+                    ServerRank rank = ServerRank.valueOf(config.getOrDefault("rank", "DEFAULT"));
                     lores.replaceAll(s -> ChatColor.GRAY + s + ChatColor.RESET);
 
-                    Kit kit = new Kit(name, cost, items, effects, lores);
+                    Kit kit = new Kit(name, cost, items, effects, lores, rank);
                     kitManager.addKit(name, kit);
                 }
             }
@@ -353,7 +355,7 @@ public final class HGKits extends JavaPlugin {
             } while (worldName.equals("world"));
             
             final SlimePropertyMap properties = new SlimePropertyMap();
-            properties.setString(SlimeProperties.DIFFICULTY, "normal");
+            properties.setString(SlimeProperties.DIFFICULTY, "hard");
             final SlimeWorld slimeWorld = plugin.loadWorld(fileLoader, worldName, false, properties);
             plugin.generateWorld(slimeWorld);
             final World world = Bukkit.getWorld(worldName);
@@ -367,7 +369,7 @@ public final class HGKits extends JavaPlugin {
             currentWorld = world;
             world.setGameRuleValue("keepInventory", "false");
         } catch (UnknownWorldException | CorruptedWorldException | NewerFormatException | WorldInUseException | IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

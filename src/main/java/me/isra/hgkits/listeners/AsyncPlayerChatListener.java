@@ -45,7 +45,6 @@ public class AsyncPlayerChatListener implements Listener {
         if (user == null) {
             return;
         }
-        String fameRank = FameManager.getFameRank(user.fame);
         String rankColor = FameManager.getRankColor(user.fame);
         String rank = FameManager.getRankByFame(user.fame);
         String message = event.getMessage();

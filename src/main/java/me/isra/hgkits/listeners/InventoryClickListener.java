@@ -3,6 +3,7 @@ package me.isra.hgkits.listeners;
 import me.isra.hgkits.HGKits;
 import me.isra.hgkits.data.Kit;
 import me.isra.hgkits.data.KitInventory;
+import me.isra.hgkits.data.ServerRank;
 import me.isra.hgkits.database.DatabaseManager;
 import me.isra.hgkits.database.User;
 import me.isra.hgkits.enums.GameState;
@@ -62,11 +63,20 @@ public class InventoryClickListener implements Listener {
                 final Player player = (Player) event.getWhoClicked();
 
                 if(event.isLeftClick()) {
-                    if (((selectedKit.cost() > 0 && !user.purchasedKits.contains(kitName)) && !user.allKits)) {
-                        player.sendMessage(
-                                ChatColor.RED + "No tienes permiso para seleccionar el kit " + selectedKit.name() + ".");
-                        player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1F, 1F);
-                        return;
+                    if(selectedKit.rank() == ServerRank.DEFAULT){
+                        if (((selectedKit.cost() > 0 && !user.purchasedKits.contains(kitName)) && !user.allKits)) {
+                            player.sendMessage(
+                                    ChatColor.RED + "No tienes permiso para seleccionar el kit " + selectedKit.name() + ".");
+                            player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1F, 1F);
+                            return;
+                        }
+                    }else{
+                        if (((selectedKit.cost() > 0 && !user.purchasedKits.contains(kitName)) && !user.allKits && !player.hasPermission(selectedKit.rank().getPermission()))) {
+                            player.sendMessage(
+                                    ChatColor.RED + "No tienes permiso para seleccionar el kit " + selectedKit.name() + ".");
+                            player.playSound(player.getLocation(), Sound.VILLAGER_NO, 1F, 1F);
+                            return;
+                        }
                     }
 
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&',
